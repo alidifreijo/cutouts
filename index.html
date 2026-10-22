@@ -622,6 +622,7 @@ function drawRulers(mat){
 
 // ---------- the mess: a big table you drag around ----------
 const board=$("#board"), mesa=$("#mesa");
+const MESS_SEED=Math.floor(Math.random()*1e6);
 let wallStyle=store.get("recortes-style")==="strict"?"strict":"messy";
 const note=document.createElement("div");note.className="note";
 note.innerHTML=`<h2>Cut. Glue. No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="hint">${coarse?"<b>Swipe</b> to wander. <b>Tap</b> to stare.":"<b>Drag</b> to wander. <b>Click</b> to stare."} Then go <b>make a mess</b>.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
@@ -647,17 +648,29 @@ function layout(){
   // the endless wall's look, on a table with edges: at least ~1.5 screens each way,
   // bigger when there are more collages. Columns run one shuffled sequence at
   // golden-ratio offsets, so repeats (if any) never sit side by side.
-  // each collage once, in a stable random order; at least a screen wide,
-  // and the table grows (more columns and rows) as collages are added
-  const colW=cw+gap,cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
-  const tops=[...Array(cols)].map((_,c)=>{let y=pad+hs("col"+c,11)*cw*.45;if(pad+c*colW<noteBox.x1)y=Math.max(y,noteBox.y1);return y});
-  ALL.slice().sort((a,b)=>(b.w.pending?1:0)-(a.w.pending?1:0)||hs(a.w.id,1)-hs(b.w.id,1)).forEach(({w,i})=>{
-    const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops)),id=w.id;
-    const p={w,i,key:id,x:pad+c*colW,y:tops[c],r:0,s:1,z:1};
-    // same jitter as the endless wall: ±5°, small nudges, normal gaps
-    if(messy){p.x+=(hs(id,2)-.5)*cw*.08;p.y+=(hs(id,3)-.5)*cw*.06;p.r=(hs(id,4)-.5)*10;p.z=1+Math.floor(hs(id,6)*50)}
-    place.push(p);tops[c]+=h+lbl+gap;
-  });
+  const colW=cw+gap,order=ALL.slice().sort((a,b)=>(b.w.pending?1:0)-(a.w.pending?1:0)||hs(a.w.id,1)-hs(b.w.id,1));
+  if(!messy){
+    // strict: each collage once, in columns; at least a screen wide, growing as collages are added
+    const cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
+    const tops=[...Array(cols)].map((_,c)=>{let y=pad+hs("col"+c,11)*cw*.45;if(pad+c*colW<noteBox.x1)y=Math.max(y,noteBox.y1);return y});
+    order.forEach(({w,i})=>{const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops));place.push({w,i,key:w.id,x:pad+c*colW,y:tops[c],r:0,s:1,z:1});tops[c]+=h+lbl+gap});
+  }else{
+    // messy: scattered at random (new shuffle every visit), trying hard not to pile up
+    const area=ALL.reduce((a,o)=>a+(cw+gap)*(cw*o.w.h/o.w.w+lbl+gap),0)*1.25+(noteBox.x1*noteBox.y1);
+    const bw=Math.max(W-pad,Math.sqrt(area*(W/H))),bh=Math.max(H-pad,area/bw);
+    const boxes=[noteBox],rnd=(id,k)=>hs(id,k*7919+MESS_SEED);
+    order.forEach(({w,i},n)=>{
+      const h=cw*w.h/w.w,id=w.id;let best=null,bestO=Infinity;
+      for(let t=0;t<40;t++){
+        const x=w.pending&&t===0?noteBox.x1:pad+rnd(id,t*2)*Math.max(1,bw-cw),y=w.pending&&t===0?pad:pad+rnd(id,t*2+1)*Math.max(1,bh-h);
+        const b={x0:x-gap*.4,y0:y-gap*.4,x1:x+cw+gap*.4,y1:y+h+lbl+gap*.4};
+        let o=0;for(const q of boxes){const ix=Math.min(b.x1,q.x1)-Math.max(b.x0,q.x0),iy=Math.min(b.y1,q.y1)-Math.max(b.y0,q.y0);if(ix>0&&iy>0)o+=ix*iy}
+        if(o<bestO){bestO=o;best={x,y,b}}if(o===0)break;
+      }
+      boxes.push(best.b);
+      place.push({w,i,key:id,x:best.x,y:best.y,r:(rnd(id,99)-.5)*10,s:1,z:1+n});
+    });
+  }
   let mx=0,my=0;
   place.forEach(p=>{const b=cardFor(p.w,p.i,p.key);live.add(b);b.style.width=cw+"px";b.style.zIndex=p.z;b.dataset.r=p.r;
     b.style.transform=`translate(${p.x}px,${p.y}px) rotate(${p.r}deg) scale(${p.s})`;
