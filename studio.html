@@ -283,7 +283,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
         <div class="inbox" id="inbox"></div>
         <h2 style="margin-top:28px">On the table<span class="badge" id="live-n" style="background:var(--mat-light)" hidden></span></h2>
         <p class="muted" style="margin-bottom:12px">Changed your mind? Take it down.</p>
-        <div class="inbox" id="live"></div>
+        <div class="inbox" id="onboard"></div>
       </div>
       <div class="side-foot"><span class="muted" style="margin:0;font-size:13px" id="who-email"></span><button class="link" id="signout">Sign out</button></div>
     </aside>
@@ -574,9 +574,9 @@ async function loadLive(){
         ...(b.data||[]).map(r=>({kind:"community",r,img:pub("community",r.image_path),t:r.title||"Untitled mess",who:r.signed?"by "+r.signed:"anonymous"}))]
     .sort((x,y)=>y.r.created_at.localeCompare(x.r.created_at));
   $("#live-n").hidden=!LIVE.length;$("#live-n").textContent=LIVE.length;
-  $("#live").innerHTML=LIVE.map((x,i)=>`<div class="ibx" style="cursor:default"><span class="th"><img src="${x.img}" alt="" loading="lazy"></span><span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="flex:1;min-width:0"><b>${esc(x.t)}</b><small>${esc(x.who)} · ${ago(x.r.created_at)}</small></span><button class="ghost" data-down="${i}" style="padding:5px 12px;font-size:13px">Take down</button></span></div>`).join("")||'<p class="muted">Nothing yet.</p>';
+  $("#onboard").innerHTML=LIVE.map((x,i)=>`<div class="ibx" style="cursor:default"><span class="th"><img src="${x.img}" alt="" loading="lazy"></span><span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="flex:1;min-width:0"><b>${esc(x.t)}</b><small>${esc(x.who)} · ${ago(x.r.created_at)}</small></span><button class="ghost" data-down="${i}" style="padding:5px 12px;font-size:13px">Take down</button></span></div>`).join("")||'<p class="muted">Nothing yet.</p>';
 }
-$("#live").addEventListener("click",async e=>{
+$("#onboard").addEventListener("click",async e=>{
   const b=e.target.closest("[data-down]");if(!b)return;const x=LIVE[+b.dataset.down];
   if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Sure?";b.style.borderColor="#e5584d";setTimeout(()=>{if(b.isConnected){b.dataset.sure="";b.textContent="Take down";b.style.borderColor=""}},3000);return}
   b.disabled=true;
@@ -732,11 +732,19 @@ const VZ={"w-sheet":1,"w-cut":1};
 function viewDims(w){return w==="w-sheet"?[srcImg.width,srcImg.height,$("#src-cv")]:[trimmed.width,trimmed.height,$("#cut-cv")]}
 function sizeView(w){
   const el=$("#"+w);if(!el||!el.clientWidth)return;const [iw,ih,cv]=viewDims(w);if(!iw)return;
-  const base=Math.min((el.clientWidth-80)/iw,(el.clientHeight-80)/ih,8),k=base*VZ[w];
+  const pile=w==="w-cut"&&typeof scraps!=="undefined"?Math.max(0,...scraps.filter(s=>!s.moved).map(s=>s.canvas.width)):0;
+  let base=Math.min((el.clientWidth-80)/iw,(el.clientHeight-80)/ih,8),k=base*VZ[w],side="";
+  if(pile){ // first try the free mat left of the page (under the big step text it's empty)
+    const on=$(".wstep.on"),txt=on?Math.max(0,...[...on.children].filter(c=>c.offsetParent).map(c=>{const r=document.createRange();r.selectNodeContents(c);return r.getBoundingClientRect().right})):0;
+    const room=el.getBoundingClientRect().left-txt+(el.clientWidth-iw*k)/2;
+    if(pile*k+50<=room)side="left";
+    else{base=Math.min((el.clientWidth-80-60)/(iw+pile),(el.clientHeight-80)/ih,8);k=base*VZ[w];side="right"}
+  }
   cv.style.width=iw*k+"px";cv.style.height=ih*k+"px";
+  if(w==="w-cut"){const st=el.querySelector(".stage");st.style.transform=side==="right"?`translateX(${-(pile*k+60)/2}px)`:"";PILESIDE=side}
   const zv=$("#zoom .zv");if(zv)zv.textContent=Math.round(VZ[w]*100)+"%";
 }
-const afterZoom=w=>w==="w-sheet"?placeCorners():drawCut();
+const afterZoom=w=>{if(w==="w-sheet")placeCorners();else{drawCut();layoutPile(false)}};
 function zoomView(w,nz,cx,cy){
   const el=$("#"+w),r=el.getBoundingClientRect();nz=Math.max(.5,Math.min(8,nz));
   if(cx==null){cx=r.left+r.width/2;cy=r.top+r.height/2}
@@ -771,7 +779,7 @@ function drawCut(){
   const cv=$("#cut-cv");if(cv.width!==trimmed.width||cv.height!==trimmed.height||!cv.style.width){cv.width=trimmed.width;cv.height=trimmed.height}sizeView("w-cut");const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(trimmed,0,0);
   const svg=$("#cut-svg");svg.setAttribute("viewBox",`0 0 ${cv.width} ${cv.height}`);
   svg.innerHTML=scraps.map(s=>s.poly?`<polygon points="${s.poly.map(p=>p.join(",")).join(" ")}" fill="rgba(212,236,220,.18)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`
-    :`<rect x="${s.box[0]}" y="${s.box[1]}" width="${s.box[2]}" height="${s.box[3]}" fill="rgba(212,236,220,.14)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`).join("")+`<polyline id="live" fill="none" stroke="#f0cd4a" stroke-width="${2/cvScale()}"/>`;
+    :`<rect x="${s.box[0]}" y="${s.box[1]}" width="${s.box[2]}" height="${s.box[3]}" fill="rgba(212,236,220,.14)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`).join("")+`<polyline id="live-halo" fill="none" stroke="rgba(10,30,20,.75)" stroke-width="${5/cvScale()}" stroke-linejoin="round" stroke-linecap="round"/><polyline id="live" fill="none" stroke="#f0cd4a" stroke-width="${2.5/cvScale()}" stroke-dasharray="${7/cvScale()} ${4/cvScale()}" stroke-linejoin="round" stroke-linecap="round"/>`;
   renderScraps();
 }
 function cvScale(){const cv=$("#cut-cv");return cv.clientWidth/cv.width||1}
@@ -781,8 +789,8 @@ function cvScale(){const cv=$("#cut-cv");return cv.clientWidth/cv.width||1}
   st.addEventListener("pointermove",e=>{if(!pts)return;const p=pt(e);
     if(tool!=="rect"){const l=pts[pts.length-1];if(Math.hypot(p[0]-l[0],p[1]-l[1])>3/cvScale())pts.push(p)}
     else pts=[start,[p[0],start[1]],p,[start[0],p[1]]];
-    const live=$("#live");if(live)live.setAttribute("points",(tool!=="rect"?pts:[...pts,start]).map(q=>q.join(",")).join(" "))});
-  const end=()=>{if(!pts)return;let p=pts;pts=null;const live=$("#live");if(live)live.setAttribute("points","");
+    const live=$("#live"),halo=$("#live-halo"),P=(tool!=="rect"?pts:[...pts,start]).map(q=>q.join(",")).join(" ");if(halo)halo.setAttribute("points",P);if(live)live.setAttribute("points",P);if(false)live.setAttribute("points",(tool!=="rect"?pts:[...pts,start]).map(q=>q.join(",")).join(" "))});
+  const end=()=>{if(!pts)return;let p=pts;pts=null;const live=$("#live");if(live)live.setAttribute("points","");const halo=$("#live-halo");if(halo)halo.setAttribute("points","");
     const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),bw=Math.max(...xs)-Math.min(...xs),bh=Math.max(...ys)-Math.min(...ys);
     if(bw<12||bh<12||(tool!=="rect"&&p.length<6))return;
     if(tool==="smart")return snap(p);
@@ -833,28 +841,30 @@ $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");i
 function syncLoose(){
   const L=$("#loose");if(!L)return;const live=new Set(scraps.map(s=>s.id));
   [...L.children].forEach(el=>{if(!live.has(+el.dataset.id))el.remove()});
-  const W=$("#v-wiz").getBoundingClientRect(),cv=$("#cut-cv").getBoundingClientRect(),fr=$("#frame").getBoundingClientRect(),k=cvScale();
-  const on=$(".wstep.on"),railB=on?on.getBoundingClientRect().bottom:W.top+200,rail=$("#rail").getBoundingClientRect();
+  const W=$("#v-wiz").getBoundingClientRect(),k0=cvScale(),cv0=$("#cut-cv").getBoundingClientRect(),fresh=[];
   scraps.forEach(s=>{
     let el=L.querySelector(`[data-id="${s.id}"]`);const src=s.canvas.toDataURL();
-    if(!el){
-      el=document.createElement("img");el.dataset.id=s.id;el.alt=s.name||"scrap";el.src=src;L.appendChild(el);bindLoose(el,s);
-      const n=L.children.length-1,w=Math.min(Math.max(48,s.canvas.width*k),130),h=s.canvas.height*w/s.canvas.width;el.style.width=w+"px";
-      const x0=cv.left-W.left+s.box[0]*k,y0=cv.top-W.top+s.box[1]*k;
-      // land on free mat: beside the page if there's room, else under the step text
-      const right=fr.right-cv.right,below=W.bottom-railB-70;let tx,ty;
-      if(right>w+40){tx=cv.right-W.left+(right-w)/2+((n%2)*30-15);ty=40+(n*113)%Math.max(60,W.height-h-80)}
-      else{tx=Math.max(rail.left-W.left+20,cv.left-W.left-w-24-(n%2)*18);ty=60+(n*(h*.55+24))%Math.max(80,W.height-h-140)}
-      s.pos={x:x0,y:y0,r:0};place(el,s);
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.add("fly");s.pos={x:tx,y:ty,r:(Math.random()-.5)*16};place(el,s);setTimeout(()=>el.classList.remove("fly"),700)}));
-    }else if(el.getAttribute("src")!==src)el.src=src;
+    if(!el){el=document.createElement("img");el.dataset.id=s.id;el.alt=s.name||"scrap";el.src=src;L.appendChild(el);bindLoose(el,s);
+      s.pos={x:cv0.left-W.left+s.box[0]*k0,y:cv0.top-W.top+s.box[1]*k0,r:0};el.style.width=s.canvas.width*k0+"px";place(el,s);fresh.push(s)}
+    else if(el.getAttribute("src")!==src)el.src=src;
   });
+  if(fresh.length){requestAnimationFrame(()=>{drawCut();layoutPile(true)})}else layoutPile(false);
+}
+// unmoved bits stack in a column beside the page, at the page's scale
+let PILESIDE="";function layoutPile(anim){
+  const L=$("#loose");if(!L||step!=="cut")return;
+  const W=$("#v-wiz").getBoundingClientRect(),cv=$("#cut-cv").getBoundingClientRect(),k=cvScale();
+  const pile=scraps.filter(s=>!s.moved),pw=Math.max(0,...pile.map(s=>s.canvas.width*k)),x=PILESIDE==="left"?cv.left-W.left-40-pw:cv.right-W.left+40;let y=cv.top-W.top;
+  const total=pile.reduce((a,s)=>a+s.canvas.height*k,0),step2=pile.length>1?Math.min(1,(cv.height-(pile.length?pile[pile.length-1].canvas.height*k:0))/Math.max(1,total-(pile[pile.length-1]||{canvas:{height:0}}).canvas.height*k)):1;
+  scraps.forEach(s=>{const el=L.querySelector(`[data-id="${s.id}"]`);if(!el)return;el.style.width=s.canvas.width*k+"px";if(s.moved)return;
+    const h=s.canvas.height*k;s.pos={x:x+(PILESIDE==="left"?pw-s.canvas.width*k:0)+((s.id*13)%14-7),y,r:s.pos&&anim?((s.id*37)%11-5):(s.pos?s.pos.r:0)};y+=h*step2+8;
+    if(anim){el.classList.add("fly");setTimeout(()=>el.classList.remove("fly"),700)}place(el,s)});
 }
 let LZ=1;function place(el,s){el.style.transform=`translate(${s.pos.x}px,${s.pos.y}px) rotate(${s.pos.r}deg)`}
 function bindLoose(el,s){
   let st=null;
   el.addEventListener("pointerdown",e=>{e.stopPropagation();e.preventDefault();el.setPointerCapture(e.pointerId);el.classList.add("drag");el.style.zIndex=++LZ;st={x:e.clientX,y:e.clientY,px:s.pos.x,py:s.pos.y,r:s.pos.r,lx:e.clientX}});
-  el.addEventListener("pointermove",e=>{if(!st)return;const vx=e.clientX-st.lx;st.lx=e.clientX;s.pos.x=st.px+e.clientX-st.x;s.pos.y=st.py+e.clientY-st.y;s.pos.r=st.r+Math.max(-12,Math.min(12,vx*.6));place(el,s)});
+  el.addEventListener("pointermove",e=>{if(!st)return;s.moved=true;const vx=e.clientX-st.lx;st.lx=e.clientX;s.pos.x=st.px+e.clientX-st.x;s.pos.y=st.py+e.clientY-st.y;s.pos.r=st.r+Math.max(-12,Math.min(12,vx*.6));place(el,s)});
   const end=()=>{if(!st)return;st=null;el.classList.remove("drag");el.classList.add("fly");s.pos.r=Math.max(-10,Math.min(10,s.pos.r));place(el,s);setTimeout(()=>el.classList.remove("fly"),700)};
   el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
 }
