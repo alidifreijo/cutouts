@@ -1776,7 +1776,7 @@ async function boot(){
   load();
   setWallStyle(wallStyle);
   const goAdd=initAdd();
-  setMode(goAdd?"add":"mesa");
+  setMode(goAdd?"add":document.body.classList.contains("paper")?"pega":"mesa");
   applyView();
 }
 addEventListener("resize",()=>{clearTimeout(window.__rz);window.__rz=setTimeout(()=>{
