@@ -989,7 +989,7 @@ let addHash="";
 function ownerSignedIn(){try{const t=JSON.parse(localStorage.getItem(AUTH_KEY));const u=t&&(t.user||(t.currentSession&&t.currentSession.user));return !!(u&&String(u.email).toLowerCase()===OWNER)}catch(e){return false}}
 function openAdd(){
   const pane=$("#addpane");drawRulers(pane);
-  if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed"+addHash;addHash="";pane.appendChild(f)}
+  if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed&v="+Date.now()+addHash;addHash="";pane.appendChild(f)}
 }
 function initAdd(){
   const q=new URLSearchParams(location.search),h=location.hash;
