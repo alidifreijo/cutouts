@@ -184,7 +184,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 /* ---------- make a mess ---------- */
 #studio{--dock-w:320px;--dock:var(--dock-w)}
 #studio.dock-closed{--dock:0px}
-.rail{position:absolute;z-index:20;left:max(34px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);
+.rail{position:absolute;z-index:20;left:max(34px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);transition:left .25s ease;
   display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 8px;width:var(--rail-w);
   background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow)}
 .rail .ib{border-color:transparent}
@@ -224,7 +224,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .ghost{position:fixed;left:0;top:0;z-index:300;pointer-events:none;filter:drop-shadow(0 16px 18px rgba(0,0,0,.45));transition:opacity .15s;will-change:transform}
 .ghost.out{opacity:.4}
 
-.zoom{position:absolute;z-index:20;left:calc(max(34px,env(safe-area-inset-left,0px)) + var(--rail-w) + 12px);bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow)}
+.zoom{position:absolute;z-index:20;left:max(40px,calc(env(safe-area-inset-left,0px) + 40px));bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow)}
 .zoom .ib{width:30px;height:30px;border:0}
 .zoom .ib svg.i{width:16px;height:16px}
 .zoom-v{min-width:46px;text-align:center;font-size:11.5px;color:var(--mat-ink);font-variant-numeric:tabular-nums;border:0;background:transparent;padding:4px 2px}
@@ -1129,8 +1129,8 @@ document.querySelectorAll(".pop [data-close]").forEach(b=>b.onclick=()=>openPop(
 
 // dock: open/close, resize, panes
 const isDockClosed=()=>studio.classList.contains("dock-closed");
-function setDock(open){studio.classList.toggle("dock-closed",!open);$("#dock-tab").setAttribute("aria-expanded",open);store.set("recortes-dock",open)}
-function setDockW(w){w=Math.round(Math.max(260,Math.min(Math.min(680,studio.clientWidth-240),w)));studio.style.setProperty("--dock-w",w+"px");return w}
+function setDock(open){setTimeout(()=>{sizeSheet()},260);studio.classList.toggle("dock-closed",!open);$("#dock-tab").setAttribute("aria-expanded",open);store.set("recortes-dock",open)}
+function setDockW(w){w=Math.round(Math.max(260,Math.min(Math.min(680,studio.clientWidth-240),w)));studio.style.setProperty("--dock-w",w+"px");if(sheet.clientWidth)sizeSheet();return w}
 $("#dock-tab").onclick=()=>setDock(isDockClosed());
 (()=>{const g=$("#dock-grip");let on=false;
   g.addEventListener("pointerdown",e=>{on=true;g.setPointerCapture(e.pointerId);g.classList.add("on");dock.style.transition="none"});
@@ -1218,7 +1218,7 @@ function scrapButton(s){
 // zoom + pan: the sheet stays put unless you zoom in
 let zoom=1,panX=0,panY=0;
 function region(){
-  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:34+52+12,right=m?0:320,bottom=m?64:0;
+  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:34,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+52+30,bottom=m?64:0;
   return {cx:left+(W-left-right)/2,cy:(H-bottom)/2,w:W-left-right,h:H-bottom};
 }
 function clampPan(){
@@ -1226,7 +1226,15 @@ function clampPan(){
   const r=region(),mx=Math.max(0,(sheet.offsetWidth*zoom-r.w)/2+80),my=Math.max(0,(sheet.offsetHeight*zoom-r.h)/2+80);
   panX=Math.max(-mx,Math.min(mx,panX));panY=Math.max(-my,Math.min(my,panY));
 }
-function applyView(){clampPan();canvasEl.style.transform=`translate(-50%,-50%) translate(${panX}px,${panY}px) scale(${zoom})`;$("#z-val").textContent=Math.round(zoom*100)+"%";gboxSoon()}
+// the tool rail rides along the sheet's right edge
+function placeRail(){
+  const rail=$("#rail");if(mobile()){rail.style.left="";rail.style.top="";return}
+  const r=region(),half=sheet.offsetWidth*zoom/2,dockW=isDockClosed()?0:dock.offsetWidth;
+  const x=Math.min(r.cx+panX+half+16,studio.clientWidth-dockW-rail.offsetWidth-(isDockClosed()?52:36));
+  const y=Math.max(rail.offsetHeight/2+40,Math.min(studio.clientHeight-rail.offsetHeight/2-16,r.cy+panY));
+  rail.style.left=x+"px";rail.style.top=y+"px";
+}
+function applyView(){clampPan();canvasEl.style.transform=`translate(-50%,-50%) translate(${panX}px,${panY}px) scale(${zoom})`;placeRail();$("#z-val").textContent=Math.round(zoom*100)+"%";gboxSoon()}
 function zoomAt(nz,cx,cy){
   nz=Math.max(.5,Math.min(5,nz));
   const sr=studio.getBoundingClientRect(),r=region(),C={x:sr.left+r.cx,y:sr.top+r.cy};
@@ -1237,6 +1245,7 @@ function zoomBy(f){const sr=studio.getBoundingClientRect(),r=region();zoomAt(zoo
 function fitZoom(){zoom=1;panX=0;panY=0;applyView()}
 $("#z-in").onclick=()=>zoomBy(1.25);$("#z-out").onclick=()=>zoomBy(1/1.25);$("#z-fit").onclick=fitZoom;$("#z-val").onclick=fitZoom;
 desk.addEventListener("wheel",e=>{
+  if(!e.ctrlKey&&!e.metaKey&&!(zoom>1.001&&Math.abs(e.deltaX)>Math.abs(e.deltaY))){e.preventDefault();zoomAt(zoom*Math.exp(-e.deltaY*.0015),e.clientX,e.clientY);return}
   e.preventDefault();
   if(e.ctrlKey||e.metaKey)zoomAt(zoom*Math.exp(-e.deltaY*.01),e.clientX,e.clientY);
   else if(zoom>1.001){panX-=e.deltaX;panY-=e.deltaY;applyView()}
