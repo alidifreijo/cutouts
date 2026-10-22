@@ -7,7 +7,7 @@
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Mynerve&family=Rock+Salt&display=swap">
 <style>
 /* Layout: same cutting mat as the public site. Top bar with a 4-step stepper; work area left, side panel right. Single dark look on purpose. */
 :root{
@@ -15,7 +15,7 @@
   --mat-line:rgba(214,238,222,.13);--mat-line-strong:rgba(214,238,222,.30);--mat-ink:rgba(214,238,222,.62);
   --mint:#d4ecdc;--danger:#e58c84;
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
-  --f:"DM Mono",ui-monospace,Menlo,monospace;--cm:38px;
+  --f:"Mynerve","Comic Sans MS",cursive;--f-head:"Rock Salt",cursive;--cm:38px;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -112,6 +112,11 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
   .side{border-left:0;border-top:1px solid var(--mat-line-strong);max-height:46dvh}
   .steps li:not([aria-current="step"]){display:none}
 }
+
+body{font-size:14.5px}
+h2,.logo,.drop b{font-family:var(--f-head);font-weight:400;line-height:1.5}
+.steps li,.btn,.ghost,.chip{font-size:13.5px}
+.muted{font-size:13px}
 </style>
 </head>
 <body>
