@@ -429,6 +429,8 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 }
 
 
+.nb-n{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#e24b4a;color:#fff;font-size:12px;margin-left:4px;font-family:var(--f-mono)}
+.nb-n[hidden]{display:none}
 /* the way out of make a mess: next to the scrap pile, travels with it */
 .pin-float{position:absolute;z-index:23;bottom:16px;right:16px;width:calc(var(--dock-w,320px) - 32px);justify-content:center;padding:13px 14px!important;font-size:16px!important;letter-spacing:-.02em;white-space:nowrap;box-shadow:var(--shadow-up);transition:width .25s ease,transform .15s,background .15s}
 #studio .dock-scroll{padding-bottom:84px}
@@ -442,6 +444,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 
 /* ---------- phones: make a mess ---------- */
 .mbar,.mtrash,.m-only,.dock-x,.em-m{display:none}
+#studio .empty-msg{align-content:center;gap:4px}
 @media (max-width:720px){
   .em-d{display:none}.em-m{display:inline}
   body:has(#studio:not([hidden])) #tools-pega{display:none}
@@ -993,9 +996,12 @@ function initAdd(){
   if(/access_token|error_description/.test(h)){addHash=h;history.replaceState(null,"",location.pathname+"?studio")}
   return q.has("studio")||!!addHash;
 }
+function setPendingBadge(n){let b=$("#tab-add .nb-n");if(!b){b=document.createElement("span");b.className="nb-n";$("#tab-add").appendChild(b)}b.textContent=n;b.hidden=!n}
 addEventListener("message",e=>{
   if(e.origin!==location.origin||!e.data)return;
-  if(e.data.type==="cutouts:published")loadRemote().then(()=>toast("Pinned to the table."));
+  if(e.data.type==="cutouts:mess")setMode("pega");
+  if(String(e.data.type).startsWith("cutouts:pending:"))setPendingBadge(+e.data.type.split(":")[2]||0);
+  if(e.data.type==="cutouts:published")loadRemote();
   if(e.data.type==="cutouts:show")setMode("mesa");
   if(e.data.type==="cutouts:signedout"){history.replaceState(null,"",location.pathname);setMode("mesa");const f=$("#addpane iframe");if(f)f.remove()}
 });
@@ -1231,7 +1237,7 @@ function setPane(p){
 $("#seg-scraps").onclick=()=>setPane("scraps");$("#seg-fx").onclick=()=>setPane("fx");
 
 // library: grouped sections + filter menu
-const CLUSTERS=[["people","People"],["nature","Creatures & nature"],["things","Things"],["heads","Headlines"],["words","Words & quotes"]];
+const CLUSTERS=[["people","People"],["faces","Faces"],["bodies","Bodies"],["nature","Creatures"],["plants","Plants"],["food","Food"],["things","Things"],["vehicles","Vehicles"],["places","Places"],["heads","Headlines"],["words","Words & quotes"],["textures","Textures"]];
 const CL={"4472_0":"people","riot-girl":"people","blue-women":"people","two-women":"people","figure":"people","4471_0":"people","manon-girls":"people","eyes":"people",
   "4477_0":"nature","mushrooms":"nature","creatures":"nature","4474_0":"nature","boat":"nature",
   "cap":"things","tshirt":"things","car":"things","jacket":"things","4479_0":"things","4474_1":"things",
@@ -1251,8 +1257,8 @@ function renderFilter(){
   const opts=[["all","All scraps",SCRAPS.length],...CLUSTERS.map(([k,n])=>[k,n,SCRAPS.filter(s=>clusterOf(s.id)===k).length])];
   const cur=opts.find(o=>o[0]===chip);
   $("#lib-bar").innerHTML=ddMenu("filter",`<svg class="i"><use href="#i-filter"/></svg><span>${cur[1]}</span>`,
-    opts.map(([k,n,c],i)=>`<li role="option" id="opt-filter-${i}" data-v="${k}" aria-selected="${k===chip}"><div><b>${n}</b></div><span class="cnt">${c}</span></li>`).join(""),"sm");
-  Object.entries(libEls).forEach(([k,el])=>el.hidden=chip!=="all"&&chip!==k);
+    opts.filter(o=>o[2]||o[0]===chip).map(([k,n,c],i)=>`<li role="option" id="opt-filter-${i}" data-v="${k}" aria-selected="${k===chip}"><div><b>${n}</b></div><span class="cnt">${c}</span></li>`).join(""),"sm");
+  Object.entries(libEls).forEach(([k,el])=>el.hidden=(chip!=="all"&&chip!==k)||!el.querySelector(".scrap"));
 }
 function overDock(x,y){if(isDockClosed())return false;const r=dock.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom}
 function scrapButton(s){
@@ -1855,6 +1861,8 @@ async function ownerClient(){
 }
 async function loadPending(){
   try{const sb=await ownerClient(),{data}=await sb.from("community").select("*").eq("approved",false).order("created_at",{ascending:false});
+    const ps=await sb.from("scraps").select("batch,id").eq("published",false).like("id","v-%");
+    setPendingBadge(new Set([...(data||[]).map(r=>r.batch||r.id),...((ps.data)||[]).map(r=>r.batch||r.id)]).size);
     (data||[]).forEach(r=>{const id="c-"+r.id;if(WORKS.some(w=>w.id===id))return;REMOTE["a/"+id+".webp"]=PUB("community",r.image_path);
       addWork({id,t:r.title||(r.signed?"by "+r.signed:"a visitor's mess"),by:r.title&&r.signed?r.signed:null,desc:r.description,w:r.w,h:r.h,pending:true,row:r})});
   }catch(e){console.error(e)}

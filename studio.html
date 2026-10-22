@@ -9,294 +9,441 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Mynerve&family=Rock+Salt&display=swap">
 <style>
-/* Layout: same cutting mat as the public site. Top bar with a 4-step stepper; work area left, side panel right. Single dark look on purpose. */
 :root{
-  --mat:#2c6a4e;--mat-deep:#235640;--mat-dark:#173d2c;--mat-light:#3b7a5c;--panel:#367458;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
-  --mat-line:rgba(214,238,222,.13);--mat-line-strong:rgba(214,238,222,.30);--mat-ink:rgba(214,238,222,.62);
-  --mint:#d4ecdc;--danger:#e58c84;
+  --mat:#2c6a4e;--mat-deep:#235640;--mat-dark:#173d2c;--mat-light:#3b7a5c;--panel:#367458;
+  --mat-line:rgba(214,238,222,.13);--mat-line-strong:rgba(214,238,222,.30);--mat-ink:rgba(214,238,222,.7);
+  --mint:#d4ecdc;--danger:#e58c84;--warn:#f0cd4a;--paper:#efe8d8;
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
+  --shadow-up:0 2px 2px rgba(0,0,0,.2),0 22px 36px -10px rgba(0,0,0,.55);
   --f:"DM Mono",ui-monospace,Menlo,monospace;--f-head:"Rock Salt",cursive;--cm:38px;
+  --side:320px;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;overflow:hidden}
-body{background:var(--mat);color:var(--mint);font-family:var(--f);font-size:15px;
+body{background:var(--mat);color:var(--mint);font-family:var(--f);font-size:16px;
   background-image:linear-gradient(var(--mat-line-strong) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line-strong) 1px,transparent 1px),linear-gradient(var(--mat-line) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line) 1px,transparent 1px);
   background-size:calc(var(--cm)*5) calc(var(--cm)*5),calc(var(--cm)*5) calc(var(--cm)*5),var(--cm) var(--cm),var(--cm) var(--cm)}
-button,input,select{font:inherit;color:inherit}
+.embed body{background:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 :focus-visible{outline:1.5px solid var(--mint);outline-offset:3px}
 [hidden]{display:none!important}
-.app{height:100%;height:100dvh;display:grid;grid-template-rows:auto 1fr}
-.bar{display:flex;align-items:center;gap:16px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--mat-deep);border-bottom:1px solid var(--mat-line-strong)}
-.logo{margin:0;font-weight:500;font-size:17px;white-space:nowrap}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block;flex:0 0 auto}
+.app{height:100%;height:100dvh;display:flex;flex-direction:column}
+.embed .app{padding:30px 0 0 34px}
+.bar{display:flex;align-items:center;gap:16px;padding:10px 16px;background:var(--mat-deep);border-bottom:1px solid var(--mat-line-strong)}
+.embed .bar{display:none}
+.logo{margin:0;font-family:var(--f-head);font-weight:400;font-size:19px;white-space:nowrap}
 .logo a{color:inherit;text-decoration:none}
-.logo span{color:var(--mat-ink);font-weight:400}
-.steps{display:flex;gap:2px;background:var(--mat-dark);padding:3px;border-radius:999px;margin-left:8px;padding-left:3px}
-.steps li{list-style:none;padding:6px 20px;border-radius:999px;font-size:14px;color:var(--mat-ink);white-space:nowrap}
-.steps li[aria-current="step"]{background:var(--mat-light);color:var(--mint)}
-.steps li.done{color:var(--mint)}
-.steps{margin-block:0}
-.who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:13.5px;color:var(--mat-ink);white-space:nowrap}
-.btn{border:1px solid var(--mint);background:var(--mint);color:var(--mat-dark);border-radius:999px;padding:8px 24px;font-size:14.5px;font-weight:500}
+.logo span{color:var(--mat-ink)}
+h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;margin:0 0 8px;color:#fff}
+.muted{color:var(--mat-ink);font-size:15px;line-height:1.55;margin:0 0 14px}
+.btn{border:1px solid var(--mint);background:var(--mint);color:var(--mat-dark);border-radius:999px;padding:9px 24px;font-size:16px;font-weight:500;white-space:nowrap}
 .btn:hover{background:#fff;border-color:#fff}
-.btn:disabled{opacity:.4;cursor:default;background:var(--mint)}
-.ghost{border:1px solid var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:8px 20px;font-size:14.5px}
+.btn:disabled{opacity:.45;cursor:default}
+.ghost{border:1px solid var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:9px 20px;font-size:16px;white-space:nowrap}
 .ghost:hover{border-color:var(--mint)}
-.ghost[aria-pressed="true"]{background:var(--mat-light);border-color:var(--mat-light)}
-.link{border:0;background:none;padding:0;color:var(--mat-ink);text-decoration:underline;text-underline-offset:3px;font-size:13.5px}
+.link{border:0;background:none;padding:0;color:var(--mat-ink);text-decoration:underline;text-underline-offset:3px;font-size:14px}
 .link:hover{color:var(--mint)}
-
-.main{display:grid;grid-template-columns:minmax(0,1fr) 320px;min-height:0}
-.work{position:relative;min-width:0;min-height:0;display:grid;place-items:center;padding:24px}
-.work.view{display:flex;overflow:auto;padding:40px;scrollbar-width:thin}
-.work.view>.stage{margin:auto;flex:0 0 auto;max-width:none;max-height:none}
-.work.view.panning,.work.view.space{cursor:grab}
-.work.view.panning{cursor:grabbing}
-.side{background:var(--panel);border-left:1px solid rgba(0,0,0,.18);display:flex;flex-direction:column;min-height:0}
-.side-scroll{flex:1;min-height:0;overflow-y:auto;padding:18px 18px 12px;scrollbar-width:thin}
-.side-foot{padding:14px 18px;border-top:1px solid var(--mat-line);display:flex;gap:8px;justify-content:space-between;align-items:center}
-h2{font-weight:500;font-size:17px;margin:0 0 6px;color:#fff}
-.muted{color:var(--mat-ink);font-size:13.5px;line-height:1.55;margin:0 0 14px}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.field label{font-size:13px;color:var(--mat-ink)}
-.input{width:100%;background:var(--mat);border:1px solid var(--mat-line-strong);border-radius:10px;padding:8px 10px;color:var(--mint);outline:none}
+.input{width:100%;background:var(--mat);border:1px solid var(--mat-line-strong);border-radius:10px;padding:9px 11px;color:var(--mint);outline:none;font-size:15px}
 .input:focus{border-color:var(--mint)}
-.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:14px;color:var(--mat-ink);display:flex;justify-content:space-between}
 .range{width:100%;accent-color:var(--mint)}
 
-/* center card (login / upload) */
-.card{background:var(--panel);border:1px solid var(--mat-line-strong);border-radius:16px;padding:26px;width:min(420px,100%);box-shadow:var(--shadow)}
-.drop{display:grid;place-items:center;gap:8px;text-align:center;border:2px dashed var(--mat-line-strong);border-radius:16px;padding:48px 24px;width:min(560px,100%);background:rgba(23,61,44,.6);cursor:pointer;transition:border-color .15s,background .15s}
-.drop:hover,.drop.over{border-color:var(--mint);background:rgba(23,61,44,.85)}
-.drop b{font-weight:500;font-size:17px;color:#fff}
-.drop input{display:none}
+/* ---------- 0 · pick ---------- */
+.pick{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) auto}
+.pick-main{display:grid;place-items:center;text-align:center;padding:24px;overflow:auto}
+.pick h1{font-family:var(--f-head);font-weight:400;font-size:clamp(32px,4.4vw,58px);line-height:1.2;margin:0 0 6px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.pick .lede{color:var(--mat-ink);margin:0 0 34px;font-size:16px}
+.papers{display:flex;gap:34px;justify-content:center;flex-wrap:wrap}
+.paper{position:relative;width:min(300px,80vw);min-height:220px;border:0;background:var(--paper);color:var(--mat-dark);padding:30px 28px;text-align:left;
+  clip-path:polygon(0 3%,9% 0,22% 2%,37% 0,52% 3%,66% 0,81% 2%,100% 0,98% 18%,100% 37%,97% 55%,100% 74%,98% 100%,80% 97%,61% 100%,43% 97%,24% 100%,6% 97%,0 100%,2% 79%,0 58%,3% 39%,0 20%);
+  filter:drop-shadow(0 10px 14px rgba(0,0,0,.38));transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
+.paper:nth-child(1){transform:rotate(-2.5deg)}.paper:nth-child(2){transform:rotate(2deg)}
+.paper:hover{transform:rotate(0) translateY(-6px) scale(1.02)}
+.paper b{font-family:var(--f-head);font-weight:400;font-size:24px;display:block;margin-bottom:12px;line-height:1.35}
+.paper span{font-size:15px;line-height:1.55;color:#3d5a4b;display:block}
+.paper .go{margin-top:18px;font-size:14px;color:var(--mat-dark);text-decoration:underline;text-underline-offset:4px}
+.paper::after{content:"";position:absolute;inset:0;opacity:0;pointer-events:none;background:repeating-linear-gradient(35deg,transparent 0 9px,rgba(0,0,0,.12) 9px 10px,rgba(255,255,255,.28) 10px 11px),repeating-linear-gradient(-50deg,transparent 0 12px,rgba(0,0,0,.1) 12px 13px);transition:opacity .2s}
+.paper.crumple{animation:crumple .7s cubic-bezier(.5,0,.7,.4) forwards;pointer-events:none}
+.paper.crumple::after{opacity:1}
+.paper.away{transition:opacity .3s,transform .3s;opacity:.35;transform:scale(.96)}
+@keyframes crumple{
+ 0%{transform:none}
+ 25%{transform:scale(.92) rotate(-6deg);clip-path:polygon(4% 8%,14% 0,26% 9%,39% 2%,51% 10%,64% 1%,78% 8%,96% 3%,90% 21%,99% 38%,91% 56%,98% 73%,92% 96%,76% 90%,59% 99%,44% 91%,27% 98%,9% 92%,3% 97%,8% 78%,1% 60%,9% 41%,2% 22%)}
+ 60%{transform:scale(.55) rotate(-25deg);clip-path:polygon(22% 18%,33% 8%,42% 20%,50% 6%,58% 19%,67% 9%,74% 22%,88% 20%,80% 34%,92% 47%,79% 57%,88% 72%,74% 79%,66% 92%,55% 81%,45% 93%,36% 80%,22% 86%,25% 71%,10% 62%,21% 50%,9% 37%,24% 31%)}
+ 100%{transform:scale(.3) rotate(-50deg) translate(60px,90px);opacity:0;clip-path:polygon(30% 28%,40% 20%,48% 30%,56% 18%,62% 30%,71% 24%,72% 36%,82% 44%,72% 52%,79% 64%,67% 66%,61% 78%,52% 68%,43% 80%,37% 67%,25% 70%,31% 57%,19% 50%,31% 43%,22% 33%)}}
+.owner{margin-top:34px;font-size:14px;color:var(--mat-ink)}
 
-/* stage */
-.stage{position:relative;max-width:100%;max-height:100%;touch-action:none;user-select:none}
+/* ---------- wizard layout ---------- */
+.wiz-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
+.area{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;padding:18px 24px 20px}
+.steps{display:flex;align-items:flex-start;justify-content:center;gap:0;margin:0 auto 16px;padding:0;list-style:none;width:min(560px,100%)}
+.steps li{display:flex;flex-direction:column;align-items:center;gap:6px;width:110px;flex:0 0 auto;position:relative;color:var(--mat-ink);font-size:14px;white-space:nowrap}
+.steps li .c{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--mat-line-strong);display:grid;place-items:center;background:var(--mat);font-size:14px;position:relative;z-index:1}
+.steps li.opt .c{border-style:dashed}
+.steps li .o{font-size:11.5px;color:var(--mat-ink);margin-top:-4px}
+.steps li.on{color:#fff}.steps li.on .c{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
+.steps li.dn{color:var(--mint);cursor:pointer}.steps li.dn .c{background:var(--mat-light);border-color:var(--mat-light)}
+.steps .ln{flex:1;height:1.5px;background:var(--mat-line-strong);margin-top:15px;min-width:16px}
+.steps .ln.dn{background:var(--mint)}
+.frame{position:relative;flex:1;min-height:0;border:1.5px dashed var(--mat-line-strong);border-radius:14px;background:rgba(23,61,44,.32);overflow:hidden}
+.frame>.pane{position:absolute;inset:0}
+.drop{display:grid;place-items:center;text-align:center;cursor:pointer;transition:background .15s}
+.drop:hover,.drop.over{background:rgba(23,61,44,.5)}
+.drop .ic{width:40px;height:40px;margin:0 auto 10px;color:var(--mint)}
+.drop b{font-family:var(--f-head);font-weight:400;font-size:24px;color:#fff;display:block;margin-bottom:8px}
+.drop p{color:var(--mat-ink);margin:0 0 18px;line-height:1.6;font-size:15px}
+.drop input{display:none}
+.view{display:flex;overflow:auto;padding:32px;scrollbar-width:thin}
+.view>.stage{margin:auto;flex:0 0 auto;position:relative;touch-action:none;user-select:none}
+.view.space,.view.panning{cursor:grab}.view.panning{cursor:grabbing}
 .stage canvas{display:block;box-shadow:var(--shadow)}
-.stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-.corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4)}
-.corner:active{cursor:grabbing}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .stage.cut{cursor:var(--cutter)}
-.work.space .stage.cut{cursor:inherit}
-.zoom{position:absolute;z-index:6;left:16px;bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
+.view.space .stage.cut{cursor:inherit}
+.corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.busy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,61,44,.6);font-size:16px;z-index:5}
+.zoom{position:absolute;z-index:6;left:12px;bottom:12px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
 .zoom button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#fff;display:grid;place-items:center;padding:0}
 .zoom button:hover{background:var(--mat-light)}
-.zoom .zv{width:auto;min-width:56px;border-radius:999px;font-size:13px;color:var(--mint)}
-.zoom svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
-.main{position:relative}
+.zoom .zv{width:auto;min-width:58px;border-radius:999px;font-size:13px;color:var(--mint)}
+.send{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.send .half{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;min-height:0;overflow:auto}
+.send .half+.half{border-left:1.5px dashed var(--mat-line-strong)}
+.send .lbl{color:var(--mat-ink);font-size:14px}
+.send .col{width:auto;height:min(62%,560px);max-width:100%;object-fit:contain;box-shadow:var(--shadow-up);transform:rotate(-1.5deg);background:var(--paper)}
+.send .pile{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-content:center;max-width:100%}
+.send .pile img{width:120px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 5px rgba(0,0,0,.4))}
+.send.only{grid-template-columns:1fr}
+.done{display:grid;place-items:center;text-align:center}
+.done h1{font-family:var(--f-head);font-weight:400;font-size:46px;color:#fff;margin:0 0 6px}
+.done p{color:var(--mat-ink);margin:0 0 22px}
 
-/* scraps list */
-.tools{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+/* ---------- side sheet ---------- */
+.side{background:var(--panel);border-left:1px solid rgba(0,0,0,.18);display:flex;flex-direction:column;min-height:0}
+.embed .side{border-radius:16px 0 0 0;border-top:1px solid rgba(0,0,0,.18)}
+.side.blank{background:transparent;border-color:transparent}
+.side-scroll{flex:1;min-height:0;overflow-y:auto;padding:22px 20px 16px;scrollbar-width:thin}
+.side-foot{padding:14px 20px;border-top:1px solid var(--mat-line);display:flex;gap:8px;justify-content:space-between;align-items:center}
+.tools{display:flex;align-items:center;gap:4px;margin:4px 0 16px}
+.tool{width:40px;height:40px;border-radius:50%;border:1px solid var(--mat-line-strong);background:transparent;color:#fff;display:grid;place-items:center;padding:0;position:relative}
+.tool[aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
+.tool:hover::after{content:attr(data-tip);position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--mat-dark);color:var(--mint);font-size:12.5px;white-space:nowrap;padding:5px 9px;border-radius:8px;z-index:9;box-shadow:var(--shadow)}
+.findall{margin-left:auto;display:inline-flex;align-items:center;gap:6px;border:1px dashed var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:7px 12px;font-size:14px}
+.findall:hover{border-color:var(--mint)}
+.hint{font-size:14px;color:var(--mat-ink);line-height:1.5;margin:-6px 0 14px}
 .scraps{display:flex;flex-direction:column;gap:10px}
-.scrap{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px;border:1px solid var(--mat-line);border-radius:12px;background:rgba(44,106,78,.35)}
-.scrap.off{opacity:.55}
-.scrap .th{width:56px;height:56px;border-radius:8px;background:rgba(0,0,0,.18);display:grid;place-items:center;overflow:hidden}
+.scrap{display:grid;grid-template-columns:60px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px;border-radius:12px;background:rgba(0,0,0,.1)}
+.scrap .th{width:60px;height:60px;border-radius:8px;background:rgba(0,0,0,.15);display:grid;place-items:center;overflow:hidden}
 .scrap .th img{max-width:100%;max-height:100%}
 .scrap .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
-.scrap .input{padding:5px 8px;font-size:14px}
-.chips{display:flex;flex-wrap:wrap;gap:4px}
-.chip{border:1px solid var(--mat-line-strong);background:transparent;border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--mat-ink)}
-.chip[aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
-.chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mat-ink)}
-.chk input{accent-color:var(--mint)}
-.x{border:0;background:none;color:var(--mat-ink);width:26px;height:26px;border-radius:50%;padding:0}
+.scrap .input{padding:6px 9px;font-size:14.5px}
+.scrap select{appearance:none;width:100%;background:var(--mat) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d4ecdc' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center;border:1px solid var(--mat-line-strong);border-radius:10px;padding:6px 28px 6px 9px;font-size:14.5px;color:var(--mint);cursor:pointer}
+.scrap select.need{border-color:var(--warn);color:var(--warn)}
+.scrap.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.x{border:0;background:none;color:var(--mat-ink);width:28px;height:28px;border-radius:50%;padding:0;font-size:14px}
 .x:hover{background:var(--mat-light);color:var(--mint)}
-.empty{color:var(--mat-ink);font-size:13.5px;line-height:1.6;border:1px dashed var(--mat-line-strong);border-radius:12px;padding:16px;text-align:center}
-.busy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,61,44,.6);font-size:14.5px;z-index:5}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--panel);color:var(--mint);font-size:14.5px;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow);z-index:50;max-width:90vw;text-align:center}
-.err{color:var(--danger)}
-.preview{max-width:100%;max-height:calc(100dvh - 160px);box-shadow:var(--shadow)}
-.done-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.done-list img{width:100%;aspect-ratio:1;object-fit:contain;background:rgba(0,0,0,.18);border-radius:8px;padding:4px}
-.embed body{background:transparent}
-.embed .logo{display:none}
-.embed .bar{background:transparent;border-bottom:0;padding:12px 16px 10px 0}
-.embed .app{padding:30px 0 0 34px}
-.embed .side{border-radius:16px 0 0 0;border-top:1px solid rgba(0,0,0,.18)}
-.inbox{display:flex;flex-direction:column;gap:12px}
-.ibx{border:1px solid var(--mat-line);border-radius:12px;background:rgba(44,106,78,.35);padding:8px}
-.ibx img{display:block;width:100%;border-radius:6px;background:rgba(0,0,0,.2)}
-.ibx .row{justify-content:space-between;margin-top:8px}
-.ibx .who2{font-size:13.5px;color:var(--mat-ink)}
-@media (max-width:820px){
-  .main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
-  .side{border-left:0;border-top:1px solid var(--mat-line-strong);max-height:46dvh}
-  .steps li:not([aria-current="step"]){display:none}
-}
+.empty{color:var(--mat-ink);font-size:14.5px;line-height:1.6;border:1px dashed var(--mat-line-strong);border-radius:12px;padding:16px;text-align:center}
+.flat{width:100%;border-radius:8px;background:repeating-conic-gradient(#3b7a5c 0 25%,#2c6a4e 0 50%) 0 0/16px 16px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--mat-dark);color:var(--mint);font-size:15px;padding:10px 18px;border-radius:999px;box-shadow:var(--shadow);z-index:80;max-width:90vw;text-align:center}
+.toast.err{color:var(--danger)}
 
-body{font-size:16.5px}
-h2,.logo,.drop b{font-family:var(--f-head);font-weight:400;line-height:1.5}
-h2{font-size:20px;margin-bottom:10px}
-.side-scroll{padding:22px 20px 16px}
-.tools .ghost{padding:8px 16px}
-.scrap .input{font-size:15px;padding:7px 10px}
-.chk{font-size:14px}
-.field label{font-size:14px}
-.who{font-size:14px}
-.drop b{font-size:22px}
-.steps li,.btn,.ghost,.chip{font-size:15.5px}
-.muted{font-size:15px}
+/* ---------- owner: inbox, login, big view ---------- */
+.inbox-side{width:var(--side);background:var(--panel);border-left:1px solid rgba(0,0,0,.18);display:flex;flex-direction:column;min-height:0}
+.embed .inbox-side{border-radius:16px 0 0 0}
+.ibx{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:center;padding:8px;border-radius:12px;background:rgba(0,0,0,.1);cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
+.ibx:hover{background:rgba(0,0,0,.18)}
+.ibx .th{width:64px;height:64px;border-radius:8px;background:rgba(0,0,0,.15);display:grid;place-items:center;overflow:hidden}
+.ibx .th img{max-width:100%;max-height:100%}
+.ibx b{font-weight:500;color:#fff;font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ibx small{color:var(--mat-ink);font-size:13px}
+.inbox{display:flex;flex-direction:column;gap:8px}
+.badge{display:inline-grid;place-items:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#e24b4a;color:#fff;font-size:12.5px;margin-left:6px;vertical-align:3px;font-family:var(--f)}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(10,30,20,.72);display:grid;place-items:center;padding:24px}
+.card{background:var(--panel);border:1px solid var(--mat-line-strong);border-radius:16px;padding:26px;width:min(420px,100%);box-shadow:var(--shadow-up)}
+.big{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(260px,1fr);gap:28px;align-items:center;width:min(1100px,100%);max-height:100%}
+.big .shot{display:grid;place-items:center;min-height:0}
+.big .shot img{max-width:100%;max-height:calc(100dvh - 120px);box-shadow:var(--shadow-up);background:var(--paper)}
+.big .info{background:var(--panel);border-radius:16px;padding:22px;max-height:calc(100dvh - 80px);overflow:auto}
+.big .pile{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 18px}
+.big .pile figure{margin:0;width:84px;text-align:center}
+.big .pile img{max-width:84px;max-height:72px;filter:drop-shadow(0 3px 4px rgba(0,0,0,.4))}
+.big .pile figcaption{font-size:11.5px;color:var(--mat-ink)}
+.big .x{position:fixed;right:20px;top:20px;width:40px;height:40px;background:var(--panel);font-size:18px}
+
+@media (max-width:820px){
+  .embed .app{padding:0}
+  .wiz-wrap{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  .side{border-left:0;border-top:1px solid var(--mat-line-strong);max-height:46dvh}
+  .side.blank{display:none}
+  .side{max-height:42dvh}.flat{display:none}
+  .zoom{display:none!important}
+  .area{padding:12px}
+  .steps li{width:74px;font-size:12.5px}.steps li .o{display:none}
+  .pick{grid-template-columns:1fr}.inbox-side{width:auto}
+  .big{grid-template-columns:1fr}
+  .send{grid-template-columns:1fr}.send .half+.half{border-left:0;border-top:1.5px dashed var(--mat-line-strong)}
+}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8z"/><path d="M19 15l.8 2.2L22 18l-2.2.8L19 21l-.8-2.2L16 18l2.2-.8z"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="7" r="3"/><circle cx="6" cy="17" r="3"/><path d="M8.6 8.6L20 18"/><path d="M8.6 15.4L20 6"/></symbol>
+  <symbol id="i-square" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="1.5"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M4 20L15 9"/><path d="M14 4v2M20 10h-2M18.5 5.5l-1.4 1.4M10 4.5l.6 1.4"/></symbol>
+  <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></symbol>
+  <symbol id="i-zin" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M11 8v6M16 16l4 4"/></symbol>
+  <symbol id="i-zout" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M16 16l4 4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+</svg>
 <div class="app">
   <header class="bar">
     <h1 class="logo"><a href="./">cutouts</a> <span>studio</span></h1>
-    <ol class="steps" id="steps">
-      <li data-s="photo">1 · photo</li><li data-s="sheet">2 · straighten</li><li data-s="cut">3 · cut</li><li data-s="publish">4 · pin it</li>
-    </ol>
-    <div class="who" id="who" hidden><span id="who-email"></span><button class="link" id="signout">Sign out</button></div>
   </header>
 
-  <!-- login -->
-  <main class="main" id="v-login" style="grid-template-columns:1fr">
-    <div class="work"><div class="card">
-      <h2>Staff only</h2>
-      <p class="muted">The scissors drawer is locked. Owner gets a link.</p>
-      <form id="login-form">
-        <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" required autocomplete="email" placeholder="email"></div>
-        <button class="btn" type="submit" id="login-btn">Send me a link</button>
-      </form>
-      <p class="muted" id="login-msg" style="margin:14px 0 0" hidden></p>
+  <!-- 0 · what did you bring -->
+  <main class="pick" id="v-pick">
+    <div class="pick-main"><div>
+      <h1>What did you bring?</h1>
+      <p class="lede">Everything gets a look before it goes public.</p>
+      <div class="papers">
+        <button class="paper" data-path="collage"><b>A collage</b><span>Pin it to the table. Spare scraps go to the pile.</span><span class="go">Start →</span></button>
+        <button class="paper" data-path="scraps"><b>Just scraps</b><span>A magazine, an ad, junk mail. Cut it up for everyone.</span><span class="go">Start →</span></button>
+      </div>
+      <p class="owner" id="owner-line">Yours? <button class="link" id="owner-in">Owner sign in</button></p>
     </div></div>
-  </main>
-
-  <!-- 1 photo -->
-  <main class="main" id="v-photo" hidden>
-    <div class="work">
-      <label class="drop" id="drop">
-        <b>Drop a new collage</b>
-        <span class="muted" style="margin:0">or click to pick a photo</span>
-        <input type="file" id="file" accept="image/*,.heic,.heif">
-      </label>
-    </div>
-    <aside class="side">
+    <aside class="inbox-side" id="inbox-side" hidden>
       <div class="side-scroll">
-        <h2>Visitors' messes</h2>
+        <h2>Waiting for a look<span class="badge" id="inbox-n" hidden></span></h2>
         <p class="muted" id="inbox-note">Checking…</p>
         <div class="inbox" id="inbox"></div>
       </div>
+      <div class="side-foot"><span class="muted" style="margin:0;font-size:13px" id="who-email"></span><button class="link" id="signout">Sign out</button></div>
     </aside>
   </main>
 
-  <!-- 2 sheet -->
-  <main class="main" id="v-sheet" hidden>
-    <div class="zoom" data-for="w-sheet" aria-label="zoom"><button data-z="out" aria-label="Zoom out"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M16 16l4 4"/></svg></button><button class="zv" data-z="reset" aria-label="Fit">100%</button><button data-z="in" aria-label="Zoom in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M11 8v6M16 16l4 4"/></svg></button></div><div class="work view" id="w-sheet"><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
-    <aside class="side">
-      <div class="side-scroll">
-        <h2>Straighten it</h2>
-        <p class="muted">Corners on the paper.</p>
-        <div class="field"><label for="trim">Lose the table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div>
-        <div class="field"><canvas id="flat-cv" style="width:100%;background:repeating-conic-gradient(#3b7a5c 0 25%,#2c6a4e 0 50%) 0 0/16px 16px;border-radius:8px"></canvas></div>
-      </div>
-      <div class="side-foot"><button class="ghost" data-go="photo">Back</button><button class="btn" id="to-cut">Next</button></div>
-    </aside>
-  </main>
-
-  <!-- 3 cut -->
-  <main class="main" id="v-cut" hidden>
-    <div class="zoom" data-for="w-cut" aria-label="zoom"><button data-z="out" aria-label="Zoom out"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M16 16l4 4"/></svg></button><button class="zv" data-z="reset" aria-label="Fit">100%</button><button data-z="in" aria-label="Zoom in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M11 8v6M16 16l4 4"/></svg></button></div><div class="work view" id="w-cut"><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg><div class="busy" id="busy" hidden>Finding scraps…</div></div></div>
-    <aside class="side">
-      <div class="side-scroll">
-        <h2>Cut it up</h2>
-        <div class="tools" role="group" aria-label="Tool">
-          <button class="ghost" data-tool="smart" aria-pressed="true" title="Draw roughly around something. It snaps to the shape.">Smart scissors</button>
-          <button class="ghost" data-tool="lasso" aria-pressed="false" title="Cuts exactly where you draw.">Scissors</button>
-          <button class="ghost" data-tool="rect" aria-pressed="false" title="For text strips.">Box</button>
-          <button class="ghost" id="auto" title="Finds every cut-out by itself.">Find all</button>
+  <!-- 1-4 · the wizard -->
+  <main class="wiz-wrap" id="v-wiz" hidden>
+    <div class="area">
+      <ol class="steps" id="steps">
+        <li data-s="snap"><span class="c">1</span>Snap it</li><span class="ln"></span>
+        <li data-s="square"><span class="c">2</span>Square it</li><span class="ln"></span>
+        <li data-s="cut" class="opt"><span class="c">3</span>Cut it up<span class="o">optional</span></li><span class="ln"></span>
+        <li data-s="send"><span class="c">4</span><span id="send-label">Send it</span></li>
+      </ol>
+      <div class="frame" id="frame">
+        <label class="pane drop" id="drop">
+          <div><svg class="i ic"><use href="#i-photo"/></svg><b>Drop a photo</b><p>Flat, from above, daylight.<br>The whole page in. Phone pics are fine.</p><span class="btn">Pick a photo</span></div>
+          <input type="file" id="file" accept="image/*,.heic,.heif">
+        </label>
+        <div class="pane view" id="w-sheet" hidden><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
+        <div class="pane view" id="w-cut" hidden><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg></div></div>
+        <div class="pane send" id="w-send" hidden>
+          <div class="half" id="send-col"><img class="col" id="pub-preview" alt="Your collage"><span class="lbl">to the table</span></div>
+          <div class="half" id="send-pile"><div class="pile" id="pub-list"></div><span class="lbl" id="pile-n"></span></div>
         </div>
-        <div class="scraps" id="scraps"></div>
+        <div class="pane done" id="w-done" hidden><div><h1 id="done-h">Sent.</h1><p id="done-p">It shows up once it's had a look. Usually soon-ish.</p><div style="display:flex;gap:10px;justify-content:center"><button class="ghost" id="again">Cut another</button><button class="btn" id="go-mess">Make a mess</button></div></div></div>
+        <div class="busy" id="busy" hidden>Finding scraps…</div>
+        <div class="zoom" id="zoom" hidden><button data-z="out" aria-label="Zoom out"><svg class="i"><use href="#i-zout"/></svg></button><button class="zv" data-z="reset" aria-label="Fit">100%</button><button data-z="in" aria-label="Zoom in"><svg class="i"><use href="#i-zin"/></svg></button></div>
       </div>
-      <div class="side-foot"><button class="ghost" data-go="sheet">Back</button><button class="btn" id="to-pub">Next</button></div>
-    </aside>
-  </main>
+    </div>
 
-  <!-- 4 publish -->
-  <main class="main" id="v-publish" hidden>
-    <div class="work"><img class="preview" id="pub-preview" alt="Collage preview"></div>
-    <aside class="side">
-      <div class="side-scroll" id="pub-side">
-        <h2>Pin it</h2>
-        <div class="field"><label for="title">Title</label><input class="input" id="title" placeholder="Untitled mess"></div>
-        <div class="field"><label for="desc">Description</label><textarea class="input" id="desc" rows="3" maxlength="400" placeholder="Optional. Shows when someone zooms in." style="resize:vertical;line-height:1.45"></textarea></div>
-        <p class="muted" id="pub-summary"></p>
-        <div class="done-list" id="pub-list"></div>
-      </div>
-      <div class="side-foot"><button class="ghost" data-go="cut">Back</button><button class="btn" id="publish">Pin it</button></div>
+    <aside class="side" id="side">
+      <section class="side-pane" id="v-sheet" hidden>
+        <div class="side-scroll">
+          <h2>Square it</h2>
+          <p class="muted">Drag the dots to the paper's corners. It flattens itself.</p>
+          <div class="field"><label for="trim">Lose the table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div>
+          <canvas id="flat-cv" class="flat"></canvas>
+        </div>
+        <div class="side-foot"><button class="ghost" data-back>Back</button><span style="display:flex;gap:8px"><button class="ghost" id="skip-sq" hidden>Skip</button><button class="btn" id="to-cut">Next</button></span></div>
+      </section>
+      <section class="side-pane" id="v-cut" hidden>
+        <div class="side-scroll">
+          <h2>Cut it up</h2>
+          <div class="tools" role="group" aria-label="Scissors">
+            <button class="tool" data-tool="smart" aria-pressed="true" aria-label="Smart scissors" data-tip="Draw roughly. It snaps to the edges."><svg class="i"><use href="#i-sparkles"/></svg></button>
+            <button class="tool" data-tool="lasso" aria-pressed="false" aria-label="Scissors" data-tip="Cuts exactly where you draw."><svg class="i"><use href="#i-scissors"/></svg></button>
+            <button class="tool" data-tool="rect" aria-pressed="false" aria-label="Box" data-tip="Drag a box. Good for text."><svg class="i"><use href="#i-square"/></svg></button>
+            <button class="findall" id="auto"><svg class="i" style="width:16px;height:16px"><use href="#i-wand"/></svg>Find all</button>
+          </div>
+          <p class="hint" id="tool-hint">Draw roughly around something. It snaps to the edges.</p>
+          <div class="scraps" id="scraps"></div>
+        </div>
+        <div class="side-foot"><button class="ghost" data-back>Back</button><button class="btn" id="to-pub">Next</button></div>
+      </section>
+      <section class="side-pane" id="v-send" hidden>
+        <div class="side-scroll">
+          <h2 id="send-h">Send it</h2>
+          <div class="field" data-col><label for="title">Name it</label><input class="input" id="title" maxlength="60" placeholder="Untitled mess"></div>
+          <div class="field" data-col><label for="desc">What's going on here? <span id="desc-n">0/280</span></label><textarea class="input" id="desc" rows="3" maxlength="280" placeholder="Optional. A story, a joke, a confession." style="resize:vertical;line-height:1.45"></textarea></div>
+          <div class="field" data-visitor><label for="signed">Sign it</label><input class="input" id="signed" maxlength="40" placeholder="Name or @handle. Optional."></div>
+          <p class="muted" id="send-note"></p>
+        </div>
+        <div class="side-foot"><button class="ghost" data-back>Back</button><button class="btn" id="publish">Send it</button></div>
+      </section>
     </aside>
   </main>
 </div>
+
+<div class="modal" id="login" hidden>
+  <div class="card">
+    <h2>Owner only</h2>
+    <p class="muted">The scissors drawer's key. You get a link by email.</p>
+    <form id="login-form">
+      <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" required autocomplete="email" placeholder="you@email.com"></div>
+      <div style="display:flex;gap:8px;justify-content:space-between"><button class="ghost" type="button" id="login-x">Not me</button><button class="btn" type="submit" id="login-btn">Send me a link</button></div>
+    </form>
+    <p class="muted" id="login-msg" style="margin:14px 0 0" hidden></p>
+  </div>
+</div>
+<div class="modal" id="bigview" hidden><div class="big" id="big"></div></div>
 <div class="toast" id="toast" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const SB_URL="https://wybuusahvefqbxnnidky.supabase.co",SB_KEY="sb_publishable_T3lcQF74EXSIjbIELHPoJA_eQR0c1M3";
 const ADMIN="adiazdefreijovalino@gmail.com";
-const DEMO=new URLSearchParams(location.search).has("demo");
-const EMBED=new URLSearchParams(location.search).has("embed");
+const Q=new URLSearchParams(location.search),DEMO=Q.has("demo"),EMBED=Q.has("embed");
 if(EMBED)document.documentElement.classList.add("embed");
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-const CLUSTERS=[["people","People"],["nature","Creatures"],["things","Things"],["heads","Headlines"],["words","Words"]];
-let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
+const esc=t=>String(t||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CLUSTERS=[["people","People"],["faces","Faces"],["bodies","Bodies"],["nature","Creatures"],["plants","Plants"],["food","Food"],["things","Things"],["vehicles","Vehicles"],["places","Places"],["heads","Headlines"],["words","Words"],["textures","Textures"]];
+const CL=Object.fromEntries(CLUSTERS);
+let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3400)}
 const mk=(w,h)=>{const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
+const tell=type=>{if(EMBED)parent.postMessage({type},location.origin)};
+let OWNER=false,PATH="collage";
 
 // ---------- views ----------
-const VIEWS=["login","photo","sheet","cut","publish"];
+const STEPS=["snap","square","cut","send"];
+let step="pick";
 function show(v){
-  VIEWS.forEach(k=>$("#v-"+k).hidden=k!==v);
-  const order=["photo","sheet","cut","publish"],i=order.indexOf(v);
-  $$("#steps li").forEach((li,j)=>{if(j===i)li.setAttribute("aria-current","step");else li.removeAttribute("aria-current");li.classList.toggle("done",i>j)});
-  $("#steps").hidden=v==="login";
-  if(v==="sheet")requestAnimationFrame(layoutSheet);
+  step=v;
+  $("#v-pick").hidden=v!=="pick";$("#v-wiz").hidden=v==="pick";
+  if(v==="pick")return;
+  const i=STEPS.indexOf(v);
+  $$("#steps li").forEach((li,j)=>{li.classList.toggle("on",j===i);li.classList.toggle("dn",v==="done"||j<i);li.querySelector(".c").innerHTML=(v==="done"||j<i)?'<svg class="i" style="width:15px;height:15px"><use href="#i-check"/></svg>':String(j+1)});
+  $$("#steps .ln").forEach((l,j)=>l.classList.toggle("dn",v==="done"||j<i));
+  $("#drop").hidden=v!=="snap";$("#w-sheet").hidden=v!=="square";$("#w-cut").hidden=v!=="cut";$("#w-send").hidden=v!=="send";$("#w-done").hidden=v!=="done";
+  $("#zoom").hidden=!(v==="square"||v==="cut");
+  $("#side").classList.toggle("blank",v==="snap"||v==="done");
+  $("#v-sheet").hidden=v!=="square";$("#v-cut").hidden=v!=="cut";$("#v-send").hidden=v!=="send";
+  if(v==="square")requestAnimationFrame(layoutSheet);
   if(v==="cut")requestAnimationFrame(drawCut);
-  if(v==="publish")renderPublish();
+  if(v==="send")renderPublish();
 }
-$$("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go));
+$$("#steps li").forEach((li,j)=>li.onclick=()=>{if(li.classList.contains("dn")&&step!=="done")show(STEPS[j])});
+$$("[data-back]").forEach(b=>b.onclick=()=>{const i=STEPS.indexOf(step);show(i>0?STEPS[i-1]:"snap")});
+function setPath(p){
+  PATH=p;
+  $("#send-label").textContent=p==="collage"?"Pin it":"Pile it";
+  $("#skip-sq").hidden=p!=="scraps";
+  $("#steps li[data-s=cut]").classList.toggle("opt",p==="collage");
+  $("#steps li[data-s=cut] .o").hidden=p!=="collage";
+  $$("[data-col]").forEach(f=>f.hidden=p!=="collage");
+  $("#send-h").textContent=p==="collage"?"Pin it to the table":"Add to the pile";
+}
+$$(".paper").forEach(b=>b.onclick=()=>{
+  $$(".paper").forEach(o=>{if(o!==b)o.classList.add("away")});b.classList.add("crumple");
+  setTimeout(()=>{$$(".paper").forEach(o=>o.classList.remove("crumple","away"));setPath(b.dataset.path);resetWork();show("snap")},matchMedia("(prefers-reduced-motion:reduce)").matches?0:620);
+});
+function resetWork(){srcImg=null;scraps=[];trimmed=null;quad=null;$("#title").value="";$("#desc").value="";$("#desc-n").textContent="0/280"}
+$("#again").onclick=()=>{resetWork();show("pick")};
+$("#go-mess").onclick=()=>{if(EMBED)parent.postMessage({type:"cutouts:mess"},location.origin);else location.href="./"};
+$("#skip-sq").onclick=()=>{quad=[[0,0],[srcImg.width,0],[srcImg.width,srcImg.height],[0,srcImg.height]];$("#trim").value=0;flatten();VZ["w-cut"]=1;show("cut")};
+$("#desc").oninput=e=>$("#desc-n").textContent=e.target.value.length+"/280";
 
-// ---------- auth ----------
+// ---------- owner ----------
 async function initAuth(){
-  if(DEMO){$("#who").hidden=false;$("#who-email").textContent="demo · nothing gets pinned";show("photo");return}
-  if(!sb){$("#login-msg").hidden=false;$("#login-msg").textContent="Couldn't load the login library. Check your connection.";return}
+  $("#signed").value=localStorage.getItem("recortes-signed")||"";
+  if(DEMO){$("#owner-line").hidden=true;return}
+  if(!sb)return;
   const {data:{session}}=await sb.auth.getSession();applySession(session);
   sb.auth.onAuthStateChange((_e,s)=>applySession(s));
 }
 function applySession(s){
   const email=s&&s.user&&s.user.email;
-  if(!email){$("#who").hidden=true;show("login");return}
-  $("#who").hidden=false;$("#who-email").textContent=email;
-  if(email.toLowerCase()!==ADMIN){show("login");$("#login-msg").hidden=false;$("#login-msg").textContent="Nice try. Not your drawer.";return}
-  if($("#v-login").hidden===false)show("photo");
-  loadInbox();
+  OWNER=!!email&&email.toLowerCase()===ADMIN;
+  $("#inbox-side").hidden=!OWNER;$("#owner-line").hidden=OWNER;
+  $$("[data-visitor]").forEach(f=>f.hidden=OWNER);
+  if(OWNER){$("#who-email").textContent=email;$("#login").hidden=true;loadInbox()}
+  else if(email){toast("Signed in, but this drawer isn't yours.",true)}
 }
-async function loadInbox(){
-  if(!sb)return;
-  const {data,error}=await sb.from("community").select("*").eq("approved",false).order("created_at",{ascending:false});
-  const el=$("#inbox"),note=$("#inbox-note");
-  if(error){note.textContent="Couldn't load them: "+error.message;return}
-  note.textContent=data.length?`${data.length} waiting for a look.`:"Nothing waiting. Quiet day.";
-  el.innerHTML=data.map(r=>`<div class="ibx" data-id="${r.id}" data-path="${r.image_path}">
-    <img src="${SB_URL}/storage/v1/object/public/community/${r.image_path}" alt="" loading="lazy">
-    ${r.title?`<b style="display:block;margin-top:8px;font-weight:500;color:#fff">${r.title.replace(/</g,"&lt;")}</b>`:""}${r.description?`<p class="muted" style="margin:4px 0 0">${r.description.replace(/</g,"&lt;")}</p>`:""}
-    <div class="row"><span class="who2">${r.signed?("by "+r.signed.replace(/</g,"&lt;")):"anonymous"}</span>
-    <span class="row" style="margin:0"><button class="ghost" data-ib="bin">Bin</button><button class="btn" data-ib="ok">Pin it</button></span></div></div>`).join("");
-}
-$("#inbox").addEventListener("click",async e=>{
-  const b=e.target.closest("[data-ib]");if(!b)return;const card=b.closest(".ibx"),id=card.dataset.id;b.disabled=true;
-  if(b.dataset.ib==="ok"){const {error}=await sb.from("community").update({approved:true}).eq("id",id);if(error){toast(error.message,true);b.disabled=false;return}toast("On the table.")}
-  else{const {error}=await sb.from("community").delete().eq("id",id);if(error){toast(error.message,true);b.disabled=false;return}await sb.storage.from("community").remove([card.dataset.path]);toast("Binned.")}
-  card.remove();if(EMBED)parent.postMessage({type:"cutouts:published"},location.origin);
-  const n=$$("#inbox .ibx").length;$("#inbox-note").textContent=n?`${n} waiting for a look.`:"Nothing waiting. Quiet day.";
-});
+$("#owner-in").onclick=()=>{$("#login").hidden=false;$("#email").focus()};
+$("#login-x").onclick=()=>$("#login").hidden=true;
+$("#login").addEventListener("click",e=>{if(e.target.id==="login")$("#login").hidden=true});
 $("#login-form").onsubmit=async e=>{
-  e.preventDefault();const email=$("#email").value.trim();const b=$("#login-btn");b.disabled=true;
+  e.preventDefault();const email=$("#email").value.trim(),b=$("#login-btn");b.disabled=true;
   const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:new URL("./?studio",location.href).href,shouldCreateUser:true}});
   b.disabled=false;const m=$("#login-msg");m.hidden=false;
   m.textContent=error?("Couldn't send the link: "+error.message):"Sent. Open it on this device.";
 };
-$("#signout").onclick=async()=>{if(sb)await sb.auth.signOut();if(EMBED)parent.postMessage({type:"cutouts:signedout"},location.origin);location.reload()};
+$("#signout").onclick=async()=>{if(sb)await sb.auth.signOut();tell("cutouts:signedout");location.reload()};
+
+// inbox: one entry per visit (a collage and/or its scraps)
+let BATCHES=[];
+const pub=(bucket,path)=>`${SB_URL}/storage/v1/object/public/${bucket}/${path}`;
+async function loadInbox(){
+  if(!sb||!OWNER)return;
+  const [c,s]=await Promise.all([sb.from("community").select("*").eq("approved",false).order("created_at",{ascending:false}),
+    sb.from("scraps").select("*").eq("published",false).like("id","v-%").order("created_at",{ascending:false})]);
+  if(c.error||s.error){$("#inbox-note").textContent="Couldn't load them: "+(c.error||s.error).message;return}
+  const map=new Map();
+  c.data.forEach(r=>{const k=r.batch||r.id;map.set(k,{key:k,col:r,scraps:[],at:r.created_at})});
+  s.data.forEach(r=>{const k=r.batch||r.id;if(!map.has(k))map.set(k,{key:k,col:null,scraps:[],at:r.created_at});map.get(k).scraps.push(r)});
+  BATCHES=[...map.values()].sort((a,b)=>b.at.localeCompare(a.at));
+  renderInbox();
+}
+function ago(t){const m=Math.round((Date.now()-new Date(t))/6e4);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"}
+function renderInbox(){
+  const n=BATCHES.length;$("#inbox-n").hidden=!n;$("#inbox-n").textContent=n;
+  $("#inbox-note").textContent=n?"Tap one to see it big.":"Nothing waiting. Quiet day.";
+  tell("cutouts:pending:"+n);
+  $("#inbox").innerHTML=BATCHES.map((b,i)=>{const who=(b.col&&b.col.signed)||(b.scraps[0]&&b.scraps[0].signed);
+    const th=b.col?pub("community",b.col.image_path):pub("scraps",b.scraps[0].image_path);
+    const t=b.col?(b.col.title||"Untitled mess"):`${b.scraps.length} scrap${b.scraps.length>1?"s":""}`;
+    const extra=b.col&&b.scraps.length?` + ${b.scraps.length} scrap${b.scraps.length>1?"s":""}`:"";
+    return `<button class="ibx" data-i="${i}"><span class="th"><img src="${th}" alt="" loading="lazy"></span><span><b>${esc(t)}</b><small>${who?"by "+esc(who):"anonymous"} · ${ago(b.at)}${extra}</small></span></button>`}).join("");
+}
+$("#inbox").addEventListener("click",e=>{const b=e.target.closest(".ibx");if(b)openBig(+b.dataset.i)});
+function openBig(i){
+  const b=BATCHES[i];if(!b)return;const who=(b.col&&b.col.signed)||(b.scraps[0]&&b.scraps[0].signed);
+  $("#big").innerHTML=`<button class="x" data-bx aria-label="Close">✕</button>
+   <div class="shot">${b.col?`<img src="${pub("community",b.col.image_path)}" alt="">`:`<div class="pile" style="justify-content:center">${b.scraps.map(s=>`<img src="${pub("scraps",s.image_path)}" alt="" style="max-width:200px;max-height:200px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))">`).join("")}</div>`}</div>
+   <div class="info"><h2>${esc(b.col?(b.col.title||"Untitled mess"):"Scraps for the pile")}</h2>
+    <p class="muted" style="margin:0 0 8px">${who?"by "+esc(who):"anonymous"} · ${ago(b.at)}</p>
+    ${b.col&&b.col.description?`<p style="line-height:1.6;margin:0 0 10px">${esc(b.col.description)}</p>`:""}
+    ${b.scraps.length?`<p class="muted" style="margin:10px 0 0">${b.scraps.length} scrap${b.scraps.length>1?"s":""} for the pile</p><div class="pile">${b.scraps.map(s=>`<figure><img src="${pub("scraps",s.image_path)}" alt=""><figcaption>${esc(s.title)}<br>${esc(CL[s.cluster]||s.cluster)}</figcaption></figure>`).join("")}</div>`:""}
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="ghost" data-bin>Bin it</button><button class="btn" data-keep>Keep it</button></div></div>`;
+  $("#bigview").hidden=false;
+  $("#big [data-bx]").onclick=()=>$("#bigview").hidden=true;
+  $("#big [data-keep]").onclick=e=>decide(b,true,e.target);
+  $("#big [data-bin]").onclick=e=>decide(b,false,e.target);
+}
+$("#bigview").addEventListener("click",e=>{if(e.target.id==="bigview")$("#bigview").hidden=true});
+addEventListener("keydown",e=>{if(e.key==="Escape"){$("#bigview").hidden=true;$("#login").hidden=true}});
+async function decide(b,keep,btn){
+  btn.disabled=true;
+  try{
+    if(keep){
+      if(b.col){const r=await sb.from("community").update({approved:true}).eq("id",b.col.id);if(r.error)throw r.error}
+      if(b.scraps.length){const r=await sb.from("scraps").update({published:true}).in("id",b.scraps.map(s=>s.id));if(r.error)throw r.error}
+      toast(b.col?"On the table.":"On the pile.");
+    }else{
+      if(b.col){const r=await sb.from("community").delete().eq("id",b.col.id);if(r.error)throw r.error;await sb.storage.from("community").remove([b.col.image_path])}
+      if(b.scraps.length){const r=await sb.from("scraps").delete().in("id",b.scraps.map(s=>s.id));if(r.error)throw r.error;await sb.storage.from("scraps").remove(b.scraps.map(s=>s.image_path))}
+      toast("Binned.");
+    }
+    BATCHES=BATCHES.filter(x=>x!==b);renderInbox();$("#bigview").hidden=true;tell("cutouts:published");
+  }catch(err){toast("Couldn't do that: "+err.message,true);btn.disabled=false}
+}
 
 // ---------- 1 photo ----------
 let srcImg=null;
@@ -316,14 +463,13 @@ async function openFile(f){
   img.onload=()=>{
     const k=Math.min(1,2200/Math.max(img.naturalWidth,img.naturalHeight)),c=mk(img.naturalWidth*k,img.naturalHeight*k);
     c.getContext("2d").drawImage(img,0,0,c.width,c.height);srcImg=c;URL.revokeObjectURL(url);
-    quad=guessQuad(c);scraps=[];trimmed=null;$("#trim").value=guessQuad.irregular?20:0;$("#title").value="";
-    show("sheet");
+    quad=guessQuad(c);scraps=[];trimmed=null;$("#trim").value=guessQuad.irregular?20:0;
+    show("square");
   };
   img.onerror=()=>toast("That file isn't an image this browser can read.",true);
   img.src=url;
 }
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
-
 // ---------- 2 sheet: corners + perspective ----------
 let quad=null,sheetCv=null,trimmed=null;
 function small(c,max){const s=Math.min(1,max/Math.max(c.width,c.height)),w=Math.max(8,Math.round(c.width*s)),h=Math.max(8,Math.round(c.height*s)),t=mk(w,h),g=t.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,w,h);g.filter="blur(1.2px)";g.drawImage(t,0,0);return {t,w,h,s,d:g.getImageData(0,0,w,h).data}}
@@ -427,7 +573,7 @@ function sizeView(w){
   const el=$("#"+w);if(!el||!el.clientWidth)return;const [iw,ih,cv]=viewDims(w);if(!iw)return;
   const base=Math.min((el.clientWidth-80)/iw,(el.clientHeight-80)/ih,8),k=base*VZ[w];
   cv.style.width=iw*k+"px";cv.style.height=ih*k+"px";
-  const zv=$(`.zoom[data-for="${w}"] .zv`);if(zv)zv.textContent=Math.round(VZ[w]*100)+"%";
+  const zv=$("#zoom .zv");if(zv)zv.textContent=Math.round(VZ[w]*100)+"%";
 }
 const afterZoom=w=>w==="w-sheet"?placeCorners():drawCut();
 function zoomView(w,nz,cx,cy){
@@ -454,13 +600,12 @@ addEventListener("keyup",e=>{if(e.code==="Space"){spaceDown=false;$$(".work.view
     const up=()=>{el.classList.remove("panning");el.removeEventListener("pointermove",mv);el.removeEventListener("pointerup",up);el.removeEventListener("pointercancel",up)};
     el.addEventListener("pointermove",mv);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
   },true);
-  $(`.zoom[data-for="${w}"]`).addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
-    if(b.dataset.z==="in")zoomView(w,VZ[w]*1.4);else if(b.dataset.z==="out")zoomView(w,VZ[w]/1.4);else{VZ[w]=1;sizeView(w);afterZoom(w)}});
 });
 
 // ---------- 3 cut ----------
 let scraps=[],tool="smart",uid=0;
-$$("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;$$("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+const TOOL_HINT={smart:"Draw roughly around something. It snaps to the edges.",lasso:"Cuts exactly where you draw.",rect:"Drag a box. Good for headlines and text."};
+$$("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;$$("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#tool-hint").textContent=TOOL_HINT[tool]});
 function drawCut(){
   const cv=$("#cut-cv");if(cv.width!==trimmed.width||cv.height!==trimmed.height||!cv.style.width){cv.width=trimmed.width;cv.height=trimmed.height}sizeView("w-cut");const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(trimmed,0,0);
   const svg=$("#cut-svg");svg.setAttribute("viewBox",`0 0 ${cv.width} ${cv.height}`);
@@ -497,26 +642,24 @@ function tightCrop(c){
 }
 function addScrap(s){
   const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];
-  s.id=++uid;s.name="";s.cluster=s.canvas.width>s.canvas.height*2.2?"heads":"things";s.lib=true;s.par=true;scraps.push(s);drawCut();
+  s.id=++uid;s.name="";s.cluster="";s.lib=true;s.par=true;scraps.push(s);drawCut();
   setTimeout(()=>{const i=$(`#scraps [data-id="${s.id}"] .input`);if(i)i.focus()},30);
 }
 function renderScraps(){
   const el=$("#scraps");
-  if(!scraps.length){el.innerHTML=`<div class="empty">Draw around something.<br>Roughly is fine.</div>`;return}
-  el.innerHTML=scraps.map(s=>`<div class="scrap${s.lib?"":" off"}" data-id="${s.id}">
+  if(!scraps.length){el.innerHTML=`<div class="empty">${PATH==="collage"?"Optional. Cut out bits for the pile,<br>or skip and send the collage.":"Draw around something.<br>Roughly is fine."}</div>`;return}
+  el.innerHTML=scraps.map(s=>`<div class="scrap" data-id="${s.id}">
     <div class="th"><img src="${s.canvas.toDataURL()}" alt=""></div>
     <div class="meta">
-      <input class="input" value="${s.name.replace(/"/g,"&quot;")}" placeholder="Name it" aria-label="Scrap name">
-      <div class="chips">${CLUSTERS.map(([k,l])=>`<button class="chip" data-c="${k}" aria-pressed="${s.cluster===k}">${l}</button>`).join("")}</div>
-      <label class="chk"><input type="checkbox" data-k="lib" ${s.lib?"checked":""}> to the scrap pile</label>
+      <input class="input" value="${s.name.replace(/"/g,"&quot;")}" maxlength="60" placeholder="Name it" aria-label="Scrap name">
+      <select aria-label="Pile" class="${s.cluster?"":"need"}"><option value="" ${s.cluster?"":"selected"} disabled>Pick a pile</option>${CLUSTERS.map(([k,l])=>`<option value="${k}" ${s.cluster===k?"selected":""}>${l}</option>`).join("")}</select>
     </div>
     <button class="x" data-rm aria-label="Delete scrap">✕</button>
   </div>`).join("");
 }
 $("#scraps").addEventListener("input",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches(".input"))s.name=e.target.value});
-$("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.dataset.k==="lib"){s.lib=e.target.checked;row.classList.toggle("off",!s.lib)}});
+$("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches("select")){s.cluster=e.target.value;e.target.classList.toggle("need",!s.cluster)}});
 $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
-  const c=e.target.closest("[data-c]");if(c){s.cluster=c.dataset.c;row.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b===c))}
   if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}});
 // the cut-out model runs in the browser; loaded once, on first use
 let modelP=null,modelReady=false;
@@ -560,7 +703,7 @@ $("#auto").onclick=async()=>{
   }catch(err){console.error(err);toast("The robot scissors won't load here. Hand scissors still work.",true)}
   busy.hidden=true;
 };
-function addScrapQuiet(s){const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];s.id=++uid;s.name="";s.cluster="things";s.lib=true;s.par=true;scraps.push(s)}
+function addScrapQuiet(s){const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];s.id=++uid;s.name="";s.cluster="";s.lib=true;s.par=true;scraps.push(s)}
 function splitPieces(full){
   const S=Math.min(1,320/Math.max(full.width,full.height)),w=Math.round(full.width*S),h=Math.round(full.height*S),t=mk(w,h);t.getContext("2d").drawImage(full,0,0,w,h);
   const d=t.getContext("2d").getImageData(0,0,w,h).data,lab=new Int32Array(w*h),out=[];let n=0;
@@ -575,45 +718,92 @@ function splitPieces(full){
   }
   return out;
 }
-$("#to-pub").onclick=()=>{if(!scraps.length&&!confirmNoScraps())return;show("publish")};
+$("#to-pub").onclick=()=>{
+  if(PATH==="scraps"&&!scraps.length){toast("Nothing cut yet. Draw around something first.");return}
+  const miss=scraps.filter(s=>!s.cluster);
+  if(miss.length){toast(miss.length===1?"One scrap needs a pile.":`${miss.length} scraps need a pile.`);miss.forEach(s=>{const r=$(`#scraps [data-id="${s.id}"]`);if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}});const r=$(`#scraps [data-id="${miss[0].id}"]`);if(r)r.scrollIntoView({block:"nearest",behavior:"smooth"});return}
+  show("send")};
 function confirmNoScraps(){toast("No scraps. Just the collage, then.");return true}
 
-// ---------- 4 publish ----------
 function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===1)return c;const o=mk(c.width*k,c.height*k);const g=o.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,o.width,o.height);return o}
+
+// ---------- 4 send ----------
 function renderPublish(){
-  $("#pub-preview").src=trimmed.toDataURL("image/webp",.8);
-  const lib=scraps.filter(s=>s.lib).length;
-  $("#pub-summary").textContent=`Goes on the table${scraps.length?`, ${scraps.length} layer${scraps.length>1?"s":""} deep`:""}. ${lib||"No"} scrap${lib===1?"":"s"} to the pile.`;
-  $("#pub-list").innerHTML=scraps.filter(s=>s.lib).map(s=>`<img src="${s.canvas.toDataURL()}" alt="${(s.name||"scrap").replace(/"/g,"&quot;")}">`).join("");
-  setTimeout(()=>$("#title").focus(),30);
+  const col=PATH==="collage";
+  $("#w-send").classList.toggle("only",!col||!scraps.length);
+  $("#send-col").hidden=!col;$("#send-pile").hidden=!scraps.length;
+  if(col)$("#pub-preview").src=trimmed.toDataURL("image/webp",.8);
+  $("#pub-list").innerHTML=scraps.map(s=>`<img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}" style="transform:rotate(${(s.id*37%9)-4}deg)">`).join("");
+  $("#pile-n").textContent=`${scraps.length} to the pile`;
+  $("#send-note").textContent=OWNER?(col?"Goes straight on the table.":"Goes straight into the pile."):
+    (col?"It shows up once it's had a look.":`${scraps.length} scrap${scraps.length>1?"s":""} ready. Sign them so you get the credit.`);
+  $("#publish").textContent=OWNER?(col?"Pin it":"Pile it"):"Send it";
+  if(col)setTimeout(()=>$("#title").focus(),30);
 }
 const slug=t=>(t||"collage").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,32)||"collage";
 const webp=(c,q=.82)=>new Promise(r=>c.toBlob(r,"image/webp",q));
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():"10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
 $("#publish").onclick=async()=>{
-  const btn=$("#publish");btn.disabled=true;
+  const btn=$("#publish"),label=btn.textContent;
+  const last=+localStorage.getItem("cutouts-sent")||0;
+  if(!OWNER&&!DEMO&&Date.now()-last<60000){toast("Easy, tiger. One send a minute.");return}
+  btn.disabled=true;btn.textContent="Gluing…";
   try{
-    const title=$("#title").value.trim()||"Untitled",base=slug(title)+"-"+Math.random().toString(36).slice(2,6);
-    const col=fitTo(trimmed,1000),k=col.width/trimmed.width;
-    const pieces=scraps.map((s,i)=>({s,id:base+"-"+(i+1)+"-"+slug(s.name).slice(0,16),img:fitTo(s.canvas,600)}));
-    const depths=[.5,1,.8,.65,.95,.7,.9];
-    const layers=pieces.filter(p=>p.s.par).map((p,i)=>({id:p.id,x:+(p.s.box[0]/trimmed.width*100).toFixed(2),y:+(p.s.box[1]/trimmed.height*100).toFixed(2),w:+(p.s.box[2]/trimmed.width*100).toFixed(2),d:depths[i%depths.length],src:SB_URL+"/storage/v1/object/public/scraps/"+p.id+".webp"}));
-    const description=$("#desc").value.trim()||null;
-    const row={id:base,title,description,image_path:base+".webp",w:col.width,h:col.height,layers,sort:Date.now()%2147483647};
-    const srows=pieces.filter(p=>p.s.lib).map((p,i)=>({id:p.id,title:p.s.name||title+" "+(i+1),cluster:p.s.cluster,image_path:p.id+".webp",w:p.img.width,h:p.img.height,collage_id:base,sort:row.sort}));
-    if(DEMO){console.log({row,srows});toast("Demo: nothing pinned.");btn.disabled=false;return}
-    btn.textContent="Gluing…";
+    if(DEMO){await new Promise(r=>setTimeout(r,500));done();return}
+    if(!sb)throw new Error("no connection");
+    const title=$("#title").value.trim(),description=$("#desc").value.trim()||null,signed=$("#signed").value.trim()||null;
+    if(signed)localStorage.setItem("recortes-signed",signed);
     const up=async(bucket,path,c)=>{const {error}=await sb.storage.from(bucket).upload(path,await webp(c),{contentType:"image/webp",upsert:false});if(error)throw new Error(bucket+": "+error.message)};
-    await up("collages",row.image_path,col);
-    for(const p of pieces)await up("scraps",p.id+".webp",p.img);
-    let r=await sb.from("collages").insert(row);
-    if(r.error&&/description/.test(r.error.message)){const {description:_d,...rest}=row;r=await sb.from("collages").insert(rest)}
-    if(r.error)throw new Error(r.error.message);
-    if(srows.length){r=await sb.from("scraps").insert(srows);if(r.error)throw new Error(r.error.message)}
-    $("#pub-side").innerHTML=`<h2>Pinned.</h2><p class="muted">“${title.replace(/</g,"&lt;")}” is on the table. ${srows.length} new scrap${srows.length===1?"":"s"} in the pile.</p><div class="row"><a class="btn" href="./" id="see" style="text-decoration:none">See the mess</a><button class="ghost" id="again">Another one</button></div>`;
-    $("#again").onclick=()=>location.reload();
-    if(EMBED){parent.postMessage({type:"cutouts:published"},location.origin);$("#see").onclick=e=>{e.preventDefault();parent.postMessage({type:"cutouts:show"},location.origin)}}btn.hidden=true;$$('#v-publish [data-go]').forEach(b=>b.hidden=true);
-  }catch(err){console.error(err);toast("Couldn't publish: "+err.message,true);btn.textContent="Pin it";btn.disabled=false}
+    if(OWNER)await ownerPublish(title,description,up);
+    else{
+      const batch=uuid();
+      if(PATH==="collage"){
+        const col=fitTo(trimmed,1400),id=uuid();
+        await up("community",id+".webp",col);
+        let row={image_path:id+".webp",w:col.width,h:col.height,signed,title:title||null,description,batch,approved:false};
+        let r=await sb.from("community").insert(row);
+        if(r.error&&/batch|title|description/.test(r.error.message)){const {batch:_b,...rest}=row;r=await sb.from("community").insert(rest)}
+        if(r.error)throw new Error(r.error.message);
+      }
+      for(const [i,s] of scraps.entries()){
+        const id=uuid(),img=fitTo(s.canvas,600);
+        await up("scraps","v/"+id+".webp",img);
+        const r=await sb.from("scraps").insert({id:"v-"+id,title:s.name||(title||"scrap")+" "+(i+1),cluster:s.cluster,image_path:"v/"+id+".webp",w:img.width,h:img.height,published:false,signed,batch,sort:Date.now()%2147483647});
+        if(r.error)throw new Error(r.error.message);
+      }
+      localStorage.setItem("cutouts-sent",Date.now());
+    }
+    done();
+  }catch(err){console.error(err);toast("Couldn't send it: "+err.message,true)}
+  btn.disabled=false;btn.textContent=label;
 };
+function done(){
+  const col=PATH==="collage";
+  $("#done-h").textContent=OWNER?(col?"Pinned.":"Piled."):"Sent.";
+  $("#done-p").textContent=OWNER?(col?"It's on the table.":"They're in the scrap pile."):"It shows up once it's had a look. Usually soon-ish.";
+  show("done");tell("cutouts:published");
+}
+async function ownerPublish(title,description,up){
+  title=title||"Untitled";
+  if(PATH==="scraps"){
+    const base="s-"+Math.random().toString(36).slice(2,8),srt=Date.now()%2147483647,rows=[];
+    for(const [i,s] of scraps.entries()){const id=base+"-"+(i+1)+"-"+slug(s.name).slice(0,16),img=fitTo(s.canvas,600);await up("scraps",id+".webp",img);rows.push({id,title:s.name||"scrap "+(i+1),cluster:s.cluster,image_path:id+".webp",w:img.width,h:img.height,sort:srt})}
+    const r=await sb.from("scraps").insert(rows);if(r.error)throw new Error(r.error.message);return;
+  }
+  const base=slug(title)+"-"+Math.random().toString(36).slice(2,6);
+  const col=fitTo(trimmed,1000);
+  const pieces=scraps.map((s,i)=>({s,id:base+"-"+(i+1)+"-"+slug(s.name).slice(0,16),img:fitTo(s.canvas,600)}));
+  const depths=[.5,1,.8,.65,.95,.7,.9];
+  const layers=pieces.map((p,i)=>({id:p.id,x:+(p.s.box[0]/trimmed.width*100).toFixed(2),y:+(p.s.box[1]/trimmed.height*100).toFixed(2),w:+(p.s.box[2]/trimmed.width*100).toFixed(2),d:depths[i%depths.length],src:SB_URL+"/storage/v1/object/public/scraps/"+p.id+".webp"}));
+  const row={id:base,title,description,image_path:base+".webp",w:col.width,h:col.height,layers,sort:Date.now()%2147483647};
+  const srows=pieces.map((p,i)=>({id:p.id,title:p.s.name||title+" "+(i+1),cluster:p.s.cluster,image_path:p.id+".webp",w:p.img.width,h:p.img.height,collage_id:base,sort:row.sort}));
+  await up("collages",row.image_path,col);
+  for(const p of pieces)await up("scraps",p.id+".webp",p.img);
+  let r=await sb.from("collages").insert(row);
+  if(r.error&&/description/.test(r.error.message)){const {description:_d,...rest}=row;r=await sb.from("collages").insert(rest)}
+  if(r.error)throw new Error(r.error.message);
+  if(srows.length){r=await sb.from("scraps").insert(srows);if(r.error)throw new Error(r.error.message)}
+}
 
 initAuth();
 </script>
