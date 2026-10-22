@@ -398,7 +398,12 @@ const CLUSTERS=[["people","People"],["faces","Faces"],["bodies","Bodies"],["natu
 const CL=Object.fromEntries(CLUSTERS);
 let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3400)}
 const mk=(w,h)=>{const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
-try{const dw=JSON.parse(localStorage.getItem("recortes-dockw"));if(typeof dw==="number")document.documentElement.style.setProperty("--side",Math.max(260,Math.min(680,dw))+"px")}catch(e){}
+function matchDock(){ // same width as the make-a-mess scrap pile
+  let w=0;try{const ps=parent!==window&&parent.document.querySelector("#studio");if(ps)w=parseInt(parent.getComputedStyle(ps).getPropertyValue("--dock-w"))}catch(e){}
+  if(!w)try{const dw=JSON.parse(localStorage.getItem("recortes-dockw"));if(typeof dw==="number")w=dw}catch(e){}
+  if(w)document.documentElement.style.setProperty("--side",Math.max(240,Math.min(680,w))+"px");
+}
+matchDock();addEventListener("resize",matchDock);
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const tell=type=>{if(EMBED)parent.postMessage({type},location.origin)};
 let OWNER=false,PATH="collage";
@@ -423,7 +428,7 @@ function show(v){
   $("#zoom").hidden=!(v==="square"||v==="cut");$("#loose").hidden=v!=="cut";
   $("#v-wiz").classList.toggle("with-side",v==="cut");
   $("#w-send").classList.toggle("sent",v==="done");
-  requestAnimationFrame(fitSteps);
+  matchDock();requestAnimationFrame(fitSteps);
   if(v==="square")requestAnimationFrame(layoutSheet);
   if(v==="cut"){requestAnimationFrame(drawCut);setTimeout(drawCut,560)}
   if(v==="square")setTimeout(()=>{sizeView("w-sheet");placeCorners()},560);
@@ -504,7 +509,7 @@ PAPERS.forEach(o=>{
   };
 });
 function resetWork(){srcImg=null;scraps=[];$("#loose").innerHTML="";trimmed=null;quad=null;$("#title").value="";$("#desc").value=""}
-$("#quit").onclick=()=>{const q=$("#quit");if((srcImg||scraps.length)&&step!=="done"&&q.dataset.sure!=="1"){q.dataset.sure="1";toast("Tap ✕ again to drop this one.");setTimeout(()=>q.dataset.sure="",3000);return}q.dataset.sure="";resetWork();show("pick")};
+$("#quit").onclick=()=>{resetWork();show("pick")};
 $("#again").onclick=()=>{resetWork();show("pick")};
 $("#go-mess").onclick=()=>{if(EMBED)parent.postMessage({type:"cutouts:mess"},location.origin);else location.href="./"};
 $("#skip-cut").onclick=()=>{scraps=[];show("send")};
