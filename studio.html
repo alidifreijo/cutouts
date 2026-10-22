@@ -75,7 +75,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wiz-wrap{flex:1;min-height:0;display:grid;grid-template-columns:var(--rail) minmax(0,1fr) 0;transition:grid-template-columns .5s cubic-bezier(.65,0,.25,1)}
 .wiz-wrap.with-side{grid-template-columns:var(--rail) minmax(0,1fr) var(--side)}
 .wiz-wrap .side{overflow:hidden;min-width:0}
-.rail{position:relative;padding:64px 20px 24px 64px;min-height:0}
+.rail{position:relative;padding:min(64px,6vh) 20px 24px 64px;min-height:0;overflow:hidden}
 .rail .dots{position:absolute;left:30px;top:130px;display:flex;flex-direction:column;gap:8px}
 .rail .dots i{width:6px;height:6px;border-radius:3px;background:var(--mat-line-strong);transition:height .45s cubic-bezier(.65,0,.25,1),background .3s}
 .rail .dots i.dn{background:var(--mat-ink)}
@@ -87,7 +87,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wstep.on{opacity:1;transform:none;transition-delay:.12s}
 .wstep .back{align-self:flex-start;margin:0 0 4px -10px;border:0;border-radius:999px;background:transparent;color:var(--mint);padding:6px 10px;font-size:16px}
 .wstep .back:hover{background:rgba(214,238,222,.12);color:#fff}
-.wstep h2{font-size:clamp(74px,calc(10.5vw - 10px),166px);line-height:1.12;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.wstep h2{font-size:clamp(40px,min(calc(10.5vw - 10px),15vh),166px);line-height:1.12;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .wstep .desc{color:var(--mint);font-size:17px;line-height:1.6;margin:0;max-width:30ch}
 .wstep .opt{margin:-4px 0 0;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink)}
 .wstep .acts{display:flex;gap:10px;margin-top:14px}
@@ -421,6 +421,7 @@ function show(v){
   $("#zoom").hidden=!(v==="square"||v==="cut");$("#loose").hidden=v!=="cut";
   $("#v-wiz").classList.toggle("with-side",v==="cut");
   $("#w-send").classList.toggle("sent",v==="done");
+  requestAnimationFrame(fitSteps);
   if(v==="square")requestAnimationFrame(layoutSheet);
   if(v==="cut"){requestAnimationFrame(drawCut);setTimeout(drawCut,560)}
   if(v==="square")setTimeout(()=>{sizeView("w-sheet");placeCorners()},560);
@@ -434,6 +435,19 @@ function setPath(p){
   $("#cut-opt").hidden=!col;$("#skip-cut").hidden=!col;
   $("#send-h").textContent=col?"Pin it":"Pile it";
 }
+// step titles shrink until the whole step (title, text, buttons) fits above the zoom bar
+function fitSteps(){
+  const rail=$("#rail");if(!rail||!rail.clientHeight)return;
+  $$(".wstep").forEach(w=>{const h=w.querySelector("h2");if(!h)return;h.style.fontSize="";
+    if(!w.classList.contains("on"))return;
+    const room=rail.clientHeight-parseFloat(getComputedStyle(rail).paddingTop)-84;
+    let f=parseFloat(getComputedStyle(h).fontSize);
+    while(w.scrollHeight>room&&f>30){f-=3;h.style.fontSize=f+"px"}
+  });
+}
+addEventListener("resize",()=>requestAnimationFrame(fitSteps));
+if(document.fonts)document.fonts.ready.then(fitSteps);
+
 // ---------- paper cards: unfold on arrival, crumple when picked ----------
 const REDUCE=matchMedia("(prefers-reduced-motion:reduce)").matches;
 function rng(seed){return()=>(seed=(seed*16807)%2147483647)/2147483647}
