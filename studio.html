@@ -82,10 +82,17 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .steps li.dn{color:var(--mint);cursor:pointer}.steps li.dn .c{background:var(--mat-light);border-color:var(--mat-light)}
 .steps .ln{display:none!important}
 .steps .ln.dn{background:var(--mint)}
-.frame{position:relative;flex:1;min-height:0;border:1.5px dashed var(--mat-line-strong);border-radius:14px;background:rgba(23,61,44,.32);overflow:hidden}
+.frame{position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;width:100%;margin:0 auto}
+.frame.dropping{border:1.5px dashed var(--mat-line-strong)}
+.wiz-wrap.solo{grid-template-columns:1fr}
+.wiz-wrap.solo .side{display:none}
+.wiz-wrap.solo .frame{max-width:calc(100% - var(--side))}
+.wiz-wrap.enter .area>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
+.wiz-wrap.enter .frame{animation-delay:.08s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}}
 .frame>.pane{position:absolute;inset:0}
 .drop{display:grid;place-items:center;text-align:center;cursor:pointer;transition:background .15s}
-.drop:hover,.drop.over{background:rgba(23,61,44,.5)}
+.drop:hover,.drop.over{background:rgba(214,238,222,.06)}
 .drop .ic{width:40px;height:40px;margin:0 auto 10px;color:var(--mint)}
 .drop b{font-family:var(--f-head);font-weight:400;font-size:24px;color:#fff;display:block;margin-bottom:8px}
 .drop p{color:var(--mat-ink);margin:0 0 18px;line-height:1.6;font-size:15px}
@@ -97,27 +104,34 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .stage.cut{cursor:var(--cutter)}
 .view.space .stage.cut{cursor:inherit}
-.corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:transform .15s,background .15s}
+.corner.free{transform:scale(1.35);background:var(--warn)}
 .busy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,61,44,.6);font-size:16px;z-index:5}
 .zoom{position:absolute;z-index:6;left:12px;bottom:12px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
 .zoom button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#fff;display:grid;place-items:center;padding:0}
 .zoom button:hover{background:var(--mat-light)}
 .zoom .zv{width:auto;min-width:58px;border-radius:999px;font-size:13px;color:var(--mint)}
-.send{display:grid;grid-template-columns:1fr 1fr;gap:0}
-.send .half{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;min-height:0;overflow:auto}
-.send .half+.half{border-left:1.5px dashed var(--mat-line-strong)}
-.send .lbl{color:var(--mat-ink);font-size:14px}
-.send .col{width:auto;height:min(62%,560px);max-width:100%;object-fit:contain;transform:rotate(-1.5deg);background:var(--paper)}
-.send .pile{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-content:center;max-width:100%}
-.send .pile img{width:120px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 5px rgba(0,0,0,.4))}
-.send.only{grid-template-columns:1fr}
+.send{display:grid;place-items:center;padding:36px 28px}
+.send .table{display:flex;align-items:center;justify-content:center;gap:56px;max-width:100%;max-height:100%;flex-wrap:wrap}
+.pinned{position:relative;margin:0;transform:rotate(-1.5deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
+.pinned img{display:block;max-height:min(58vh,560px);max-width:min(46vw,560px)}
+.tape{position:absolute;top:-11px;left:50%;width:30%;height:22px;background:rgba(244,232,196,.78);transform:translateX(-50%) rotate(2deg);z-index:1;
+  clip-path:polygon(0 8%,6% 0,12% 10%,18% 0,24% 8%,30% 0,70% 0,76% 9%,82% 0,88% 8%,94% 0,100% 10%,100% 92%,94% 100%,88% 90%,82% 100%,76% 92%,70% 100%,30% 100%,24% 91%,18% 100%,12% 92%,6% 100%,0 90%)}
+.pinned figcaption{position:absolute;left:2px;top:calc(100% + 8px);font-family:var(--f-head);font-size:15px;line-height:1.6;color:var(--mat-ink);white-space:nowrap;max-width:110%;overflow:hidden;text-overflow:ellipsis}
+.bits{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:min(36vw,380px)}
+.bits .pile{display:flex;flex-wrap:wrap;gap:22px 26px;justify-content:center;align-items:flex-end}
+.bits figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;max-width:130px}
+.bits figure img{max-width:120px;max-height:120px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 8px 10px rgba(0,0,0,.35))}
+.bits figcaption{font-family:var(--f-head);font-size:12.5px;color:var(--mat-ink);text-align:center;line-height:1.5}
+.bits .lbl{color:var(--mat-ink);font-size:13px}
+.send.only .table{gap:0}
 .done{display:grid;place-items:center;text-align:center}
 .done h1{font-family:var(--f-head);font-weight:400;font-size:46px;color:#fff;margin:0 0 6px}
 .done p{color:var(--mat-ink);margin:0 0 22px}
 
 /* ---------- side sheet ---------- */
-.side{background:var(--panel);border-left:1px solid rgba(0,0,0,.18);display:flex;flex-direction:column;min-height:0}
-.embed .side{border-radius:16px 0 0 0;border-top:1px solid rgba(0,0,0,.18)}
+.side{background:var(--panel);border-left:1px solid rgba(0,0,0,.18);box-shadow:-10px 0 24px -12px rgba(0,0,0,.5);display:flex;flex-direction:column;min-height:0;position:relative;z-index:2}
+
 .side.blank{background:transparent;border-color:transparent}
 .side-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:20px 16px 24px;scrollbar-width:thin}
 .side-pane{flex:1;min-height:0;display:flex;flex-direction:column}
@@ -143,6 +157,9 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .scrap select.bad{border-color:#e5584d;box-shadow:0 0 0 1px #e5584d}
 .scrap.shake{animation:shake .35s}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.bgx{align-self:flex-start;border:1px dashed var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:4px 10px;font-size:12.5px}
+.bgx:hover{border-color:var(--mint)}
+.bgx.on{border-style:solid;background:rgba(212,236,220,.14)}
 .x{border:0;background:none;color:var(--mat-ink);width:28px;height:28px;border-radius:50%;padding:0;font-size:14px}
 .x:hover{background:var(--mat-light);color:var(--mint)}
 .empty{color:var(--mat-ink);font-size:14.5px;line-height:1.6;border:1px dashed var(--mat-line-strong);border-radius:12px;padding:16px;text-align:center}
@@ -152,7 +169,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 
 /* ---------- owner: inbox, login, big view ---------- */
 .inbox-side{width:var(--side);background:var(--panel);border-left:1px solid rgba(0,0,0,.18);display:flex;flex-direction:column;min-height:0}
-.embed .inbox-side{border-radius:16px 0 0 0}
+.inbox-side{box-shadow:-10px 0 24px -12px rgba(0,0,0,.5)}
 .ibx{display:grid;grid-template-columns:64px minmax(0,1fr);gap:10px;align-items:center;padding:8px;border-radius:12px;background:rgba(0,0,0,.1);cursor:pointer;text-align:left;border:0;width:100%;color:inherit}
 .ibx:hover{background:rgba(0,0,0,.18)}
 .ibx .th{width:64px;height:64px;border-radius:8px;background:rgba(0,0,0,.15);display:grid;place-items:center;overflow:hidden}
@@ -236,14 +253,16 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       </ol>
       <div class="frame" id="frame">
         <label class="pane drop" id="drop">
-          <div><svg class="i ic"><use href="#i-photo"/></svg><b>Drop a photo</b><p>Flat, from above, daylight.<br>The whole page in. Phone pics are fine.</p><span class="btn">Pick a photo</span></div>
+          <div><svg class="i ic"><use href="#i-photo"/></svg><b>Drop your mess</b><p>Flat, from above, daylight.<br>The whole page in. Phone pics are fine.</p><span class="btn">Pick a photo</span></div>
           <input type="file" id="file" accept="image/*,.heic,.heif">
         </label>
         <div class="pane view" id="w-sheet" hidden><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
         <div class="pane view" id="w-cut" hidden><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg></div></div>
         <div class="pane send" id="w-send" hidden>
-          <div class="half" id="send-col"><img class="col" id="pub-preview" alt="Your collage"><span class="lbl">to the table</span></div>
-          <div class="half" id="send-pile"><div class="pile" id="pub-list"></div><span class="lbl" id="pile-n"></span></div>
+          <div class="table">
+            <figure class="pinned" id="send-col"><span class="tape"></span><img id="pub-preview" alt="Your collage"><figcaption id="pub-title"></figcaption></figure>
+            <div class="bits" id="send-pile"><div class="pile" id="pub-list"></div><span class="lbl" id="pile-n"></span></div>
+          </div>
         </div>
         <div class="pane done" id="w-done" hidden><div><h1 id="done-h">Sent.</h1><p id="done-p">It shows up once it's had a look. Usually soon-ish.</p><div style="display:flex;gap:10px;justify-content:center"><button class="ghost" id="again">Cut another</button><button class="btn" id="go-mess">Make a mess</button></div></div></div>
         <div class="busy" id="busy" hidden>Finding scraps…</div>
@@ -332,7 +351,7 @@ function show(v){
   $$("#steps .ln").forEach((l,j)=>l.classList.toggle("dn",v==="done"||j<i));
   $("#drop").hidden=v!=="snap";$("#w-sheet").hidden=v!=="square";$("#w-cut").hidden=v!=="cut";$("#w-send").hidden=v!=="send";$("#w-done").hidden=v!=="done";
   $("#zoom").hidden=!(v==="square"||v==="cut");
-  $("#side").classList.toggle("blank",v==="snap"||v==="done");
+  $("#v-wiz").classList.toggle("solo",v==="snap"||v==="done");$("#frame").classList.toggle("dropping",v==="snap");
   $("#v-sheet").hidden=v!=="square";$("#v-cut").hidden=v!=="cut";$("#v-send").hidden=v!=="send";
   if(v==="square")requestAnimationFrame(layoutSheet);
   if(v==="cut")requestAnimationFrame(drawCut);
@@ -351,7 +370,7 @@ function setPath(p){
   const col=p==="collage";
   $("#snap-label").textContent=col?"Drop your mess":"Drop your page";
   $("#sq-label").textContent="Give it shape";$("#sq-h").textContent="Give it shape";
-  $("#sq-p").textContent=col?"Drag the dots to your collage's corners. That's the canvas.":"Drag the dots to the paper's corners. It flattens itself.";
+  $("#sq-p").textContent="Drag a corner to resize. Hold one still for a second to move it on its own.";
   $("#trim-f").hidden=col;
   $("#cut-label").textContent="Cut the bits";$("#cut-h").innerHTML=col?'Cut the bits <span class="muted" style="font-family:var(--f);font-size:14px">optional</span>':"Cut the bits";
   $("#skip-cut").hidden=!col;
@@ -399,9 +418,14 @@ PAPERS.forEach(o=>{
   o.el.onclick=async()=>{
     if(o.busy)return;PAPERS.forEach(x=>{x.busy=true;if(x!==o)x.el.classList.add("away")});
     await tween(o,1,650);
-    o.el.animate([{opacity:1,translate:"0 0"},{opacity:0,translate:"40px 90px"}],{duration:REDUCE?1:260,easing:"ease-in",fill:"forwards"}).onfinish=()=>{
-      PAPERS.forEach(x=>{x.busy=false;x.el.classList.remove("away");x.el.getAnimations().forEach(a=>a.cancel())});
+    const r=o.el.getBoundingClientRect(),dx=innerWidth/2-(r.left+r.width/2),dy=innerHeight*.55-(r.top+r.height/2);
+    $$(".pick-main h1,.pick-main .lede,.owner").forEach(x=>x.animate([{opacity:1},{opacity:0}],{duration:REDUCE?1:280,fill:"forwards"}));
+    PAPERS.forEach(x=>{if(x!==o)x.el.animate([{opacity:.35},{opacity:0,transform:x.el.style.transform+" translateY(30px)"}],{duration:REDUCE?1:280,fill:"forwards"})});
+    o.el.animate([{translate:"0 0",opacity:1},{translate:`${dx*.6}px ${dy*.6-60}px`,opacity:1,offset:.45},{translate:`${dx}px ${dy}px`,opacity:0}],{duration:REDUCE?1:520,easing:"cubic-bezier(.4,0,.6,1)",fill:"forwards"}).onfinish=()=>{
       setPath(o.el.dataset.path);resetWork();show("snap");
+      const w=$("#v-wiz");w.classList.remove("enter");void w.offsetWidth;w.classList.add("enter");setTimeout(()=>w.classList.remove("enter"),700);
+      PAPERS.forEach(x=>{x.busy=false;x.el.classList.remove("away");x.el.getAnimations().forEach(a=>a.cancel())});
+      $$(".pick-main h1,.pick-main .lede,.owner").forEach(x=>x.getAnimations().forEach(a=>a.cancel()));
     };
   };
 });
@@ -411,6 +435,7 @@ $("#go-mess").onclick=()=>{if(EMBED)parent.postMessage({type:"cutouts:mess"},loc
 $("#skip-cut").onclick=()=>{scraps=[];show("send")};
 $("#skip-sq").onclick=()=>{quad=[[0,0],[srcImg.width,0],[srcImg.width,srcImg.height],[0,srcImg.height]];$("#trim").value=0;flatten();VZ["w-cut"]=1;show("cut")};
 $("#desc").oninput=e=>$("#desc-n").textContent=e.target.value.length+"/280";
+$("#title").addEventListener("input",e=>$("#pub-title").textContent=e.target.value.trim());
 
 // ---------- owner ----------
 async function initAuth(){
@@ -573,9 +598,14 @@ function placeCorners(){
 }
 function bindCorner(h){
   h.addEventListener("pointerdown",e=>{
-    h.setPointerCapture(e.pointerId);const r=$("#src-cv").getBoundingClientRect(),k=scaleOf(),i=+h.dataset.i;
-    const mv=ev=>{quad[i]=[Math.max(0,Math.min(srcImg.width,(ev.clientX-r.left)/k)),Math.max(0,Math.min(srcImg.height,(ev.clientY-r.top)/k))];placeCorners()};
-    const up=()=>{h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);flatten()};
+    h.setPointerCapture(e.pointerId);const r=$("#src-cv").getBoundingClientRect(),k=scaleOf(),i=+h.dataset.i,q0=quad.map(p=>[...p]),o=q0[(i+2)%4],v0=[q0[i][0]-o[0],q0[i][1]-o[1]],L0=v0[0]*v0[0]+v0[1]*v0[1]||1,sx=e.clientX,sy=e.clientY;
+    let free=false,moved=false;const hold=setTimeout(()=>{if(!moved){free=true;h.classList.add("free");toast("Just this corner.")}},420);
+    const clampP=p=>[Math.max(0,Math.min(srcImg.width,p[0])),Math.max(0,Math.min(srcImg.height,p[1]))];
+    const mv=ev=>{if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<4)return;moved=true;const p=[(ev.clientX-r.left)/k,(ev.clientY-r.top)/k];
+      if(free)quad[i]=clampP(p);
+      else{const t=Math.max(.05,((p[0]-o[0])*v0[0]+(p[1]-o[1])*v0[1])/L0);quad=q0.map(q=>clampP([o[0]+(q[0]-o[0])*t,o[1]+(q[1]-o[1])*t]))}
+      placeCorners()};
+    const up=()=>{clearTimeout(hold);h.classList.remove("free");h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);flatten()};
     h.addEventListener("pointermove",mv);h.addEventListener("pointerup",up);
   });
   h.addEventListener("keydown",e=>{const i=+h.dataset.i,d=e.shiftKey?10:2;const m={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[e.key];if(!m)return;e.preventDefault();quad[i]=[quad[i][0]+m[0],quad[i][1]+m[1]];placeCorners();clearTimeout(h._t);h._t=setTimeout(flatten,200)});
@@ -706,6 +736,7 @@ function renderScraps(){
     <div class="meta">
       <input class="input" value="${s.name.replace(/"/g,"&quot;")}" maxlength="60" placeholder="Name it" aria-label="Scrap name">
       <select aria-label="Pile" class="${s.bad&&!s.cluster?"bad":""}"><option value="" ${s.cluster?"":"selected"} disabled>Pick a pile</option>${CLUSTERS.map(([k,l])=>`<option value="${k}" ${s.cluster===k?"selected":""}>${l}</option>`).join("")}</select>
+      <button class="bgx${s.clean?" on":""}" data-bg>${s.busy?"Cleaning…":s.clean?"✦ Undo":"✦ No background"}</button>
     </div>
     <button class="x" data-rm aria-label="Delete scrap">✕</button>
   </div>`).join("");
@@ -713,7 +744,17 @@ function renderScraps(){
 $("#scraps").addEventListener("input",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches(".input"))s.name=e.target.value});
 $("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches("select")){s.cluster=e.target.value;s.bad=false;e.target.classList.remove("bad")}});
 $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
-  if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}});
+  if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}
+  if(e.target.closest("[data-bg]"))cleanScrap(s);});
+async function cleanScrap(s){
+  if(s.busy)return;
+  if(s.clean){s.canvas=s.orig;s.clean=false;renderScraps();return}
+  s.busy=true;renderScraps();
+  try{const m=await modelMask(s.orig||s.canvas);s.orig=s.orig||s.canvas;const c=mk(s.orig.width,s.orig.height),g=c.getContext("2d");g.drawImage(m,0,0,c.width,c.height);g.globalCompositeOperation="destination-in";g.drawImage(s.orig,0,0);
+    const t=tightCrop(c);if(alphaCount(t)<alphaCount(s.orig)*.04)throw new Error("nothing left");s.canvas=t;s.clean=true}
+  catch(err){console.error(err);toast("Couldn't find a clear shape in that one.",true)}
+  s.busy=false;renderScraps();
+}
 // the cut-out model runs in the browser; loaded once, on first use
 let modelP=null,modelReady=false;
 function getModel(){return modelP||(modelP=import("https://esm.sh/@imgly/background-removal@1.4.5").then(m=>{return m}).catch(e=>{modelP=null;throw e}))}
@@ -805,8 +846,9 @@ function renderPublish(){
   const col=PATH==="collage";
   $("#w-send").classList.toggle("only",!col||!scraps.length);
   $("#send-col").hidden=!col;$("#send-pile").hidden=!scraps.length;
-  if(col)$("#pub-preview").src=trimmed.toDataURL("image/webp",.8);
-  $("#pub-list").innerHTML=scraps.map(s=>`<img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}" style="transform:rotate(${(s.id*37%9)-4}deg)">`).join("");
+  if(col)$("#pub-preview").src=trimmed.toDataURL("image/webp",.85);
+  $("#pub-title").textContent=$("#title").value.trim();
+  $("#pub-list").innerHTML=scraps.map(s=>`<figure style="transform:rotate(${(s.id*37%9)-4}deg)"><img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}">${s.name?`<figcaption>${esc(s.name)}</figcaption>`:""}</figure>`).join("");
   $("#pile-n").textContent=`${scraps.length} to the pile`;
   $("#send-note").textContent=OWNER?(col?"Goes straight on the table.":"Goes straight into the pile."):
     (col?"It shows up once it's had a look.":`${scraps.length} scrap${scraps.length>1?"s":""} ready. Sign them so you get the credit.`);
