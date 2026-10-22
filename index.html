@@ -89,28 +89,39 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .mat,.card,.note,.desk,.sheet,.piece{cursor:var(--cutter)}
 
 /* ---------- the mess ---------- */
+.wall{touch-action:none;cursor:grab}
+.wall.panning,.wall.panning .card{cursor:grabbing}
+.wall .card{will-change:transform}
+.cin{display:block;position:relative;transition:transform .55s cubic-bezier(.2,.85,.25,1)}
+.wall .rulers .rx{transform:translateX(var(--ox,0))}
+.wall .rulers .ry{transform:translateY(var(--oy,0))}
+.wallseg{display:flex;gap:2px;background:var(--mat-dark);padding:3px;border-radius:999px}
+.wallseg button{border:0;background:transparent;padding:5px 12px;font-size:12.5px;border-radius:999px;color:var(--mat-ink)}
+.wallseg button:hover{color:var(--mint)}
+.wallseg button[aria-pressed="true"]{background:var(--mat-light);color:var(--mint)}
 .card{position:absolute;left:0;top:0;padding:0;border:0;background:transparent;touch-action:none;user-select:none;-webkit-user-select:none;
   transition:filter .2s;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
 .card img{display:block;width:100%;height:auto;pointer-events:none;-webkit-user-drag:none}
 .card:hover{filter:drop-shadow(0 2px 2px rgba(0,0,0,.25)) drop-shadow(0 22px 22px rgba(0,0,0,.45))}
 .card.dragging{filter:drop-shadow(0 2px 2px rgba(0,0,0,.2)) drop-shadow(0 30px 28px rgba(0,0,0,.5))}
 .card.away{visibility:hidden}
-.card .tape{position:absolute;top:-8%;left:50%;width:30%;height:min(20px,9%);min-height:9px;background:var(--tape);
+.card .tape{position:absolute;top:-10px;left:50%;width:30%;height:20px;background:var(--tape);transform:translateX(-50%) rotate(var(--tr,0deg));
   clip-path:polygon(0 8%,6% 0,12% 10%,18% 0,24% 8%,30% 0,70% 0,76% 9%,82% 0,88% 8%,94% 0,100% 10%,100% 92%,94% 100%,88% 90%,82% 100%,76% 92%,70% 100%,30% 100%,24% 91%,18% 100%,12% 92%,6% 100%,0 90%)}
 .card .lbl{position:absolute;left:2px;top:calc(100% + 6px);color:var(--mat-ink);font-size:11px;white-space:nowrap;max-width:110%;overflow:hidden;text-overflow:ellipsis;transition:color .2s}
 .card:hover .lbl{color:var(--mint)}
 .board.small .lbl{display:none}
-.note{position:absolute;left:0;top:0;color:var(--mint);font-size:13px;line-height:1.5;touch-action:none;user-select:none}
+.note{position:absolute;z-index:30;left:max(40px,calc(env(safe-area-inset-left,0px) + 16px));top:40px;width:min(290px,calc(100% - 56px));padding:16px 18px;border-radius:14px;background:rgba(23,61,44,.9);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);box-shadow:var(--shadow);color:var(--mint);font-size:13px;line-height:1.5;pointer-events:none}
 .note h2{font-weight:500;font-size:22px;line-height:1.1;letter-spacing:-.01em;margin:0 0 8px;color:#fff;text-wrap:balance}
 .note p{margin:0 0 8px;color:var(--mint)}
 .note .hint{font-size:11.5px;margin:0;color:var(--mat-ink)}
 .note .hint b{color:var(--mint);font-weight:500}
+.note .fine{display:none;margin:8px 0 0;font-size:10.5px;color:var(--mat-ink)}
 .board.small .note p:not(.hint){display:none}
 .board.small .note{font-size:11.5px}
 .board.small .note h2{font-size:17px}
 .addpane .add-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
 .tab-add{color:var(--mint)}
-.credit{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:10px;margin:0;font-size:10.5px;line-height:1.5;color:var(--mat-ink);text-align:right;pointer-events:none}
+.credit{z-index:30;padding:6px 10px;border-radius:10px;background:rgba(23,61,44,.85);position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:10px;margin:0;font-size:10.5px;line-height:1.5;color:var(--mat-ink);text-align:right;pointer-events:none}
 
 /* ---------- make a mess ---------- */
 #studio{--dock-w:320px;--dock:var(--dock-w)}
@@ -334,6 +345,13 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 @media (max-width:720px){
   .bar{gap:10px}
   .tab{padding:5px 10px}
+  #tools-mesa{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom,0px));margin:0;box-shadow:var(--shadow);border-radius:999px}
+  #tools-mesa[hidden]{display:none}
+  .credit{display:none}
+  .note{top:16px;left:16px;width:calc(100% - 32px);padding:12px 14px}
+  .note h2{font-size:18px;margin-bottom:4px}
+  .note p:not(.hint):not(.fine){display:none}
+  .note .fine{display:block}
   [data-tip]:hover::after{display:none}
   #studio{--dock:0px}
   .dock{width:min(340px,90vw)}
@@ -398,8 +416,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
       <button class="tab tab-add" role="tab" id="tab-add" aria-selected="false" aria-controls="addpane" hidden>+ new</button>
     </nav>
     <div class="tools" id="tools-mesa">
-      <button class="ib" id="btn-shuffle" aria-label="Shuffle" data-tip="shuffle"><svg class="i"><use href="#i-shuffle"/></svg></button>
-      <button class="ib" id="btn-tidy" aria-label="Tidy up" data-tip="tidy up"><svg class="i"><use href="#i-grid"/></svg></button>
+      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true">messy</button><button data-wall="strict" aria-pressed="false">strict</button></div>
     </div>
     <div class="tools" id="tools-pega" hidden>
       <button class="ib" id="btn-undo" aria-label="Undo" data-tip="undo · ⌘Z" disabled><svg class="i"><use href="#i-undo"/></svg></button>
@@ -410,7 +427,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
   </header>
 
   <main class="stage">
-    <section class="mat" id="mesa" role="tabpanel" aria-labelledby="tab-mesa">
+    <section class="mat wall" id="mesa" role="tabpanel" aria-labelledby="tab-mesa" tabindex="0">
       <div class="rulers"></div>
       <p class="credit">Collages made from found magazine imagery.<br>Personal, non-commercial project.</p>
       <div class="board" id="board"></div>
@@ -529,90 +546,87 @@ function drawRulers(mat){
   r.innerHTML=h;
 }
 
-// ---------- the mess (fits the screen, no scroll) ----------
+// ---------- the mess: an endless wall you drag around ----------
 const board=$("#board"), mesa=$("#mesa");
-let z=10;
-function makeCard(w,i){
-  const b=document.createElement("button");
-  b.className="card"; b.setAttribute("aria-label","View "+w.t);
-  b.innerHTML=`<img src="${SRC("a/"+w.id+".webp")}" alt="${esc(w.t)}" width="${w.w}" height="${w.h}">`
-    +(Math.random()<.4?`<span class="tape" style="transform:translateX(-50%) rotate(${rnd(-8,8)}deg)"></span>`:"")
-    +`<span class="lbl">${esc(w.t)}</span>`;
-  board.appendChild(b);
-  return {el:b,w,i,x:0,y:0,r:0,j:null};
+let wallStyle=store.get("recortes-style")==="strict"?"strict":"messy";
+const note=document.createElement("div");note.className="note";
+note.innerHTML=`<h2>Cut. Glue. No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="hint">${coarse?"<b>Swipe</b> to wander. <b>Tap</b> to stare.":"<b>Drag</b> to wander. <b>Click</b> to stare."} Then go <b>make a mess</b>.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
+mesa.appendChild(note);
+const WALL={cw:200,gap:30,colW:230,C:1,cols:[]};
+// C = how many columns before the pattern repeats sideways
+let camX=0,camY=0,velX=0,velY=0,inertia=0;
+const live=new Map();
+const hash=(a,b,c=0)=>{let h=Math.imul(a|0,73856093)^Math.imul(b|0,19349663)^Math.imul(c|0,83492791);h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296};
+const mod=(a,n)=>((a%n)+n)%n;
+function plan(){
+  const W=mesa.clientWidth;if(!W)return;
+  const small=W<720,N=WORKS.length;
+  const cw=small?Math.round((W-32-16)/2.1):Math.round(Math.max(180,Math.min(330,W/5.4)));
+  const gap=Math.round(cw*(small?.14:.18)),lbl=small?10:26;
+  WALL.cw=cw;WALL.gap=gap;WALL.colW=cw+gap;WALL.C=Math.max(5,Math.min(13,N));WALL.cols=[];
+  // one shuffled sequence; every column runs it at a different phase (golden-ratio steps),
+  // so neighbouring columns show different collages side by side
+  const seq=WORKS.map((w,i)=>i).sort((a,b)=>hash(a,3)-hash(b,3)),items=[];let y=0;
+  seq.forEach(i=>{const w=WORKS[i],h=cw*w.h/w.w;items.push({i,y,h});y+=h+lbl+gap});
+  for(let j=0;j<WALL.C;j++)WALL.cols.push({items,h:y,phase:-mod(j*.618034,1)*y});
+  live.forEach(el=>el.remove());live.clear();
 }
-const cards=WORKS.map(makeCard);
-function addWork(w){WORKS.push(w);const o=makeCard(w,WORKS.length-1);cards.push(o);order.push(o);makeDraggable(o,()=>openLb(o.i))}
-const note=document.createElement("div");
-note.className="note";
-note.innerHTML=`<h2>Cut. Glue. No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="hint">${coarse?"<b>Tap</b> to stare.":"<b>Drag</b> them around. <b>Click</b> to stare."} Then go <b>make a mess</b> with my scraps.</p>`;
-board.appendChild(note);
-const noteObj={el:note,x:0,y:0,r:0};
-function place(o){o.el.style.transform=`translate(${o.x}px,${o.y}px) rotate(${o.r}deg)`}
-
-const RULER=36;
-function tryLayout(order,cw,W,H,pad,commit,tidy){
-  const gap=Math.max(14,Math.round(cw*.13))+(cw>=110?14:0);
-  const avail=W-RULER-pad;
-  const cols=Math.floor((avail+gap)/(cw+gap)); if(cols<2)return null;
-  const used=cols*cw+(cols-1)*gap, x0=RULER+(avail-used)/2;
-  const heights=new Array(cols).fill(RULER+4);
-  const noteCols=Math.min(cols,Math.max(1,Math.ceil(Math.min(250,avail)/(cw+gap))));
-  const noteW=noteCols*cw+(noteCols-1)*gap;
-  board.classList.toggle("small",cw<110);
-  note.style.width=noteW+"px";
-  const nh=note.offsetHeight;
-  for(let c=0;c<noteCols;c++)heights[c]+=nh+gap*.8;
-  const pos=[];
-  for(const o of order){
-    const h=cw*o.w.h/o.w.w; const c=heights.indexOf(Math.min(...heights));
-    pos.push([o,x0+c*(cw+gap),heights[c]]); heights[c]+=h+gap;
+function cardEl(i){
+  const w=WORKS[i],b=document.createElement("button");b.className="card";b.dataset.i=i;b.setAttribute("aria-label","View "+w.t);
+  b.style.width=WALL.cw+"px";
+  b.innerHTML=`<span class="cin"><img src="${SRC("a/"+w.id+".webp")}" alt="${esc(w.t)}" width="${w.w}" height="${w.h}" draggable="false"><span class="tape"></span><span class="lbl">${esc(w.t)}</span></span>`;
+  board.appendChild(b);return b;
+}
+function render(){
+  const W=mesa.clientWidth,H=mesa.clientHeight;if(!W||!WALL.cols.length)return;
+  const {colW,C,cw}=WALL,seen=new Set(),messy=wallStyle==="messy";
+  const g0=Math.floor(-camX/colW)-1,g1=Math.floor((-camX+W)/colW)+1;
+  for(let g=g0;g<=g1;g++){
+    const col=WALL.cols[mod(g,C)],x=g*colW+camX+WALL.gap/2,ph=col.phase+(mod(g,C)!==mod(g,2*C)%C?0:0);
+    const r0=Math.floor((-camY-ph)/col.h)-1,r1=Math.floor((-camY-ph+H)/col.h)+1;
+    for(let rep=r0;rep<=r1;rep++)col.items.forEach((it,k)=>{
+      const top=it.y+rep*col.h+ph+camY;if(top>H+40||top+it.h<-60)return;
+      const key=g+":"+rep+":"+k;seen.add(key);
+      let el=live.get(key);
+      if(!el){el=cardEl(it.i);live.set(key,el);const t=hash(g,rep,k);el._r=(t-.5)*10;el._dx=(hash(g,k,rep)-.5)*cw*.08;el._dy=(hash(k,g,rep)-.5)*cw*.06;el._tr=(hash(rep,k,g)-.5)*16;el.querySelector(".tape").style.setProperty("--tr",el._tr+"deg")}
+      el.style.transform=`translate3d(${x}px,${top}px,0)`;
+      const r=messy?el._r:0;el.dataset.r=r;
+      el.firstChild.style.transform=messy?`translate(${el._dx}px,${el._dy}px) rotate(${r}deg)`:"none";
+    });
   }
-  const maxH=Math.max(...heights)-gap+pad*.6;
-  if(!commit)return maxH<=H-36?true:null;
-  noteObj.x=x0;noteObj.y=RULER+4;place(noteObj);
-  for(const [o,x,y] of pos){
-    if(!o.j)o.j={x:rnd(-.05,.05),y:rnd(0,.05),r:rnd(-5,5)};
-    o.el.style.width=cw+"px";
-    o.x=x+(tidy?0:o.j.x*cw);o.y=y+(tidy?0:o.j.y*cw);o.r=tidy?0:o.j.r;place(o);
-  }
-  return true;
+  live.forEach((el,key)=>{if(!seen.has(key)&&el!==lbEl){el.remove();live.delete(key)}});
+  mesa.style.backgroundPosition=`${28+camX}px ${28+camY}px`;
+  wallRulers();
 }
-let order=cards.slice(), tidyMode=false;
-function layout(){
-  const W=mesa.clientWidth,H=mesa.clientHeight; if(!W)return;
-  const pad=Math.min(40,Math.max(18,W*.03));
-  let cw=Math.min(300,W/2.4);
-  while(cw>48 && !tryLayout(order,cw,W,H,pad,false))cw-=3;
-  tryLayout(order,cw,W,H,pad,true,tidyMode);
-  drawRulers(mesa);
+let rulerKey="";
+function wallRulers(){
+  const r=mesa.querySelector(".rulers"),cm=38,fx=Math.floor(camX/cm),fy=Math.floor(camY/cm),ox=camX-fx*cm,oy=camY-fy*cm,W=mesa.clientWidth,H=mesa.clientHeight;
+  const key=fx+","+fy+","+W+","+H;
+  if(key!==rulerKey){rulerKey=key;let h="";
+    for(let i=-1;28+i*cm<W;i++)h+=`<span class="rn rx" style="left:${28+i*cm+3}px;top:6px">${i-fx}</span>`;
+    for(let i=0;28+i*cm<H;i++)h+=`<span class="rn ry" style="left:6px;top:${28+i*cm+2}px">${i-fy}</span>`;
+    r.innerHTML=h}
+  r.style.setProperty("--ox",ox+"px");r.style.setProperty("--oy",oy+"px");
 }
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-
-function makeDraggable(o,onClick){
-  let sx,sy,ox,oy,moved=false,id=null;
-  o.el.addEventListener("pointerdown",e=>{
-    if(e.button!==0)return;
-    id=e.pointerId;sx=e.clientX;sy=e.clientY;ox=o.x;oy=o.y;moved=false;
-    o.el.setPointerCapture(id);o.el.style.zIndex=++z;
-  });
-  o.el.addEventListener("pointermove",e=>{
-    if(e.pointerId!==id)return;
-    const dx=e.clientX-sx,dy=e.clientY-sy;
-    if(!moved&&Math.hypot(dx,dy)>6){moved=true;o.el.classList.add("dragging")}
-    if(moved){o.x=ox+dx;o.y=oy+dy;place(o)}
-  });
-  const end=e=>{
-    if(e.pointerId!==id)return;id=null;o.el.classList.remove("dragging");
-    if(!moved&&onClick&&e.type==="pointerup")onClick();
-  };
-  o.el.addEventListener("pointerup",end);o.el.addEventListener("pointercancel",end);
-  o.el.addEventListener("click",e=>{if(e.detail===0&&onClick)onClick()});
-}
-cards.forEach(o=>makeDraggable(o,()=>openLb(o.i)));
-makeDraggable(noteObj,null);
-$("#btn-shuffle").onclick=()=>{tidyMode=false;cards.forEach(o=>o.j=null);order=shuffle(cards.slice());layout()};
-$("#btn-tidy").onclick=()=>{tidyMode=true;order=cards.slice();layout()};
+function layout(){plan();render()}
+function setWallStyle(s){wallStyle=s;store.set("recortes-style",s);document.querySelectorAll("[data-wall]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.wall===s));render()}
+document.querySelectorAll("[data-wall]").forEach(b=>b.onclick=()=>setWallStyle(b.dataset.wall));
+function addWork(w){WORKS.push(w);if(!$("#mesa").hidden)layout()}
+// drag, fling, wheel, keys
+(()=>{let st=null,last=null,hits=[];
+  const glide=()=>{if(Math.hypot(velX,velY)<.2){inertia=0;return}camX+=velX;camY+=velY;velX*=.94;velY*=.94;render();inertia=requestAnimationFrame(glide)};
+  mesa.addEventListener("pointerdown",e=>{if(e.button!==0)return;cancelAnimationFrame(inertia);velX=velY=0;st={x:e.clientX,y:e.clientY,cx:camX,cy:camY,id:e.pointerId,card:e.target.closest(".card"),moved:false};last={x:e.clientX,y:e.clientY,t:performance.now()};hits=[];mesa.setPointerCapture(e.pointerId)});
+  mesa.addEventListener("pointermove",e=>{if(!st||e.pointerId!==st.id)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
+    if(!st.moved&&Math.hypot(dx,dy)>5){st.moved=true;mesa.classList.add("panning")}
+    if(st.moved){camX=st.cx+dx;camY=st.cy+dy;const t=performance.now();hits.push({vx:(e.clientX-last.x)/Math.max(1,t-last.t)*16,vy:(e.clientY-last.y)/Math.max(1,t-last.t)*16});if(hits.length>4)hits.shift();last={x:e.clientX,y:e.clientY,t};render()}});
+  const end=e=>{if(!st||e.pointerId!==st.id)return;const s=st;st=null;mesa.classList.remove("panning");
+    if(!s.moved){if(s.card&&e.type==="pointerup")openLb(+s.card.dataset.i,s.card);return}
+    if(hits.length&&performance.now()-last.t<80){velX=hits.reduce((a,h)=>a+h.vx,0)/hits.length;velY=hits.reduce((a,h)=>a+h.vy,0)/hits.length;if(!reduce)inertia=requestAnimationFrame(glide)}};
+  mesa.addEventListener("pointerup",end);mesa.addEventListener("pointercancel",end);
+  mesa.addEventListener("wheel",e=>{e.preventDefault();cancelAnimationFrame(inertia);camX-=e.deltaX;camY-=e.deltaY;render()},{passive:false});
+  mesa.addEventListener("keydown",e=>{const m={ArrowLeft:[1,0],ArrowRight:[-1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[e.key];if(!m)return;e.preventDefault();camX+=m[0]*WALL.colW;camY+=m[1]*WALL.colW*.8;render()});
+  mesa.addEventListener("click",e=>{const c=e.target.closest(".card");if(c&&e.detail===0)openLb(+c.dataset.i,c)});
+})();
 
 // ---------- close-up: fly-in, layered parallax, zoom ----------
 const lb=$("#lb"), fly=$("#lb-fly"), stg=$("#lb-stage");
@@ -648,21 +662,23 @@ function tick(ts){
   for(const l of lyrs)l.el.style.transform=`translate3d(${S.x*13*l.d}px,${S.y*13*l.d}px,0)`;
   raf=requestAnimationFrame(tick);
 }
+let lbEl=null;
 function cardFrom(i){
-  const c=cards[i];if(!c||$("#mesa").hidden)return null;
-  const r=c.el.getBoundingClientRect();if(!r.width)return null;
-  return {cx:r.left+r.width/2,cy:r.top+r.height/2,w:c.el.offsetWidth,r:c.r};
+  const el=lbEl;if(!el||+el.dataset.i!==i||$("#mesa").hidden||!el.isConnected)return null;
+  const r=el.getBoundingClientRect();if(!r.width)return null;
+  return {cx:r.left+r.width/2,cy:r.top+r.height/2,w:el.offsetWidth,r:+el.dataset.r||0};
 }
+function markAway(i){board.querySelectorAll(".card.away").forEach(x=>x.classList.remove("away"));if(lbEl&&+lbEl.dataset.i===i)lbEl.classList.add("away")}
 function flyKeys(i){
   const from=cardFrom(i), fr=fly.getBoundingClientRect();
   if(!from||reduce)return [{transform:"scale(.94)",opacity:0},{transform:"none",opacity:1}];
   const dx=from.cx-(fr.left+fr.width/2),dy=from.cy-(fr.top+fr.height/2),s=from.w/fr.width;
   return [{transform:`translate(${dx}px,${dy}px) rotate(${from.r}deg) scale(${s})`},{transform:"translate(0,0) rotate(0) scale(1.03)",offset:.75},{transform:"none"}];
 }
-function openLb(i){
+function openLb(i,el){
   if(busy)return;
-  cur=i;lb.hidden=false;build(i);
-  cards.forEach(c=>c.el.classList.toggle("away",c.i===i));
+  lbEl=el||null;cur=i;lb.hidden=false;build(i);
+  markAway(i);
   const k=flyKeys(i);
   fly.animate(k,{duration:reduce?150:620,easing:"cubic-bezier(.2,.85,.25,1)"});
   $("#lb-bg").animate([{opacity:0},{opacity:1}],{duration:reduce?150:420,easing:"ease-out"});
@@ -677,7 +693,7 @@ function closeLb(){
   const a=fly.animate([{transform:"none",opacity:1},end],{duration:reduce?150:460,easing:"cubic-bezier(.5,0,.3,1)"});
   $("#lb-bg").animate([{opacity:1},{opacity:0}],{duration:reduce?150:420,easing:"ease-in",fill:"forwards"});
   [$("#lb-cap"),$("#lb-x"),$("#lb-hint")].forEach(el=>el.animate([{opacity:1},{opacity:0}],{duration:160,fill:"forwards"}));
-  a.onfinish=()=>{lb.hidden=true;stg.innerHTML="";cancelAnimationFrame(raf);cards.forEach(c=>c.el.classList.remove("away"));
+  a.onfinish=()=>{lb.hidden=true;stg.innerHTML="";cancelAnimationFrame(raf);board.querySelectorAll(".card.away").forEach(x=>x.classList.remove("away"));lbEl=null;render();
     lb.getAnimations({subtree:true}).forEach(x=>x.cancel());busy=false};
 }
 function stepLb(dir){
@@ -685,7 +701,7 @@ function stepLb(dir){
   const out=fly.animate([{transform:"none",opacity:1},{transform:`translateX(${-dir*70}px) rotate(${-dir*5}deg)`,opacity:0}],{duration:reduce?80:200,easing:"ease-in"});
   out.onfinish=()=>{
     cur=(cur+dir+WORKS.length)%WORKS.length;build(cur);
-    cards.forEach(c=>c.el.classList.toggle("away",c.i===cur));
+    markAway(cur);
     fly.animate([{transform:`translateX(${dir*90}px) rotate(${dir*6}deg)`,opacity:0},{transform:"none",opacity:1}],{duration:reduce?80:420,easing:"cubic-bezier(.2,.85,.25,1)"}).onfinish=()=>{busy=false};
   };
 }
@@ -1523,6 +1539,7 @@ async function boot(){
   renderFilter();setPane("scraps");
   await loadRemote();
   load();
+  setWallStyle(wallStyle);
   const goAdd=initAdd();
   const m=store.get("recortes-mode");setMode(goAdd?"add":m==="pega"?"pega":"mesa");
   applyView();
