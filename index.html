@@ -622,8 +622,8 @@ function drawRulers(mat){
 
 // ---------- the mess: a big table you drag around ----------
 const board=$("#board"), mesa=$("#mesa");
-const MESS_SEED=Math.floor(Math.random()*1e6);
-let wallStyle=store.get("recortes-style")==="strict"?"strict":"messy";
+let MESS_SEED=Math.floor(Math.random()*1e6);
+let wallStyle="strict",messyOrder=null; // always opens strict
 const note=document.createElement("div");note.className="note";
 note.innerHTML=`<h2>Cut. Glue. No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="hint">${coarse?"<b>Swipe</b> to wander. <b>Tap</b> to stare.":"<b>Drag</b> to wander. <b>Click</b> to stare."} Then go <b>make a mess</b>.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
 board.appendChild(note);
@@ -640,7 +640,7 @@ function cardFor(w,i,key=w.id){
 function layout(){
   const W=mesa.clientWidth,H=mesa.clientHeight;if(!W)return;
   const small=W<720,messy=wallStyle==="messy",ALL=WORKS.map((w,i)=>({w,i})).filter(o=>!o.w.gone),N=ALL.length;
-  const cw=small?Math.round((W-48)/2.1):Math.round(Math.max(180,Math.min(330,W/5.4)));
+  const cw=small?Math.round((W-40)/1.85):Math.round(Math.max(210,Math.min(390,W/4.5)));
   const pad=small?44:64,gap=Math.round(cw*(small?.14:.18)),lbl=small?10:26;
   const noteW=small?Math.min(W-pad-16,320):270;note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad}px)`;
   const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad-gap,x1:pad+noteW+gap,y1:pad+nh+gap};
@@ -648,7 +648,8 @@ function layout(){
   // the endless wall's look, on a table with edges: at least ~1.5 screens each way,
   // bigger when there are more collages. Columns run one shuffled sequence at
   // golden-ratio offsets, so repeats (if any) never sit side by side.
-  const colW=cw+gap,order=ALL.slice().sort((a,b)=>(b.w.pending?1:0)-(a.w.pending?1:0)||hs(a.w.id,1)-hs(b.w.id,1));
+  const rank=id=>messyOrder&&messyOrder.has(id)?messyOrder.get(id):1e6+hs(id,MESS_SEED);
+  const colW=cw+gap,order=ALL.slice().sort((a,b)=>(b.w.pending?1:0)-(a.w.pending?1:0)||rank(a.w.id)-rank(b.w.id));
   if(!messy){
     // strict: each collage once, in columns; at least a screen wide, growing as collages are added
     const cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
@@ -670,6 +671,8 @@ function layout(){
       boxes.push(best.b);
       place.push({w,i,key:id,x:best.x,y:best.y,r:(rnd(id,99)-.5)*10,s:1,z:1+n});
     });
+    // remember this scatter, read top-to-bottom, so strict can tidy it in the same order
+    messyOrder=new Map(place.slice().sort((a,b)=>(a.y+a.x*.15)-(b.y+b.x*.15)).map((p,k)=>[p.key,k]));
   }
   let mx=0,my=0;
   place.forEach(p=>{const b=cardFor(p.w,p.i,p.key);live.add(b);b.style.width=cw+"px";b.style.zIndex=p.z;b.dataset.r=p.r;
@@ -698,8 +701,8 @@ function wallRulers(){
     r.innerHTML=h}
   r.style.setProperty("--ox",ox+"px");r.style.setProperty("--oy",oy+"px");
 }
-function setWallStyle(s){wallStyle=s;store.set("recortes-style",s);document.querySelectorAll("[data-wall]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.wall===s));layout()}
-document.querySelectorAll("[data-wall]").forEach(b=>b.onclick=()=>setWallStyle(b.dataset.wall));
+function setWallStyle(s,fresh){if(s==="messy"&&fresh)MESS_SEED=Math.floor(Math.random()*1e6);wallStyle=s;document.querySelectorAll("[data-wall]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.wall===s));layout()}
+document.querySelectorAll("[data-wall]").forEach(b=>b.onclick=()=>setWallStyle(b.dataset.wall,true));
 function addWork(w){WORKS.push(w);if(!$("#mesa").hidden)layout()}
 function render(){}
 // ---------- zoom straight into a collage on the table ----------
