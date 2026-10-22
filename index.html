@@ -613,22 +613,17 @@ function layout(){
   // the endless wall's look, on a table with edges: at least ~1.5 screens each way,
   // bigger when there are more collages. Columns run one shuffled sequence at
   // golden-ratio offsets, so repeats (if any) never sit side by side.
-  const colW=cw+gap,avgH=ALL.reduce((a,o)=>a+cw*o.w.h/o.w.w,0)/Math.max(1,N)+lbl+gap;
-  let cols=Math.max(small?2:3,Math.ceil((W*(small?1.6:1.5))/colW));
-  let tableH=Math.max(H*(small?1.8:1.6),Math.ceil(N/cols)*avgH+noteBox.y1);
-  const seq=ALL.slice().sort((a,b)=>hs(a.w.id,1)-hs(b.w.id,1));
-  const keys=new Set();
-  for(let c=0;c<cols;c++){
-    let y=pad+(hs("col"+c,11)*cw*.45);if(pad+c*colW<noteBox.x1)y=Math.max(y,noteBox.y1);
-    let k=Math.floor(((c*.618034)%1)*N),n=0;
-    while(y<tableH&&n<N){
-      const {w,i}=seq[k%N],h=cw*w.h/w.w,key=w.id+"|"+c,id=key;
-      const p={w,i,key,x:pad+c*colW,y,r:0,s:1,z:1};
-      // same jitter as the endless wall: ±5°, small nudges, normal gaps
-      if(messy){p.x+=(hs(id,2)-.5)*cw*.08;p.y+=(hs(id,3)-.5)*cw*.06;p.r=(hs(id,4)-.5)*10;p.z=1+Math.floor(hs(id,6)*50)}
-      place.push(p);y+=h+lbl+gap;k++;n++;
-    }
-  }
+  // each collage once, in a stable random order; at least a screen wide,
+  // and the table grows (more columns and rows) as collages are added
+  const colW=cw+gap,cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
+  const tops=[...Array(cols)].map((_,c)=>{let y=pad+hs("col"+c,11)*cw*.45;if(pad+c*colW<noteBox.x1)y=Math.max(y,noteBox.y1);return y});
+  ALL.slice().sort((a,b)=>hs(a.w.id,1)-hs(b.w.id,1)).forEach(({w,i})=>{
+    const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops)),id=w.id;
+    const p={w,i,key:id,x:pad+c*colW,y:tops[c],r:0,s:1,z:1};
+    // same jitter as the endless wall: ±5°, small nudges, normal gaps
+    if(messy){p.x+=(hs(id,2)-.5)*cw*.08;p.y+=(hs(id,3)-.5)*cw*.06;p.r=(hs(id,4)-.5)*10;p.z=1+Math.floor(hs(id,6)*50)}
+    place.push(p);tops[c]+=h+lbl+gap;
+  });
   let mx=0,my=0;
   place.forEach(p=>{const b=cardFor(p.w,p.i,p.key);live.add(b);b.style.width=cw+"px";b.style.zIndex=p.z;b.dataset.r=p.r;
     b.style.transform=`translate(${p.x}px,${p.y}px) rotate(${p.r}deg) scale(${p.s})`;
@@ -1617,8 +1612,8 @@ board.addEventListener("click",async e=>{
   const m=e.target.closest("[data-mod]");if(!m)return;e.stopPropagation();
   const card=m.closest(".card"),w=WORKS[+card.dataset.i];if(!w||!w.row)return;
   try{const sb=await ownerClient();
-    if(m.dataset.mod==="ok"){const {error}=await sb.from("community").update({approved:true}).eq("id",w.row.id);if(error)throw error;w.pending=false;cardsById.forEach((el,k)=>{if(k.startsWith(w.id+"|")){el.classList.remove("pending");const m=el.querySelector(".mod");if(m)m.remove()}});toast("On the table.")}
-    else{const {error}=await sb.from("community").delete().eq("id",w.row.id);if(error)throw error;await sb.storage.from("community").remove([w.row.image_path]);w.gone=true;cardsById.forEach((el,k)=>{if(k.startsWith(w.id+"|")){el.remove();cardsById.delete(k)}});layout();toast("Binned.")}
+    if(m.dataset.mod==="ok"){const {error}=await sb.from("community").update({approved:true}).eq("id",w.row.id);if(error)throw error;w.pending=false;cardsById.forEach((el,k)=>{if(k===w.id){el.classList.remove("pending");const m=el.querySelector(".mod");if(m)m.remove()}});toast("On the table.")}
+    else{const {error}=await sb.from("community").delete().eq("id",w.row.id);if(error)throw error;await sb.storage.from("community").remove([w.row.image_path]);w.gone=true;cardsById.forEach((el,k)=>{if(k===w.id){el.remove();cardsById.delete(k)}});layout();toast("Binned.")}
   }catch(err){console.error(err);toast("Couldn't do that. Sign in again from + new.")}
 });
 // collages and scraps added from the studio live in Supabase
