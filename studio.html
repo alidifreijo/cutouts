@@ -99,6 +99,9 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
 .preview{max-width:100%;max-height:calc(100dvh - 160px);box-shadow:var(--shadow)}
 .done-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .done-list img{width:100%;aspect-ratio:1;object-fit:contain;background:rgba(0,0,0,.18);border-radius:8px;padding:4px}
+.embed body{background:transparent}
+.embed .logo{display:none}
+.embed .bar{background:transparent;border-bottom:0;padding-top:12px}
 @media (max-width:820px){
   .main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
   .side{border-left:0;border-top:1px solid var(--mat-line-strong);max-height:46dvh}
@@ -111,7 +114,7 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
   <header class="bar">
     <h1 class="logo"><a href="./">cutouts</a> <span>studio</span></h1>
     <ol class="steps" id="steps">
-      <li data-s="photo">1 · Photo</li><li data-s="sheet">2 · Sheet</li><li data-s="cut">3 · Cut</li><li data-s="publish">4 · Publish</li>
+      <li data-s="photo">1 · photo</li><li data-s="sheet">2 · straighten</li><li data-s="cut">3 · cut</li><li data-s="publish">4 · pin it</li>
     </ol>
     <div class="who" id="who" hidden><span id="who-email"></span><button class="link" id="signout">Sign out</button></div>
   </header>
@@ -119,11 +122,11 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
   <!-- login -->
   <main class="main" id="v-login" style="grid-template-columns:1fr">
     <div class="work"><div class="card">
-      <h2>Studio</h2>
-      <p class="muted">Only the owner can add collages. Get a magic link by email.</p>
+      <h2>Staff only</h2>
+      <p class="muted">The scissors drawer is locked. Owner gets a link.</p>
       <form id="login-form">
-        <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
-        <button class="btn" type="submit" id="login-btn">Send magic link</button>
+        <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" required autocomplete="email" placeholder="email"></div>
+        <button class="btn" type="submit" id="login-btn">Send me a link</button>
       </form>
       <p class="muted" id="login-msg" style="margin:14px 0 0" hidden></p>
     </div></div>
@@ -133,8 +136,8 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
   <main class="main" id="v-photo" hidden style="grid-template-columns:1fr">
     <div class="work">
       <label class="drop" id="drop">
-        <b>Drop a photo of a collage</b>
-        <span class="muted" style="margin:0">or click to choose · JPG, PNG, HEIC</span>
+        <b>Drop a new collage</b>
+        <span class="muted" style="margin:0">or click to pick a photo</span>
         <input type="file" id="file" accept="image/*,.heic,.heif">
       </label>
     </div>
@@ -145,12 +148,12 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
     <div class="work"><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
     <aside class="side">
       <div class="side-scroll">
-        <h2>Frame the sheet</h2>
-        <p class="muted">Drag the four corners onto the paper. It gets straightened.</p>
-        <div class="field"><label for="trim">Trim leftover table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div>
-        <div class="field"><label>Result</label><canvas id="flat-cv" style="width:100%;background:repeating-conic-gradient(#3b7a5c 0 25%,#2c6a4e 0 50%) 0 0/16px 16px;border-radius:8px"></canvas></div>
+        <h2>Straighten it</h2>
+        <p class="muted">Corners on the paper.</p>
+        <div class="field"><label for="trim">Lose the table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div>
+        <div class="field"><canvas id="flat-cv" style="width:100%;background:repeating-conic-gradient(#3b7a5c 0 25%,#2c6a4e 0 50%) 0 0/16px 16px;border-radius:8px"></canvas></div>
       </div>
-      <div class="side-foot"><button class="ghost" data-go="photo">Back</button><button class="btn" id="to-cut">Next: cut</button></div>
+      <div class="side-foot"><button class="ghost" data-go="photo">Back</button><button class="btn" id="to-cut">Next</button></div>
     </aside>
   </main>
 
@@ -159,15 +162,16 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
     <div class="work"><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg><div class="busy" id="busy" hidden>Finding scraps…</div></div></div>
     <aside class="side">
       <div class="side-scroll">
-        <h2>Cut scraps</h2>
+        <h2>Cut it up</h2>
         <div class="tools" role="group" aria-label="Tool">
-          <button class="ghost" data-tool="lasso" aria-pressed="true">Scissors</button>
-          <button class="ghost" data-tool="rect" aria-pressed="false">Rectangle</button>
-          <button class="ghost" id="auto">Auto-detect</button>
+          <button class="ghost" data-tool="smart" aria-pressed="true" title="Draw roughly around something. It snaps to the shape.">Smart scissors</button>
+          <button class="ghost" data-tool="lasso" aria-pressed="false" title="Cuts exactly where you draw.">Scissors</button>
+          <button class="ghost" data-tool="rect" aria-pressed="false" title="For text strips.">Box</button>
+          <button class="ghost" id="auto" title="Finds every cut-out by itself.">Find all</button>
         </div>
         <div class="scraps" id="scraps"></div>
       </div>
-      <div class="side-foot"><button class="ghost" data-go="sheet">Back</button><button class="btn" id="to-pub">Next: publish</button></div>
+      <div class="side-foot"><button class="ghost" data-go="sheet">Back</button><button class="btn" id="to-pub">Next</button></div>
     </aside>
   </main>
 
@@ -176,12 +180,12 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
     <div class="work"><img class="preview" id="pub-preview" alt="Collage preview"></div>
     <aside class="side">
       <div class="side-scroll" id="pub-side">
-        <h2>Publish</h2>
-        <div class="field"><label for="title">Collage title</label><input class="input" id="title" placeholder="Untitled"></div>
+        <h2>Pin it</h2>
+        <div class="field"><label for="title">Title</label><input class="input" id="title" placeholder="Untitled mess"></div>
         <p class="muted" id="pub-summary"></p>
         <div class="done-list" id="pub-list"></div>
       </div>
-      <div class="side-foot"><button class="ghost" data-go="cut">Back</button><button class="btn" id="publish">Publish</button></div>
+      <div class="side-foot"><button class="ghost" data-go="cut">Back</button><button class="btn" id="publish">Pin it</button></div>
     </aside>
   </main>
 </div>
@@ -192,6 +196,8 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
 const SB_URL="https://wybuusahvefqbxnnidky.supabase.co",SB_KEY="sb_publishable_T3lcQF74EXSIjbIELHPoJA_eQR0c1M3";
 const ADMIN="adiazdefreijovalino@gmail.com";
 const DEMO=new URLSearchParams(location.search).has("demo");
+const EMBED=new URLSearchParams(location.search).has("embed");
+if(EMBED)document.documentElement.classList.add("embed");
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const CLUSTERS=[["people","People"],["nature","Creatures"],["things","Things"],["heads","Headlines"],["words","Words"]];
 let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
@@ -213,7 +219,7 @@ $$("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go));
 
 // ---------- auth ----------
 async function initAuth(){
-  if(DEMO){$("#who").hidden=false;$("#who-email").textContent="demo mode · nothing is saved";show("photo");return}
+  if(DEMO){$("#who").hidden=false;$("#who-email").textContent="demo · nothing gets pinned";show("photo");return}
   if(!sb){$("#login-msg").hidden=false;$("#login-msg").textContent="Couldn't load the login library. Check your connection.";return}
   const {data:{session}}=await sb.auth.getSession();applySession(session);
   sb.auth.onAuthStateChange((_e,s)=>applySession(s));
@@ -222,16 +228,16 @@ function applySession(s){
   const email=s&&s.user&&s.user.email;
   if(!email){$("#who").hidden=true;show("login");return}
   $("#who").hidden=false;$("#who-email").textContent=email;
-  if(email.toLowerCase()!==ADMIN){show("login");$("#login-msg").hidden=false;$("#login-msg").textContent="This account can't add collages.";return}
+  if(email.toLowerCase()!==ADMIN){show("login");$("#login-msg").hidden=false;$("#login-msg").textContent="Nice try. Not your drawer.";return}
   if($("#v-login").hidden===false)show("photo");
 }
 $("#login-form").onsubmit=async e=>{
   e.preventDefault();const email=$("#email").value.trim();const b=$("#login-btn");b.disabled=true;
-  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:new URL("./?studio",location.href).href,shouldCreateUser:true}});
   b.disabled=false;const m=$("#login-msg");m.hidden=false;
-  m.textContent=error?("Couldn't send the link: "+error.message):"Check your inbox and open the link on this device.";
+  m.textContent=error?("Couldn't send the link: "+error.message):"Sent. Open it on this device.";
 };
-$("#signout").onclick=async()=>{if(sb)await sb.auth.signOut();location.reload()};
+$("#signout").onclick=async()=>{if(sb)await sb.auth.signOut();if(EMBED)parent.postMessage({type:"cutouts:signedout"},location.origin);location.reload()};
 
 // ---------- 1 photo ----------
 let srcImg=null;
@@ -352,11 +358,11 @@ function applyTrim(){
   trimmed=out;showFlat();
 }
 let trimT;$("#trim").oninput=()=>{clearTimeout(trimT);trimT=setTimeout(applyTrim,60)};
-function showFlat(){const c=$("#flat-cv");c.width=trimmed.width;c.height=trimmed.height;const g=c.getContext("2d");g.clearRect(0,0,c.width,c.height);g.drawImage(trimmed,0,0)}
+function showFlat(){fullMask=null;const c=$("#flat-cv");c.width=trimmed.width;c.height=trimmed.height;const g=c.getContext("2d");g.clearRect(0,0,c.width,c.height);g.drawImage(trimmed,0,0)}
 $("#to-cut").onclick=()=>show("cut");
 
 // ---------- 3 cut ----------
-let scraps=[],tool="lasso",uid=0;
+let scraps=[],tool="smart",uid=0;
 $$("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;$$("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
 function drawCut(){
   const cv=$("#cut-cv");cv.width=trimmed.width;cv.height=trimmed.height;const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(trimmed,0,0);
@@ -370,12 +376,13 @@ function cvScale(){const cv=$("#cut-cv");return cv.clientWidth/cv.width||1}
   const pt=e=>{const r=$("#cut-cv").getBoundingClientRect(),k=cvScale();return [Math.max(0,Math.min(trimmed.width,(e.clientX-r.left)/k)),Math.max(0,Math.min(trimmed.height,(e.clientY-r.top)/k))]};
   st.addEventListener("pointerdown",e=>{if(e.button!==0||!$("#busy").hidden)return;st.setPointerCapture(e.pointerId);start=pt(e);pts=[start]});
   st.addEventListener("pointermove",e=>{if(!pts)return;const p=pt(e);
-    if(tool==="lasso"){const l=pts[pts.length-1];if(Math.hypot(p[0]-l[0],p[1]-l[1])>3/cvScale())pts.push(p)}
+    if(tool!=="rect"){const l=pts[pts.length-1];if(Math.hypot(p[0]-l[0],p[1]-l[1])>3/cvScale())pts.push(p)}
     else pts=[start,[p[0],start[1]],p,[start[0],p[1]]];
-    const live=$("#live");if(live)live.setAttribute("points",(tool==="lasso"?pts:[...pts,start]).map(q=>q.join(",")).join(" "))});
+    const live=$("#live");if(live)live.setAttribute("points",(tool!=="rect"?pts:[...pts,start]).map(q=>q.join(",")).join(" "))});
   const end=()=>{if(!pts)return;const p=pts;pts=null;const live=$("#live");if(live)live.setAttribute("points","");
     const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),bw=Math.max(...xs)-Math.min(...xs),bh=Math.max(...ys)-Math.min(...ys);
-    if(bw<12||bh<12||(tool==="lasso"&&p.length<6))return;
+    if(bw<12||bh<12||(tool!=="rect"&&p.length<6))return;
+    if(tool==="smart")return snap(p);
     addScrap(tool==="lasso"?cutPoly(p):cutPoly(p,true))};
   st.addEventListener("pointerup",end);st.addEventListener("pointercancel",end);
 })();
@@ -398,13 +405,13 @@ function addScrap(s){
 }
 function renderScraps(){
   const el=$("#scraps");
-  if(!scraps.length){el.innerHTML=`<div class="empty">Draw around a scrap on the collage.<br>Scissors for shapes, rectangle for text strips.</div>`;return}
+  if(!scraps.length){el.innerHTML=`<div class="empty">Draw around something.<br>Roughly is fine.</div>`;return}
   el.innerHTML=scraps.map(s=>`<div class="scrap${s.lib?"":" off"}" data-id="${s.id}">
     <div class="th"><img src="${s.canvas.toDataURL()}" alt=""></div>
     <div class="meta">
       <input class="input" value="${s.name.replace(/"/g,"&quot;")}" placeholder="Name it" aria-label="Scrap name">
       <div class="chips">${CLUSTERS.map(([k,l])=>`<button class="chip" data-c="${k}" aria-pressed="${s.cluster===k}">${l}</button>`).join("")}</div>
-      <label class="chk"><input type="checkbox" data-k="lib" ${s.lib?"checked":""}> add to library</label>
+      <label class="chk"><input type="checkbox" data-k="lib" ${s.lib?"checked":""}> to the scrap pile</label>
     </div>
     <button class="x" data-rm aria-label="Delete scrap">✕</button>
   </div>`).join("");
@@ -414,19 +421,46 @@ $("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");
 $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
   const c=e.target.closest("[data-c]");if(c){s.cluster=c.dataset.c;row.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b===c))}
   if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}});
-// auto-detect: background removal in the browser, then split into separate pieces
-$("#auto").onclick=async()=>{
-  const busy=$("#busy");busy.hidden=false;busy.textContent="Loading the cutting model… (first time takes a while)";
+// the cut-out model runs in the browser; loaded once, on first use
+let modelP=null,modelReady=false;
+function getModel(){return modelP||(modelP=import("https://esm.sh/@imgly/background-removal@1.4.5").then(m=>{return m}).catch(e=>{modelP=null;throw e}))}
+const blobOf=c=>new Promise(r=>c.toBlob(r,"image/png"));
+function alphaCount(c){const d=c.getContext("2d").getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>110)n++;return n}
+// smart scissors: rough lasso in, clean cut-out of what's inside it out
+let fullMask=null;
+async function modelMask(c){const mod=await getModel();const out=await mod.removeBackground(await blobOf(c),{output:{format:"image/png"}});modelReady=true;return createImageBitmap(out)}
+async function sheetMaskModel(){if(!fullMask)fullMask=await modelMask(trimmed);return fullMask}
+async function snap(poly){
+  const busy=$("#busy");busy.hidden=false;busy.textContent=modelReady?"Snipping…":"Sharpening the scissors… (first time only)";
   try{
-    const mod=await import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm");
-    busy.textContent="Finding scraps…";
-    const inBlob=await new Promise(r=>trimmed.toBlob(r,"image/png"));
-    const outBlob=await mod.removeBackground(inBlob,{output:{format:"image/png"}});
-    const img=await createImageBitmap(outBlob);const full=mk(trimmed.width,trimmed.height);full.getContext("2d").drawImage(img,0,0,full.width,full.height);
+    const T=trimmed,xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),bx0=Math.min(...xs),by0=Math.min(...ys),bw=Math.max(...xs)-bx0,bh=Math.max(...ys)-by0;
+    const pad=Math.round(Math.max(bw,bh)*.06)+4,ctx=Math.round(Math.max(bw,bh)*.3);
+    // a roomier crop gives the model context; the result is clipped back to a loose version of the lasso
+    const X0=Math.max(0,Math.floor(bx0-ctx)),Y0=Math.max(0,Math.floor(by0-ctx)),X1=Math.min(T.width,Math.ceil(bx0+bw+ctx)),Y1=Math.min(T.height,Math.ceil(by0+bh+ctx)),W=X1-X0,H=Y1-Y0;
+    const crop=mk(W,H);crop.getContext("2d").drawImage(T,-X0,-Y0);
+    const path=g=>{g.beginPath();poly.forEach((p,i)=>g[i?"lineTo":"moveTo"](p[0]-X0,p[1]-Y0));g.closePath()};
+    const lasso=mk(W,H),lg=lasso.getContext("2d");path(lg);lg.fill();
+    const loose=mk(W,H),og=loose.getContext("2d");path(og);og.fill();og.lineJoin="round";og.lineWidth=pad*1.4;og.stroke();
+    const need=alphaCount(lasso)*.08;
+    const clip=src=>{const r=mk(W,H),g=r.getContext("2d");g.drawImage(src.img,src.dx,src.dy,src.dw,src.dh);g.globalCompositeOperation="destination-in";g.drawImage(loose,0,0);g.drawImage(crop,0,0);return r};
+    let res=clip({img:await modelMask(crop),dx:0,dy:0,dw:W,dh:H});
+    if(alphaCount(res)<need){busy.textContent="Looking harder…";const fm=await sheetMaskModel();res=clip({img:fm,dx:-X0,dy:-Y0,dw:T.width,dh:T.height})}
+    if(alphaCount(res)<need){addScrap(cutPoly(poly));toast("No clear shape there. Cut as drawn.")}
+    else addScrap({canvas:tightCrop(res),box:[X0,Y0,W,H],poly:null});
+  }catch(err){console.error(err);addScrap(cutPoly(poly));toast("Smart scissors won't load here. Cut as drawn.",true)}
+  busy.hidden=true;
+}
+// find all: run the model on the whole sheet, then split into separate pieces
+$("#auto").onclick=async()=>{
+  const busy=$("#busy");busy.hidden=false;busy.textContent=modelReady?"Hunting…":"Sharpening the scissors… (first time only)";
+  try{
+    const mod=await getModel();modelReady=true;
+    busy.textContent="Hunting…";
+    const img=await sheetMaskModel();const full=mk(trimmed.width,trimmed.height);full.getContext("2d").drawImage(img,0,0,full.width,full.height);
     const found=splitPieces(full);
     found.forEach(addScrapQuiet);drawCut();
-    toast(found.length?`Found ${found.length} scrap${found.length>1?"s":""}. Delete the ones you don't want.`:"Nothing obvious. Use the scissors.");
-  }catch(err){console.error(err);toast("Auto-detect couldn't run here. The scissors still work.",true)}
+    toast(found.length?`${found.length} found. Bin the duds.`:"Nothing obvious. Scissors it is.");
+  }catch(err){console.error(err);toast("The robot scissors won't load here. Hand scissors still work.",true)}
   busy.hidden=true;
 };
 function addScrapQuiet(s){const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];s.id=++uid;s.name="";s.cluster="things";s.lib=true;s.par=true;scraps.push(s)}
@@ -445,14 +479,14 @@ function splitPieces(full){
   return out;
 }
 $("#to-pub").onclick=()=>{if(!scraps.length&&!confirmNoScraps())return;show("publish")};
-function confirmNoScraps(){toast("Publishing without scraps. You can still go back.");return true}
+function confirmNoScraps(){toast("No scraps. Just the collage, then.");return true}
 
 // ---------- 4 publish ----------
 function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===1)return c;const o=mk(c.width*k,c.height*k);const g=o.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,o.width,o.height);return o}
 function renderPublish(){
   $("#pub-preview").src=trimmed.toDataURL("image/webp",.8);
   const lib=scraps.filter(s=>s.lib).length;
-  $("#pub-summary").textContent=`The collage goes on the table${scraps.length?` with ${scraps.length} parallax layer${scraps.length>1?"s":""}`:""}. ${lib} scrap${lib===1?"":"s"} go${lib===1?"es":""} to the library.`;
+  $("#pub-summary").textContent=`Goes on the table${scraps.length?`, ${scraps.length} layer${scraps.length>1?"s":""} deep`:""}. ${lib||"No"} scrap${lib===1?"":"s"} to the pile.`;
   $("#pub-list").innerHTML=scraps.filter(s=>s.lib).map(s=>`<img src="${s.canvas.toDataURL()}" alt="${(s.name||"scrap").replace(/"/g,"&quot;")}">`).join("");
   setTimeout(()=>$("#title").focus(),30);
 }
@@ -468,16 +502,17 @@ $("#publish").onclick=async()=>{
     const layers=pieces.filter(p=>p.s.par).map((p,i)=>({id:p.id,x:+(p.s.box[0]/trimmed.width*100).toFixed(2),y:+(p.s.box[1]/trimmed.height*100).toFixed(2),w:+(p.s.box[2]/trimmed.width*100).toFixed(2),d:depths[i%depths.length],src:SB_URL+"/storage/v1/object/public/scraps/"+p.id+".webp"}));
     const row={id:base,title,image_path:base+".webp",w:col.width,h:col.height,layers,sort:Date.now()%2147483647};
     const srows=pieces.filter(p=>p.s.lib).map((p,i)=>({id:p.id,title:p.s.name||title+" "+(i+1),cluster:p.s.cluster,image_path:p.id+".webp",w:p.img.width,h:p.img.height,collage_id:base,sort:row.sort}));
-    if(DEMO){console.log({row,srows});toast("Demo mode: nothing saved. See the console for what would be published.");btn.disabled=false;return}
-    btn.textContent="Uploading…";
+    if(DEMO){console.log({row,srows});toast("Demo: nothing pinned.");btn.disabled=false;return}
+    btn.textContent="Gluing…";
     const up=async(bucket,path,c)=>{const {error}=await sb.storage.from(bucket).upload(path,await webp(c),{contentType:"image/webp",upsert:false});if(error)throw new Error(bucket+": "+error.message)};
     await up("collages",row.image_path,col);
     for(const p of pieces)await up("scraps",p.id+".webp",p.img);
     let r=await sb.from("collages").insert(row);if(r.error)throw new Error(r.error.message);
     if(srows.length){r=await sb.from("scraps").insert(srows);if(r.error)throw new Error(r.error.message)}
-    $("#pub-side").innerHTML=`<h2>Published</h2><p class="muted">“${title.replace(/</g,"&lt;")}” is on the table and ${srows.length} scrap${srows.length===1?" is":"s are"} in the library.</p><div class="row"><a class="btn" href="./" style="text-decoration:none">See it on the table</a><button class="ghost" id="again">Add another</button></div>`;
-    $("#again").onclick=()=>location.reload();btn.hidden=true;$$('#v-publish [data-go]').forEach(b=>b.hidden=true);
-  }catch(err){console.error(err);toast("Couldn't publish: "+err.message,true);btn.textContent="Publish";btn.disabled=false}
+    $("#pub-side").innerHTML=`<h2>Pinned.</h2><p class="muted">“${title.replace(/</g,"&lt;")}” is on the table. ${srows.length} new scrap${srows.length===1?"":"s"} in the pile.</p><div class="row"><a class="btn" href="./" id="see" style="text-decoration:none">See the mess</a><button class="ghost" id="again">Another one</button></div>`;
+    $("#again").onclick=()=>location.reload();
+    if(EMBED){parent.postMessage({type:"cutouts:published"},location.origin);$("#see").onclick=e=>{e.preventDefault();parent.postMessage({type:"cutouts:show"},location.origin)}}btn.hidden=true;$$('#v-publish [data-go]').forEach(b=>b.hidden=true);
+  }catch(err){console.error(err);toast("Couldn't publish: "+err.message,true);btn.textContent="Pin it";btn.disabled=false}
 };
 
 initAuth();

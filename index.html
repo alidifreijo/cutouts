@@ -108,6 +108,8 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .board.small .note p:not(.hint){display:none}
 .board.small .note{font-size:11.5px}
 .board.small .note h2{font-size:17px}
+.addpane .add-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
+.tab-add{color:var(--mint)}
 .credit{position:absolute;right:max(16px,env(safe-area-inset-right,0px));bottom:10px;margin:0;font-size:10.5px;line-height:1.5;color:var(--mat-ink);text-align:right;pointer-events:none}
 
 /* ---------- make a mess ---------- */
@@ -393,6 +395,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
     <nav class="tabs" role="tablist" aria-label="mode">
       <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa">the mess</button>
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio">make a mess</button>
+      <button class="tab tab-add" role="tab" id="tab-add" aria-selected="false" aria-controls="addpane" hidden>+ new</button>
     </nav>
     <div class="tools" id="tools-mesa">
       <button class="ib" id="btn-shuffle" aria-label="Shuffle" data-tip="shuffle"><svg class="i"><use href="#i-shuffle"/></svg></button>
@@ -413,6 +416,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
       <div class="board" id="board"></div>
     </section>
 
+    <section class="mat addpane" id="addpane" role="tabpanel" aria-labelledby="tab-add" hidden><div class="rulers"></div></section>
     <section class="mat" id="studio" role="tabpanel" aria-labelledby="tab-pega" hidden>
       <div class="rulers"></div>
       <div class="desk" id="desk">
@@ -729,13 +733,33 @@ document.addEventListener("keydown",e=>{
 let mode="mesa";
 function setMode(m){
   mode=m;
-  $("#tab-mesa").setAttribute("aria-selected",m==="mesa");$("#tab-pega").setAttribute("aria-selected",m==="pega");
-  $("#mesa").hidden=m!=="mesa";$("#studio").hidden=m!=="pega";
+  $("#tab-mesa").setAttribute("aria-selected",m==="mesa");$("#tab-pega").setAttribute("aria-selected",m==="pega");$("#tab-add").setAttribute("aria-selected",m==="add");
+  $("#mesa").hidden=m!=="mesa";$("#studio").hidden=m!=="pega";$("#addpane").hidden=m!=="add";
   $("#tools-mesa").hidden=m!=="mesa";$("#tools-pega").hidden=m!=="pega";
-  if(m==="pega"){sizeSheet();drawRulers($("#studio"))}else layout();
-  store.set("recortes-mode",m);
+  if(m==="pega"){sizeSheet();drawRulers($("#studio"))}else if(m==="mesa")layout();else openAdd();
+  if(m!=="add")store.set("recortes-mode",m);
 }
-$("#tab-mesa").onclick=()=>setMode("mesa");$("#tab-pega").onclick=()=>setMode("pega");
+// owner-only "+ new" tab: the studio page in an iframe (same site, shares the login)
+const AUTH_KEY="sb-wybuusahvefqbxnnidky-auth-token",OWNER="adiazdefreijovalino@gmail.com";
+let addHash="";
+function ownerSignedIn(){try{const t=JSON.parse(localStorage.getItem(AUTH_KEY));return !!(t&&t.user&&t.user.email===OWNER)}catch(e){return false}}
+function openAdd(){
+  const pane=$("#addpane");drawRulers(pane);
+  if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed"+addHash;addHash="";pane.appendChild(f)}
+}
+function initAdd(){
+  const q=new URLSearchParams(location.search),h=location.hash;
+  if(/access_token|error_description/.test(h)){addHash=h;history.replaceState(null,"",location.pathname+"?studio")}
+  if(ownerSignedIn()||q.has("studio")||addHash){$("#tab-add").hidden=false;return q.has("studio")||!!addHash}
+  return false;
+}
+addEventListener("message",e=>{
+  if(e.origin!==location.origin||!e.data)return;
+  if(e.data.type==="cutouts:published")loadRemote().then(()=>toast("Pinned to the table."));
+  if(e.data.type==="cutouts:show")setMode("mesa");
+  if(e.data.type==="cutouts:signedout"){$("#tab-add").hidden=true;history.replaceState(null,"",location.pathname);setMode("mesa");const f=$("#addpane iframe");if(f)f.remove()}
+});
+$("#tab-mesa").onclick=()=>setMode("mesa");$("#tab-pega").onclick=()=>setMode("pega");$("#tab-add").onclick=()=>setMode("add");
 
 // ---------- effects: a stack of canvas passes ----------
 const FX={
@@ -1499,7 +1523,8 @@ async function boot(){
   renderFilter();setPane("scraps");
   await loadRemote();
   load();
-  const m=store.get("recortes-mode");setMode(m==="pega"?"pega":"mesa");
+  const goAdd=initAdd();
+  const m=store.get("recortes-mode");setMode(goAdd?"add":m==="pega"?"pega":"mesa");
   applyView();
 }
 addEventListener("resize",()=>{clearTimeout(window.__rz);window.__rz=setTimeout(()=>{
