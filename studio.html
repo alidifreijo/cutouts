@@ -16,7 +16,7 @@
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
   --shadow-up:0 2px 2px rgba(0,0,0,.2),0 22px 36px -10px rgba(0,0,0,.55);
   --f:"DM Mono",ui-monospace,Menlo,monospace;--f-head:"Rock Salt",cursive;--cm:38px;
-  --side:368px;--rail:clamp(440px,40vw,720px);--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
+  --side:368px;--rail:clamp(320px,36vw,720px);--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -74,13 +74,14 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 /* ---------- wizard layout ---------- */
 .wiz-wrap{flex:1;min-height:0;display:grid;grid-template-columns:var(--rail) minmax(0,1fr) 0;transition:grid-template-columns .5s cubic-bezier(.65,0,.25,1)}
 .wiz-wrap.with-side{grid-template-columns:var(--rail) minmax(0,1fr) var(--side)}
-.wiz-wrap .side{overflow:hidden;min-width:0}
-.rail{position:relative;padding:min(64px,6vh) 20px 24px 64px;min-height:0;overflow:hidden}
-.rail .dots{position:absolute;left:30px;top:130px;display:flex;flex-direction:column;gap:8px}
+.wiz-wrap .side{overflow:hidden;min-width:0;position:relative;z-index:10}
+.rail{position:relative;z-index:9;pointer-events:none;padding:min(64px,6vh) 20px 24px 64px;min-height:0;overflow:hidden}
+.rail .dots{pointer-events:none;position:absolute;left:30px;top:130px;display:flex;flex-direction:column;gap:8px}
 .rail .dots i{width:6px;height:6px;border-radius:3px;background:var(--mat-line-strong);transition:height .45s cubic-bezier(.65,0,.25,1),background .3s}
 .rail .dots i.dn{background:var(--mat-ink)}
 .rail .dots i.on{height:22px;background:var(--mint)}
 .rail .track{position:relative}
+.wstep>*{pointer-events:auto}
 .wstep{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;gap:12px;transition:opacity .45s,transform .6s cubic-bezier(.65,0,.25,1)}
 .wstep.past{opacity:0;transform:translateY(-48px);pointer-events:none}
 .wstep.next{opacity:0;transform:translateY(48px);pointer-events:none}
@@ -94,7 +95,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wstep .acts .btn,.wstep .acts .ghost{font-size:17px;padding:11px 26px}
 .wstep .acts>*{opacity:0;transform:translateY(6px);transition:opacity .35s .45s,transform .35s .45s}
 .wstep.on .acts>*{opacity:1;transform:none}
-.quit{position:fixed;top:72px;right:16px;z-index:9;width:42px;height:42px;border-radius:50%;border:1px solid var(--mat-line-strong);background:var(--panel);color:#fff;font-size:17px;display:grid;place-items:center;padding:0;box-shadow:var(--shadow)}
+.quit{position:fixed;top:72px;right:16px;z-index:11;width:42px;height:42px;border-radius:50%;border:1px solid var(--mat-line-strong);background:var(--panel);color:#fff;font-size:17px;display:grid;place-items:center;padding:0;box-shadow:var(--shadow)}
 .embed .quit{top:44px}
 .quit:hover{border-color:var(--mint)}
 .wiz-wrap.with-side .quit{right:calc(var(--side) + 16px)}
@@ -127,7 +128,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:transform .15s,background .15s}
 .corner.free{transform:scale(1.35);background:var(--warn)}
 .busy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,61,44,.6);font-size:16px;z-index:5}
-.zoom{position:fixed;z-index:6;left:16px;bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
+.zoom{position:fixed;z-index:11;left:16px;bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
 .zoom button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#fff;display:grid;place-items:center;padding:0}
 .zoom button:hover{background:var(--mat-light)}
 .zoom .zv{width:auto;min-width:58px;border-radius:999px;font-size:13px;color:var(--mint)}
@@ -397,6 +398,7 @@ const CLUSTERS=[["people","People"],["faces","Faces"],["bodies","Bodies"],["natu
 const CL=Object.fromEntries(CLUSTERS);
 let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3400)}
 const mk=(w,h)=>{const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
+try{const dw=JSON.parse(localStorage.getItem("recortes-dockw"));if(typeof dw==="number")document.documentElement.style.setProperty("--side",Math.max(260,Math.min(680,dw))+"px")}catch(e){}
 const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
 const tell=type=>{if(EMBED)parent.postMessage({type},location.origin)};
 let OWNER=false,PATH="collage";
@@ -751,8 +753,8 @@ function sizeView(w){
   if(pile){ // first try the free mat left of the page (under the big step text it's empty)
     const on=$(".wstep.on"),txt=on?Math.max(0,...[...on.children].filter(c=>c.offsetParent).map(c=>{const r=document.createRange();r.selectNodeContents(c);return r.getBoundingClientRect().right})):0;
     const room=el.getBoundingClientRect().left-txt+(el.clientWidth-iw*k)/2;
-    if(pile*k+50<=room)side="left";
-    else{base=Math.min((el.clientWidth-80-60)/(iw+pile),(el.clientHeight-80)/ih,8);k=base*VZ[w];side="right"}
+    side="left"; // bits may tuck under the step text; only nudge the page smaller a little
+    if(pile*k+50>room){const nb=Math.max(base*.8,Math.min(base,(el.clientWidth-80-60)/(iw+pile)));base=nb;k=base*VZ[w]}
   }
   cv.style.width=iw*k+"px";cv.style.height=ih*k+"px";
   if(w==="w-cut"){const st=el.querySelector(".stage");st.style.transform=side==="right"?`translateX(${-(pile*k+60)/2}px)`:"";PILESIDE=side}
