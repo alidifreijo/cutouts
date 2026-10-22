@@ -107,6 +107,10 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .zbar .ib{border-color:transparent;width:32px;height:32px}
 .zbar .ib:hover{border-color:var(--mat-line-strong)}
 .zbar .zt{color:var(--mint);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+.zbar .zby{color:var(--mat-ink);font-size:11.5px;white-space:nowrap}
+.zbar .zby:empty{display:none}
+.zcap{position:absolute;z-index:60;left:50%;bottom:calc(max(18px,env(safe-area-inset-bottom,0px)) + 56px);transform:translateX(-50%);width:min(520px,calc(100% - 32px));margin:0;padding:10px 14px;background:rgba(23,61,44,.92);border-radius:12px;color:var(--mint);font-size:12.5px;line-height:1.5;text-align:center;box-shadow:var(--shadow)}
+.zcap[hidden]{display:none}
 .zbar .zn{color:var(--mat-ink);font-size:11.5px;font-variant-numeric:tabular-nums}
 .wall .rulers::before,.wall .rulers::after{content:"";position:absolute;background:var(--mat)}
 .wall .rulers::before{left:0;right:0;top:0;height:24px;box-shadow:0 1px 0 var(--mat-line-strong)}
@@ -146,6 +150,12 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .pinbtn[hidden]{display:none}
 .pinpop{position:fixed;z-index:120;right:max(16px,env(safe-area-inset-right,0px));top:62px;width:270px;background:var(--mat-dark);border:1px solid var(--mat-line-strong);border-radius:16px;padding:16px;box-shadow:var(--shadow-up)}
 .pinpop[hidden]{display:none}
+.pinpop{width:320px!important;max-height:calc(100dvh - 80px);overflow:auto}
+.pp-head{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+.pp-head img{width:54px;height:76px;object-fit:cover;border-radius:4px;box-shadow:var(--shadow);background:#151515;flex:0 0 auto}
+.pp-l{display:flex;justify-content:space-between;font-size:11px;color:var(--mat-ink);margin:0 0 5px}
+.pp-l span{font-variant-numeric:tabular-nums}
+.pp-ta{resize:vertical;min-height:62px;line-height:1.45}
 .pp-t{margin:0 0 2px;font-weight:500;font-size:14px;color:#fff}
 .pp-s{margin:0 0 12px;font-size:11.5px;color:var(--mat-ink)}
 .pp-in{width:100%;background:var(--mat);border:1px solid var(--mat-line-strong);border-radius:10px;padding:8px 10px;color:var(--mint);font:inherit;outline:none;margin-bottom:12px}
@@ -546,10 +556,21 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
   </div>
 </div>
 <div class="pinpop" id="pinpop" hidden role="dialog" aria-label="Pin to the table">
-  <p class="pp-t">Pin it to the table</p>
-  <p class="pp-s">Goes up once it's had a look.</p>
-  <input class="pp-in" id="pin-name" maxlength="40" placeholder="sign it (optional)" aria-label="Your name or handle">
-  <div class="pp-row"><button class="pp-ghost" id="pin-cancel">Not yet</button><button class="pp-btn" id="pin-go">Pin it</button></div>
+  <div id="pp-form">
+    <div class="pp-head"><img id="pp-thumb" alt="Your collage"><div><p class="pp-t">Pin it to the table</p><p class="pp-s">Everyone will see it once it's had a look.</p></div></div>
+    <label class="pp-l" for="pin-title">Name it</label>
+    <input class="pp-in" id="pin-title" maxlength="60" placeholder="Untitled mess">
+    <label class="pp-l" for="pin-desc">What's going on here? <span id="pp-count">0/280</span></label>
+    <textarea class="pp-in pp-ta" id="pin-desc" maxlength="280" rows="3" placeholder="Optional. A story, a joke, a confession."></textarea>
+    <label class="pp-l" for="pin-name">Sign it</label>
+    <input class="pp-in" id="pin-name" maxlength="40" placeholder="Name or @handle. Optional.">
+    <div class="pp-row"><button class="pp-ghost" id="pin-cancel">Not yet</button><button class="pp-btn" id="pin-go">Pin it</button></div>
+  </div>
+  <div id="pp-done" hidden>
+    <p class="pp-t">Sent.</p>
+    <p class="pp-s">It shows up on the table once it's been approved. Usually soon-ish.</p>
+    <div class="pp-row"><button class="pp-btn" id="pin-ok">Keep messing</button></div>
+  </div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -672,8 +693,9 @@ function render(){}
 let Z=null,placed=[];
 function boardT(X,Y,R,S,A,B){board.style.transform=`translate(${X}px,${Y}px) rotate(${R}deg) scale(${S}) translate(${A}px,${B}px)`}
 const zbar=document.createElement("div");zbar.className="zbar";zbar.hidden=true;
-zbar.innerHTML=`<button class="ib" data-z="-1" aria-label="Previous"><svg class="i"><use href="#i-left"/></svg></button><span class="zt" id="zt"></span><span class="zn" id="zn"></span><button class="ib" data-z="1" aria-label="Next"><svg class="i"><use href="#i-right"/></svg></button><button class="ib" data-z="x" aria-label="Back to the table"><svg class="i"><use href="#i-x"/></svg></button>`;
+zbar.innerHTML=`<button class="ib" data-z="-1" aria-label="Previous"><svg class="i"><use href="#i-left"/></svg></button><span class="zt" id="zt"></span><span class="zby" id="zby"></span><span class="zn" id="zn"></span><button class="ib" data-z="1" aria-label="Next"><svg class="i"><use href="#i-right"/></svg></button><button class="ib" data-z="x" aria-label="Back to the table"><svg class="i"><use href="#i-x"/></svg></button>`;
 mesa.appendChild(zbar);
+const zcap=document.createElement("p");zcap.className="zcap";zcap.hidden=true;mesa.appendChild(zcap);
 zbar.addEventListener("pointerdown",e=>e.stopPropagation());
 zbar.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(!b)return;b.dataset.z==="x"?unzoom():stepZoom(+b.dataset.z)});
 function zoomTo(el,instant){
@@ -685,12 +707,13 @@ function zoomTo(el,instant){
   Z.el=el;el.classList.add("zoomed");mesa.classList.add("zoomed");document.body.classList.add("zoomin");
   board.classList.toggle("zooming",!instant&&!reduce);
   boardT(W/2,(H-barH)/2+12,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
-  const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
+  const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zby").textContent=w&&w.by?"by "+w.by:"";
+  zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
   zbar.hidden=false;
 }
 function unzoom(instant){
   if(!Z)return;const z=Z;Z=null;
-  if(z.el)z.el.classList.remove("zoomed");mesa.classList.remove("zoomed");document.body.classList.remove("zoomin");zbar.hidden=true;
+  if(z.el)z.el.classList.remove("zoomed");mesa.classList.remove("zoomed");document.body.classList.remove("zoomin");zbar.hidden=true;zcap.hidden=true;
   board.classList.toggle("zooming",!instant&&!reduce);
   setCam(z.camX,z.camY,true);
 }
@@ -1609,10 +1632,19 @@ $("#btn-dl").onclick=async()=>{
 const PUB=(b,path)=>SB_URL+"/storage/v1/object/public/"+b+"/"+path;
 const pinBtn=$("#btn-pin"),pinPop=$("#pinpop");
 if(!inArtifact)pinBtn.hidden=false;
-pinBtn.onclick=()=>{if(!pieces.length){toast("Paste something first.");return}pinPop.hidden=!pinPop.hidden;if(!pinPop.hidden){$("#pin-name").value=store.get("recortes-signed")||"";$("#pin-name").focus()}};
+pinBtn.onclick=async()=>{
+  if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
+  if(!pinPop.hidden){pinPop.hidden=true;return}
+  $("#pp-form").hidden=false;$("#pp-done").hidden=true;pinPop.hidden=false;
+  $("#pin-name").value=store.get("recortes-signed")||"";$("#pp-count").textContent=$("#pin-desc").value.length+"/280";
+  $("#pin-title").focus();
+  try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.6)}catch(e){}
+};
+$("#pin-desc").addEventListener("input",e=>$("#pp-count").textContent=e.target.value.length+"/280");
+$("#pin-ok").onclick=()=>pinPop.hidden=true;
 $("#pin-cancel").onclick=()=>pinPop.hidden=true;
 document.addEventListener("pointerdown",e=>{if(!pinPop.hidden&&!e.target.closest("#pinpop,#btn-pin"))pinPop.hidden=true});
-$("#pin-name").addEventListener("keydown",e=>{if(e.key==="Enter")$("#pin-go").click();if(e.key==="Escape")pinPop.hidden=true});
+pinPop.addEventListener("keydown",e=>{if(e.key==="Escape")pinPop.hidden=true;if(e.key==="Enter"&&e.target.tagName==="INPUT")$("#pin-go").click()});
 $("#pin-go").onclick=async()=>{
   const last=store.get("recortes-pinned-at")||0;
   if(Date.now()-last<60000){toast("Easy. One a minute.");return}
@@ -1624,9 +1656,14 @@ $("#pin-go").onclick=async()=>{
     let r=await fetch(SB_URL+"/storage/v1/object/community/"+path,{method:"POST",headers:{...h,"Content-Type":"image/webp","x-upsert":"false"},body:blob});
     if(!r.ok)throw new Error("upload "+r.status+" "+await r.text());
     const signed=$("#pin-name").value.trim().slice(0,40)||null;store.set("recortes-signed",signed||"");
-    r=await fetch(SB_URL+"/rest/v1/community",{method:"POST",headers:{...h,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify({id,image_path:path,signed,w:c.width,h:c.height})});
+    const title=$("#pin-title").value.trim().slice(0,60)||null,description=$("#pin-desc").value.trim().slice(0,280)||null;
+    const send=body=>fetch(SB_URL+"/rest/v1/community",{method:"POST",headers:{...h,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(body)});
+    const base={id,image_path:path,signed,w:c.width,h:c.height};
+    r=await send({...base,title,description});
+    if(!r.ok&&r.status===400){const t=await r.text();if(/column/i.test(t))r=await send(base);else throw new Error("save 400 "+t)}
     if(!r.ok)throw new Error("save "+r.status+" "+await r.text());
-    store.set("recortes-pinned-at",Date.now());pinPop.hidden=true;toast("Sent. It goes up once it's had a look.");
+    store.set("recortes-pinned-at",Date.now());$("#pin-title").value="";$("#pin-desc").value="";
+    $("#pp-form").hidden=true;$("#pp-done").hidden=false;$("#pin-ok").focus();
     if(ownerSignedIn())loadPending();
   }catch(e){console.error(e);toast("Couldn't pin it. Try again in a bit.")}
   go.disabled=false;go.textContent="Pin it";
@@ -1641,7 +1678,7 @@ async function ownerClient(){
 async function loadPending(){
   try{const sb=await ownerClient(),{data}=await sb.from("community").select("*").eq("approved",false).order("created_at",{ascending:false});
     (data||[]).forEach(r=>{const id="c-"+r.id;if(WORKS.some(w=>w.id===id))return;REMOTE["a/"+id+".webp"]=PUB("community",r.image_path);
-      addWork({id,t:r.signed?"by "+r.signed:"a visitor's mess",w:r.w,h:r.h,pending:true,row:r})});
+      addWork({id,t:r.title||(r.signed?"by "+r.signed:"a visitor's mess"),by:r.title&&r.signed?r.signed:null,desc:r.description,w:r.w,h:r.h,pending:true,row:r})});
   }catch(e){console.error(e)}
 }
 board.addEventListener("click",async e=>{
@@ -1660,13 +1697,13 @@ async function loadRemote(){
     const [cs,ss]=await Promise.all([get("collages?select=*&published=eq.true&order=sort.asc,created_at.asc"),get("scraps?select=*&published=eq.true&order=sort.asc,created_at.asc")]);
     clearTimeout(t);
     const pub=(b,path)=>SB_URL+"/storage/v1/object/public/"+b+"/"+path;
-    cs.forEach(r=>{if(WORKS.some(w=>w.id===r.id))return;REMOTE["a/"+r.id+".webp"]=pub("collages",r.image_path);LAYERS[r.id]=r.layers||[];addWork({id:r.id,t:r.title,w:r.w,h:r.h})});
+    cs.forEach(r=>{if(WORKS.some(w=>w.id===r.id))return;REMOTE["a/"+r.id+".webp"]=pub("collages",r.image_path);LAYERS[r.id]=r.layers||[];addWork({id:r.id,t:r.title,desc:r.description,w:r.w,h:r.h})});
     ss.forEach(r=>{if(SCRAPS.some(x=>x.id===r.id))return;REMOTE["s/"+r.id+".webp"]=pub("scraps",r.image_path);CL[r.id]=r.cluster;
       const sc={id:r.id,w:r.w,h:r.h,g:r.cluster==="words"||r.cluster==="heads"?"txt":"img",t:r.title};SCRAPS.push(sc);
       const sec=libEls[clusterOf(sc.id)];if(sec){sec.querySelector(".lib").appendChild(scrapButton(sc));sec.querySelector(".lib-t span").textContent=sec.querySelectorAll(".scrap").length}});
     if(ss.length)renderFilter();
     const vs=await get("community?select=*&approved=eq.true&order=created_at.desc&limit=60");
-    vs.forEach(r=>{const id="c-"+r.id;if(WORKS.some(w=>w.id===id))return;REMOTE["a/"+id+".webp"]=PUB("community",r.image_path);addWork({id,t:r.signed?"by "+r.signed:"a visitor's mess",w:r.w,h:r.h})});
+    vs.forEach(r=>{const id="c-"+r.id;if(WORKS.some(w=>w.id===id))return;REMOTE["a/"+id+".webp"]=PUB("community",r.image_path);addWork({id,t:r.title||(r.signed?"by "+r.signed:"a visitor's mess"),by:r.title&&r.signed?r.signed:null,desc:r.description,w:r.w,h:r.h})});
     if(ownerSignedIn())loadPending();
     if((cs.length||vs.length)&&mode==="mesa")layout();
   }catch(e){}

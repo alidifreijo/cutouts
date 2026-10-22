@@ -194,6 +194,7 @@ h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
       <div class="side-scroll" id="pub-side">
         <h2>Pin it</h2>
         <div class="field"><label for="title">Title</label><input class="input" id="title" placeholder="Untitled mess"></div>
+        <div class="field"><label for="desc">Description</label><textarea class="input" id="desc" rows="3" maxlength="400" placeholder="Optional. Shows when someone zooms in." style="resize:vertical;line-height:1.45"></textarea></div>
         <p class="muted" id="pub-summary"></p>
         <div class="done-list" id="pub-list"></div>
       </div>
@@ -252,6 +253,7 @@ async function loadInbox(){
   note.textContent=data.length?`${data.length} waiting for a look.`:"Nothing waiting. Quiet day.";
   el.innerHTML=data.map(r=>`<div class="ibx" data-id="${r.id}" data-path="${r.image_path}">
     <img src="${SB_URL}/storage/v1/object/public/community/${r.image_path}" alt="" loading="lazy">
+    ${r.title?`<b style="display:block;margin-top:8px;font-weight:500;color:#fff">${r.title.replace(/</g,"&lt;")}</b>`:""}${r.description?`<p class="muted" style="margin:4px 0 0">${r.description.replace(/</g,"&lt;")}</p>`:""}
     <div class="row"><span class="who2">${r.signed?("by "+r.signed.replace(/</g,"&lt;")):"anonymous"}</span>
     <span class="row" style="margin:0"><button class="ghost" data-ib="bin">Bin</button><button class="btn" data-ib="ok">Pin it</button></span></div></div>`).join("");
 }
@@ -531,14 +533,17 @@ $("#publish").onclick=async()=>{
     const pieces=scraps.map((s,i)=>({s,id:base+"-"+(i+1)+"-"+slug(s.name).slice(0,16),img:fitTo(s.canvas,600)}));
     const depths=[.5,1,.8,.65,.95,.7,.9];
     const layers=pieces.filter(p=>p.s.par).map((p,i)=>({id:p.id,x:+(p.s.box[0]/trimmed.width*100).toFixed(2),y:+(p.s.box[1]/trimmed.height*100).toFixed(2),w:+(p.s.box[2]/trimmed.width*100).toFixed(2),d:depths[i%depths.length],src:SB_URL+"/storage/v1/object/public/scraps/"+p.id+".webp"}));
-    const row={id:base,title,image_path:base+".webp",w:col.width,h:col.height,layers,sort:Date.now()%2147483647};
+    const description=$("#desc").value.trim()||null;
+    const row={id:base,title,description,image_path:base+".webp",w:col.width,h:col.height,layers,sort:Date.now()%2147483647};
     const srows=pieces.filter(p=>p.s.lib).map((p,i)=>({id:p.id,title:p.s.name||title+" "+(i+1),cluster:p.s.cluster,image_path:p.id+".webp",w:p.img.width,h:p.img.height,collage_id:base,sort:row.sort}));
     if(DEMO){console.log({row,srows});toast("Demo: nothing pinned.");btn.disabled=false;return}
     btn.textContent="Gluing…";
     const up=async(bucket,path,c)=>{const {error}=await sb.storage.from(bucket).upload(path,await webp(c),{contentType:"image/webp",upsert:false});if(error)throw new Error(bucket+": "+error.message)};
     await up("collages",row.image_path,col);
     for(const p of pieces)await up("scraps",p.id+".webp",p.img);
-    let r=await sb.from("collages").insert(row);if(r.error)throw new Error(r.error.message);
+    let r=await sb.from("collages").insert(row);
+    if(r.error&&/description/.test(r.error.message)){const {description:_d,...rest}=row;r=await sb.from("collages").insert(rest)}
+    if(r.error)throw new Error(r.error.message);
     if(srows.length){r=await sb.from("scraps").insert(srows);if(r.error)throw new Error(r.error.message)}
     $("#pub-side").innerHTML=`<h2>Pinned.</h2><p class="muted">“${title.replace(/</g,"&lt;")}” is on the table. ${srows.length} new scrap${srows.length===1?"":"s"} in the pile.</p><div class="row"><a class="btn" href="./" id="see" style="text-decoration:none">See the mess</a><button class="ghost" id="again">Another one</button></div>`;
     $("#again").onclick=()=>location.reload();
