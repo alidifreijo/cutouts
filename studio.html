@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>cutouts studio</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: same cutting mat as the public site. Top bar with a 4-step stepper; work area left, side panel right. Single dark look on purpose. */
+:root{
+  --mat:#2c6a4e;--mat-deep:#235640;--mat-dark:#173d2c;--mat-light:#3b7a5c;
+  --mat-line:rgba(214,238,222,.13);--mat-line-strong:rgba(214,238,222,.30);--mat-ink:rgba(214,238,222,.62);
+  --mint:#d4ecdc;--danger:#e58c84;
+  --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
+  --f:"DM Mono",ui-monospace,Menlo,monospace;--cm:38px;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:var(--mat);color:var(--mint);font-family:var(--f);font-size:13px;
+  background-image:linear-gradient(var(--mat-line-strong) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line-strong) 1px,transparent 1px),linear-gradient(var(--mat-line) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line) 1px,transparent 1px);
+  background-size:calc(var(--cm)*5) calc(var(--cm)*5),calc(var(--cm)*5) calc(var(--cm)*5),var(--cm) var(--cm),var(--cm) var(--cm)}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:1.5px solid var(--mint);outline-offset:3px}
+[hidden]{display:none!important}
+.app{height:100%;height:100dvh;display:grid;grid-template-rows:auto 1fr}
+.bar{display:flex;align-items:center;gap:16px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px));background:var(--mat-deep);border-bottom:1px solid var(--mat-line-strong)}
+.logo{margin:0;font-weight:500;font-size:15px;white-space:nowrap}
+.logo a{color:inherit;text-decoration:none}
+.logo span{color:var(--mat-ink);font-weight:400}
+.steps{display:flex;gap:2px;background:var(--mat-dark);padding:3px;border-radius:999px;margin-left:8px}
+.steps li{list-style:none;padding:5px 12px;border-radius:999px;font-size:12px;color:var(--mat-ink);white-space:nowrap}
+.steps li[aria-current="step"]{background:var(--mat-light);color:var(--mint)}
+.steps li.done{color:var(--mint)}
+.steps{margin-block:0}
+.who{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:11.5px;color:var(--mat-ink);white-space:nowrap}
+.btn{border:1px solid var(--mint);background:var(--mint);color:var(--mat-dark);border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:500}
+.btn:hover{background:#fff;border-color:#fff}
+.btn:disabled{opacity:.4;cursor:default;background:var(--mint)}
+.ghost{border:1px solid var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:7px 14px;font-size:12.5px}
+.ghost:hover{border-color:var(--mint)}
+.ghost[aria-pressed="true"]{background:var(--mat-light);border-color:var(--mat-light)}
+.link{border:0;background:none;padding:0;color:var(--mat-ink);text-decoration:underline;text-underline-offset:3px;font-size:11.5px}
+.link:hover{color:var(--mint)}
+
+.main{display:grid;grid-template-columns:minmax(0,1fr) 320px;min-height:0}
+.work{position:relative;min-width:0;min-height:0;display:grid;place-items:center;padding:24px}
+.side{background:rgba(23,61,44,.96);border-left:1px solid var(--mat-line-strong);display:flex;flex-direction:column;min-height:0}
+.side-scroll{flex:1;min-height:0;overflow-y:auto;padding:18px 18px 12px;scrollbar-width:thin}
+.side-foot{padding:14px 18px;border-top:1px solid var(--mat-line);display:flex;gap:8px;justify-content:space-between;align-items:center}
+h2{font-weight:500;font-size:15px;margin:0 0 6px;color:#fff}
+.muted{color:var(--mat-ink);font-size:11.5px;line-height:1.55;margin:0 0 14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:11px;color:var(--mat-ink)}
+.input{width:100%;background:var(--mat);border:1px solid var(--mat-line-strong);border-radius:10px;padding:8px 10px;color:var(--mint);outline:none}
+.input:focus{border-color:var(--mint)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.range{width:100%;accent-color:var(--mint)}
+
+/* center card (login / upload) */
+.card{background:rgba(23,61,44,.96);border:1px solid var(--mat-line-strong);border-radius:16px;padding:26px;width:min(420px,100%);box-shadow:var(--shadow)}
+.drop{display:grid;place-items:center;gap:8px;text-align:center;border:2px dashed var(--mat-line-strong);border-radius:16px;padding:48px 24px;width:min(560px,100%);background:rgba(23,61,44,.6);cursor:pointer;transition:border-color .15s,background .15s}
+.drop:hover,.drop.over{border-color:var(--mint);background:rgba(23,61,44,.85)}
+.drop b{font-weight:500;font-size:15px;color:#fff}
+.drop input{display:none}
+
+/* stage */
+.stage{position:relative;max-width:100%;max-height:100%;touch-action:none;user-select:none}
+.stage canvas{display:block;max-width:100%;max-height:calc(100dvh - 120px);box-shadow:var(--shadow)}
+.stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.corner:active{cursor:grabbing}
+.stage.cut{cursor:crosshair}
+
+/* scraps list */
+.tools{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.scraps{display:flex;flex-direction:column;gap:10px}
+.scrap{display:grid;grid-template-columns:56px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px;border:1px solid var(--mat-line);border-radius:12px;background:rgba(44,106,78,.35)}
+.scrap.off{opacity:.55}
+.scrap .th{width:56px;height:56px;border-radius:8px;background:rgba(0,0,0,.18);display:grid;place-items:center;overflow:hidden}
+.scrap .th img{max-width:100%;max-height:100%}
+.scrap .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
+.scrap .input{padding:5px 8px;font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:4px}
+.chip{border:1px solid var(--mat-line-strong);background:transparent;border-radius:999px;padding:2px 8px;font-size:10.5px;color:var(--mat-ink)}
+.chip[aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
+.chk{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mat-ink)}
+.chk input{accent-color:var(--mint)}
+.x{border:0;background:none;color:var(--mat-ink);width:26px;height:26px;border-radius:50%;padding:0}
+.x:hover{background:var(--mat-light);color:var(--mint)}
+.empty{color:var(--mat-ink);font-size:11.5px;line-height:1.6;border:1px dashed var(--mat-line-strong);border-radius:12px;padding:16px;text-align:center}
+.busy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,61,44,.6);font-size:12.5px;z-index:5}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--mat-dark);color:var(--mint);font-size:12.5px;padding:9px 16px;border-radius:999px;box-shadow:var(--shadow);z-index:50;max-width:90vw;text-align:center}
+.err{color:var(--danger)}
+.preview{max-width:100%;max-height:calc(100dvh - 160px);box-shadow:var(--shadow)}
+.done-list{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.done-list img{width:100%;aspect-ratio:1;object-fit:contain;background:rgba(0,0,0,.18);border-radius:8px;padding:4px}
+@media (max-width:820px){
+  .main{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  .side{border-left:0;border-top:1px solid var(--mat-line-strong);max-height:46dvh}
+  .steps li:not([aria-current="step"]){display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="bar">
+    <h1 class="logo"><a href="./">cutouts</a> <span>studio</span></h1>
+    <ol class="steps" id="steps">
+      <li data-s="photo">1 · Photo</li><li data-s="sheet">2 · Sheet</li><li data-s="cut">3 · Cut</li><li data-s="publish">4 · Publish</li>
+    </ol>
+    <div class="who" id="who" hidden><span id="who-email"></span><button class="link" id="signout">Sign out</button></div>
+  </header>
+
+  <!-- login -->
+  <main class="main" id="v-login" style="grid-template-columns:1fr">
+    <div class="work"><div class="card">
+      <h2>Studio</h2>
+      <p class="muted">Only the owner can add collages. Get a magic link by email.</p>
+      <form id="login-form">
+        <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" required autocomplete="email" placeholder="you@example.com"></div>
+        <button class="btn" type="submit" id="login-btn">Send magic link</button>
+      </form>
+      <p class="muted" id="login-msg" style="margin:14px 0 0" hidden></p>
+    </div></div>
+  </main>
+
+  <!-- 1 photo -->
+  <main class="main" id="v-photo" hidden style="grid-template-columns:1fr">
+    <div class="work">
+      <label class="drop" id="drop">
+        <b>Drop a photo of a collage</b>
+        <span class="muted" style="margin:0">or click to choose · JPG, PNG, HEIC</span>
+        <input type="file" id="file" accept="image/*,.heic,.heif">
+      </label>
+    </div>
+  </main>
+
+  <!-- 2 sheet -->
+  <main class="main" id="v-sheet" hidden>
+    <div class="work"><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
+    <aside class="side">
+      <div class="side-scroll">
+        <h2>Frame the sheet</h2>
+        <p class="muted">Drag the four corners onto the paper. It gets straightened.</p>
+        <div class="field"><label for="trim">Trim leftover table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div>
+        <div class="field"><label>Result</label><canvas id="flat-cv" style="width:100%;background:repeating-conic-gradient(#3b7a5c 0 25%,#2c6a4e 0 50%) 0 0/16px 16px;border-radius:8px"></canvas></div>
+      </div>
+      <div class="side-foot"><button class="ghost" data-go="photo">Back</button><button class="btn" id="to-cut">Next: cut</button></div>
+    </aside>
+  </main>
+
+  <!-- 3 cut -->
+  <main class="main" id="v-cut" hidden>
+    <div class="work"><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg><div class="busy" id="busy" hidden>Finding scraps…</div></div></div>
+    <aside class="side">
+      <div class="side-scroll">
+        <h2>Cut scraps</h2>
+        <div class="tools" role="group" aria-label="Tool">
+          <button class="ghost" data-tool="lasso" aria-pressed="true">Scissors</button>
+          <button class="ghost" data-tool="rect" aria-pressed="false">Rectangle</button>
+          <button class="ghost" id="auto">Auto-detect</button>
+        </div>
+        <div class="scraps" id="scraps"></div>
+      </div>
+      <div class="side-foot"><button class="ghost" data-go="sheet">Back</button><button class="btn" id="to-pub">Next: publish</button></div>
+    </aside>
+  </main>
+
+  <!-- 4 publish -->
+  <main class="main" id="v-publish" hidden>
+    <div class="work"><img class="preview" id="pub-preview" alt="Collage preview"></div>
+    <aside class="side">
+      <div class="side-scroll" id="pub-side">
+        <h2>Publish</h2>
+        <div class="field"><label for="title">Collage title</label><input class="input" id="title" placeholder="Untitled"></div>
+        <p class="muted" id="pub-summary"></p>
+        <div class="done-list" id="pub-list"></div>
+      </div>
+      <div class="side-foot"><button class="ghost" data-go="cut">Back</button><button class="btn" id="publish">Publish</button></div>
+    </aside>
+  </main>
+</div>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const SB_URL="https://wybuusahvefqbxnnidky.supabase.co",SB_KEY="sb_publishable_T3lcQF74EXSIjbIELHPoJA_eQR0c1M3";
+const ADMIN="adiazdefreijovalino@gmail.com";
+const DEMO=new URLSearchParams(location.search).has("demo");
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const CLUSTERS=[["people","People"],["nature","Creatures"],["things","Things"],["heads","Headlines"],["words","Words"]];
+let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3200)}
+const mk=(w,h)=>{const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
+const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
+
+// ---------- views ----------
+const VIEWS=["login","photo","sheet","cut","publish"];
+function show(v){
+  VIEWS.forEach(k=>$("#v-"+k).hidden=k!==v);
+  const order=["photo","sheet","cut","publish"],i=order.indexOf(v);
+  $$("#steps li").forEach((li,j)=>{if(j===i)li.setAttribute("aria-current","step");else li.removeAttribute("aria-current");li.classList.toggle("done",i>j)});
+  $("#steps").hidden=v==="login";
+  if(v==="sheet")requestAnimationFrame(layoutSheet);
+  if(v==="cut")requestAnimationFrame(drawCut);
+  if(v==="publish")renderPublish();
+}
+$$("[data-go]").forEach(b=>b.onclick=()=>show(b.dataset.go));
+
+// ---------- auth ----------
+async function initAuth(){
+  if(DEMO){$("#who").hidden=false;$("#who-email").textContent="demo mode · nothing is saved";show("photo");return}
+  if(!sb){$("#login-msg").hidden=false;$("#login-msg").textContent="Couldn't load the login library. Check your connection.";return}
+  const {data:{session}}=await sb.auth.getSession();applySession(session);
+  sb.auth.onAuthStateChange((_e,s)=>applySession(s));
+}
+function applySession(s){
+  const email=s&&s.user&&s.user.email;
+  if(!email){$("#who").hidden=true;show("login");return}
+  $("#who").hidden=false;$("#who-email").textContent=email;
+  if(email.toLowerCase()!==ADMIN){show("login");$("#login-msg").hidden=false;$("#login-msg").textContent="This account can't add collages.";return}
+  if($("#v-login").hidden===false)show("photo");
+}
+$("#login-form").onsubmit=async e=>{
+  e.preventDefault();const email=$("#email").value.trim();const b=$("#login-btn");b.disabled=true;
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:location.origin+location.pathname,shouldCreateUser:true}});
+  b.disabled=false;const m=$("#login-msg");m.hidden=false;
+  m.textContent=error?("Couldn't send the link: "+error.message):"Check your inbox and open the link on this device.";
+};
+$("#signout").onclick=async()=>{if(sb)await sb.auth.signOut();location.reload()};
+
+// ---------- 1 photo ----------
+let srcImg=null;
+const drop=$("#drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)openFile(f)});
+$("#file").onchange=e=>{const f=e.target.files[0];if(f)openFile(f);e.target.value=""};
+async function openFile(f){
+  let blob=f;
+  if(/heic|heif/i.test(f.type)||/\.hei[cf]$/i.test(f.name)){
+    toast("Converting HEIC…");
+    try{if(!window.heic2any)await loadScript("https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js");blob=await heic2any({blob:f,toType:"image/jpeg",quality:.9});if(Array.isArray(blob))blob=blob[0]}
+    catch(err){toast("Couldn't read that HEIC. Export it as JPG and try again.",true);return}
+  }
+  const url=URL.createObjectURL(blob),img=new Image();
+  img.onload=()=>{
+    const k=Math.min(1,2200/Math.max(img.naturalWidth,img.naturalHeight)),c=mk(img.naturalWidth*k,img.naturalHeight*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);srcImg=c;URL.revokeObjectURL(url);
+    quad=guessQuad(c);scraps=[];trimmed=null;$("#trim").value=guessQuad.irregular?20:0;$("#title").value="";
+    show("sheet");
+  };
+  img.onerror=()=>toast("That file isn't an image this browser can read.",true);
+  img.src=url;
+}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+
+// ---------- 2 sheet: corners + perspective ----------
+let quad=null,sheetCv=null,trimmed=null;
+function small(c,max){const s=Math.min(1,max/Math.max(c.width,c.height)),w=Math.max(8,Math.round(c.width*s)),h=Math.max(8,Math.round(c.height*s)),t=mk(w,h),g=t.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,w,h);g.filter="blur(1.2px)";g.drawImage(t,0,0);return {t,w,h,s,d:g.getImageData(0,0,w,h).data}}
+function bgOf(d,w,h){const rs=[],gs=[],bs=[],add=i=>{rs.push(d[i*4]);gs.push(d[i*4+1]);bs.push(d[i*4+2])};for(let x=0;x<w;x++){add(x);add((h-1)*w+x)}for(let y=0;y<h;y++){add(y*w);add(y*w+w-1)}const med=a=>a.sort((x,y)=>x-y)[a.length>>1];return [med(rs),med(gs),med(bs)]}
+function distMap(d,w,h,bg){const m=new Float32Array(w*h);for(let i=0;i<w*h;i++){const j=i*4;m[i]=Math.hypot(d[j]-bg[0],d[j+1]-bg[1],d[j+2]-bg[2])}return m}
+function otsu(m){const hist=new Array(256).fill(0);m.forEach(v=>hist[Math.min(255,v|0)]++);const n=m.length;let sum=0;for(let i=0;i<256;i++)sum+=i*hist[i];let sb=0,wb=0,best=0,th=60;for(let i=0;i<256;i++){wb+=hist[i];if(!wb)continue;const wf=n-wb;if(!wf)break;sb+=i*hist[i];const mb=sb/wb,mf=(sum-sb)/wf,v=wb*wf*(mb-mf)**2;if(v>best){best=v;th=i}}return th}
+// largest blob that isn't connected-to-the-edge background
+function sheetMask(c,tol){
+  const {w,h,s,d}=small(c,220),bg=bgOf(d,w,h),m=distMap(d,w,h,bg),th=tol??Math.max(30,otsu(m)),seen=new Uint8Array(w*h),q=[];
+  for(let x=0;x<w;x++){q.push(x,(h-1)*w+x)}for(let y=0;y<h;y++){q.push(y*w,y*w+w-1)}
+  while(q.length){const i=q.pop();if(seen[i]||m[i]>=th)continue;seen[i]=1;const x=i%w,y=(i/w)|0;if(x>0)q.push(i-1);if(x<w-1)q.push(i+1);if(y>0)q.push(i-w);if(y<h-1)q.push(i+w)}
+  // open (erode then dilate) to drop grain specks
+  let fg=new Uint8Array(w*h);for(let i=0;i<w*h;i++)fg[i]=seen[i]?0:1;
+  const morph=(a,er)=>{const o=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=er?1:0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+dx,Y=y+dy,b=X<0||Y<0||X>=w||Y>=h?0:a[Y*w+X];if(er)v&=b;else v|=b}o[y*w+x]=v}return o};
+  fg=morph(morph(morph(morph(fg,1),1),0),0);
+  const lab=new Int32Array(w*h);let best=0,bestN=0,n=0;
+  for(let i=0;i<w*h;i++){if(!fg[i]||lab[i])continue;n++;let cnt=0;const st=[i];lab[i]=n;while(st.length){const j=st.pop();cnt++;const x=j%w,y=(j/w)|0;for(const k of [x>0?j-1:-1,x<w-1?j+1:-1,y>0?j-w:-1,y<h-1?j+w:-1])if(k>=0&&fg[k]&&!lab[k]){lab[k]=n;st.push(k)}}if(cnt>bestN){bestN=cnt;best=n}}
+  const keep=new Uint8Array(w*h);for(let i=0;i<w*h;i++)keep[i]=lab[i]===best?1:0;
+  // fill holes: anything not reachable from the edge through non-keep pixels
+  const out=new Uint8Array(w*h).fill(1),q2=[];for(let x=0;x<w;x++){q2.push(x,(h-1)*w+x)}for(let y=0;y<h;y++){q2.push(y*w,y*w+w-1)}
+  while(q2.length){const i=q2.pop();if(!out[i]||keep[i])continue;out[i]=0;const x=i%w,y=(i/w)|0;if(x>0)q2.push(i-1);if(x<w-1)q2.push(i+1);if(y>0)q2.push(i-w);if(y<h-1)q2.push(i+w)}
+  return {mask:out,w,h,s,area:bestN/(w*h)};
+}
+function guessQuad(c){
+  const {mask,w,h,s,area}=sheetMask(c);
+  if(area<.15){const W=c.width,H=c.height;return [[W*.06,H*.06],[W*.94,H*.06],[W*.94,H*.94],[W*.06,H*.94]]}
+  // extreme points along the diagonals give the four corners
+  let tl=[0,0,1e9],tr=[0,0,-1e9],br=[0,0,-1e9],bl=[0,0,1e9];
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){if(!mask[y*w+x])continue;const a=x+y,b=x-y;if(a<tl[2])tl=[x,y,a];if(a>br[2])br=[x,y,a];if(b>tr[2])tr=[x,y,b];if(b<bl[2])bl=[x,y,b]}
+  const S=1/s,q=[tl,tr,br,bl];
+  const poly=q.reduce((a,p,i)=>{const n=q[(i+1)%4];return a+p[0]*n[1]-n[0]*p[1]},0)/2,cnt=mask.reduce((a,v)=>a+v,0);
+  if(cnt/Math.abs(poly)<.9){ // irregular cut-out sheet: take its bounding box and trim the table later
+    let x0=w,y0=h,x1=0,y1=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(mask[y*w+x]){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
+    guessQuad.irregular=true;return [[x0*S,y0*S],[(x1+1)*S,y0*S],[(x1+1)*S,(y1+1)*S],[x0*S,(y1+1)*S]];
+  }
+  guessQuad.irregular=false;return q.map(p=>[(p[0]+.5)*S,(p[1]+.5)*S]);
+}
+function layoutSheet(){
+  const cv=$("#src-cv");cv.width=srcImg.width;cv.height=srcImg.height;cv.getContext("2d").drawImage(srcImg,0,0);
+  const st=$("#sheet-stage");st.querySelectorAll(".corner").forEach(c=>c.remove());
+  quad.forEach((p,i)=>{const h=document.createElement("div");h.className="corner";h.dataset.i=i;h.tabIndex=0;h.setAttribute("aria-label","corner "+(i+1));st.appendChild(h);bindCorner(h)});
+  placeCorners();flatten();
+}
+function scaleOf(){const cv=$("#src-cv");return cv.clientWidth/cv.width}
+function placeCorners(){
+  const k=scaleOf();$$("#sheet-stage .corner").forEach(h=>{const p=quad[+h.dataset.i];h.style.left=p[0]*k+"px";h.style.top=p[1]*k+"px"});
+  $("#quad-svg").setAttribute("viewBox",`0 0 ${$("#src-cv").clientWidth} ${$("#src-cv").clientHeight}`);
+  $("#quad").setAttribute("points",quad.map(p=>p[0]*k+","+p[1]*k).join(" "));
+}
+function bindCorner(h){
+  h.addEventListener("pointerdown",e=>{
+    h.setPointerCapture(e.pointerId);const r=$("#src-cv").getBoundingClientRect(),k=scaleOf(),i=+h.dataset.i;
+    const mv=ev=>{quad[i]=[Math.max(0,Math.min(srcImg.width,(ev.clientX-r.left)/k)),Math.max(0,Math.min(srcImg.height,(ev.clientY-r.top)/k))];placeCorners()};
+    const up=()=>{h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);flatten()};
+    h.addEventListener("pointermove",mv);h.addEventListener("pointerup",up);
+  });
+  h.addEventListener("keydown",e=>{const i=+h.dataset.i,d=e.shiftKey?10:2;const m={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[e.key];if(!m)return;e.preventDefault();quad[i]=[quad[i][0]+m[0],quad[i][1]+m[1]];placeCorners();clearTimeout(h._t);h._t=setTimeout(flatten,200)});
+}
+addEventListener("resize",()=>{if(!$("#v-sheet").hidden)placeCorners();if(!$("#v-cut").hidden)drawCut()});
+// homography: maps unit square (u,v) -> quad
+function homography(q){
+  const [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=q;
+  const dx1=x1-x2,dx2=x3-x2,dy1=y1-y2,dy2=y3-y2,sx=x0-x1+x2-x3,sy=y0-y1+y2-y3;
+  let g=0,h=0;const den=dx1*dy2-dx2*dy1;
+  if(Math.abs(sx)>1e-9||Math.abs(sy)>1e-9){g=(sx*dy2-dx2*sy)/den;h=(dx1*sy-sx*dy1)/den}
+  return {a:x1-x0+g*x1,b:x3-x0+h*x3,c:x0,d:y1-y0+g*y1,e:y3-y0+h*y3,f:y0,g,h};
+}
+function flatten(){
+  const q=quad,dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  let W=(dist(q[0],q[1])+dist(q[3],q[2]))/2,H=(dist(q[0],q[3])+dist(q[1],q[2]))/2;
+  const k=Math.min(1,1600/Math.max(W,H));W=Math.round(W*k);H=Math.round(H*k);
+  const M=homography(q),out=mk(W,H),og=out.getContext("2d"),od=og.createImageData(W,H),o=od.data;
+  const sd=srcImg.getContext("2d").getImageData(0,0,srcImg.width,srcImg.height).data,SW=srcImg.width,SH=srcImg.height;
+  for(let y=0;y<H;y++){const v=(y+.5)/H;for(let x=0;x<W;x++){
+    const u=(x+.5)/W,z=M.g*u+M.h*v+1,sx=(M.a*u+M.b*v+M.c)/z,sy=(M.d*u+M.e*v+M.f)/z;
+    const x0=Math.floor(sx),y0=Math.floor(sy),fx=sx-x0,fy=sy-y0,i=(y*W+x)*4;
+    if(x0<0||y0<0||x0>=SW-1||y0>=SH-1){o[i+3]=0;continue}
+    const a=(y0*SW+x0)*4,b=a+4,c=a+SW*4,dd=c+4;
+    for(let ch=0;ch<3;ch++)o[i+ch]=(sd[a+ch]*(1-fx)+sd[b+ch]*fx)*(1-fy)+(sd[c+ch]*(1-fx)+sd[dd+ch]*fx)*fy;
+    o[i+3]=255;
+  }}
+  og.putImageData(od,0,0);sheetCv=out;applyTrim();
+}
+// remove table showing around an irregular sheet
+function applyTrim(){
+  const v=+$("#trim").value;$("#trim-v").textContent=v?"":"off";
+  if(!v){trimmed=sheetCv;showFlat();return}
+  const {mask,w,h}=sheetMask(sheetCv,8+v*1.6);
+  const m=mk(w,h),mg=m.getContext("2d"),md=mg.createImageData(w,h);for(let i=0;i<w*h;i++)md.data[i*4+3]=mask[i]?255:0;mg.putImageData(md,0,0);
+  const out=mk(sheetCv.width,sheetCv.height),g=out.getContext("2d");g.drawImage(sheetCv,0,0);g.globalCompositeOperation="destination-in";g.imageSmoothingEnabled=true;g.imageSmoothingQuality="high";g.filter="blur(1.5px)";g.drawImage(m,0,0,out.width,out.height);
+  trimmed=out;showFlat();
+}
+let trimT;$("#trim").oninput=()=>{clearTimeout(trimT);trimT=setTimeout(applyTrim,60)};
+function showFlat(){const c=$("#flat-cv");c.width=trimmed.width;c.height=trimmed.height;const g=c.getContext("2d");g.clearRect(0,0,c.width,c.height);g.drawImage(trimmed,0,0)}
+$("#to-cut").onclick=()=>show("cut");
+
+// ---------- 3 cut ----------
+let scraps=[],tool="lasso",uid=0;
+$$("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;$$("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
+function drawCut(){
+  const cv=$("#cut-cv");cv.width=trimmed.width;cv.height=trimmed.height;const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(trimmed,0,0);
+  const svg=$("#cut-svg");svg.setAttribute("viewBox",`0 0 ${cv.width} ${cv.height}`);
+  svg.innerHTML=scraps.map(s=>s.poly?`<polygon points="${s.poly.map(p=>p.join(",")).join(" ")}" fill="rgba(212,236,220,.18)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`
+    :`<rect x="${s.box[0]}" y="${s.box[1]}" width="${s.box[2]}" height="${s.box[3]}" fill="rgba(212,236,220,.14)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`).join("")+`<polyline id="live" fill="none" stroke="#f0cd4a" stroke-width="${2/cvScale()}"/>`;
+  renderScraps();
+}
+function cvScale(){const cv=$("#cut-cv");return cv.clientWidth/cv.width||1}
+(()=>{const st=$("#cut-stage");let pts=null,start=null;
+  const pt=e=>{const r=$("#cut-cv").getBoundingClientRect(),k=cvScale();return [Math.max(0,Math.min(trimmed.width,(e.clientX-r.left)/k)),Math.max(0,Math.min(trimmed.height,(e.clientY-r.top)/k))]};
+  st.addEventListener("pointerdown",e=>{if(e.button!==0||!$("#busy").hidden)return;st.setPointerCapture(e.pointerId);start=pt(e);pts=[start]});
+  st.addEventListener("pointermove",e=>{if(!pts)return;const p=pt(e);
+    if(tool==="lasso"){const l=pts[pts.length-1];if(Math.hypot(p[0]-l[0],p[1]-l[1])>3/cvScale())pts.push(p)}
+    else pts=[start,[p[0],start[1]],p,[start[0],p[1]]];
+    const live=$("#live");if(live)live.setAttribute("points",(tool==="lasso"?pts:[...pts,start]).map(q=>q.join(",")).join(" "))});
+  const end=()=>{if(!pts)return;const p=pts;pts=null;const live=$("#live");if(live)live.setAttribute("points","");
+    const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),bw=Math.max(...xs)-Math.min(...xs),bh=Math.max(...ys)-Math.min(...ys);
+    if(bw<12||bh<12||(tool==="lasso"&&p.length<6))return;
+    addScrap(tool==="lasso"?cutPoly(p):cutPoly(p,true))};
+  st.addEventListener("pointerup",end);st.addEventListener("pointercancel",end);
+})();
+function cutPoly(poly,isRect){
+  const xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),x0=Math.floor(Math.min(...xs)),y0=Math.floor(Math.min(...ys)),x1=Math.ceil(Math.max(...xs)),y1=Math.ceil(Math.max(...ys));
+  const c=mk(x1-x0,y1-y0),g=c.getContext("2d");
+  g.beginPath();poly.forEach((p,i)=>g[i?"lineTo":"moveTo"](p[0]-x0,p[1]-y0));g.closePath();g.clip();
+  g.drawImage(trimmed,-x0,-y0);
+  return {canvas:tightCrop(c),box:[x0,y0,x1-x0,y1-y0],poly:isRect?null:poly};
+}
+function tightCrop(c){
+  const g=c.getContext("2d"),d=g.getImageData(0,0,c.width,c.height).data;let x0=c.width,y0=c.height,x1=-1,y1=-1;
+  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++)if(d[(y*c.width+x)*4+3]>20){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<0)return c;const o=mk(x1-x0+1,y1-y0+1);o.getContext("2d").drawImage(c,-x0,-y0);o._off=[x0,y0];return o;
+}
+function addScrap(s){
+  const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];
+  s.id=++uid;s.name="";s.cluster=s.canvas.width>s.canvas.height*2.2?"heads":"things";s.lib=true;s.par=true;scraps.push(s);drawCut();
+  setTimeout(()=>{const i=$(`#scraps [data-id="${s.id}"] .input`);if(i)i.focus()},30);
+}
+function renderScraps(){
+  const el=$("#scraps");
+  if(!scraps.length){el.innerHTML=`<div class="empty">Draw around a scrap on the collage.<br>Scissors for shapes, rectangle for text strips.</div>`;return}
+  el.innerHTML=scraps.map(s=>`<div class="scrap${s.lib?"":" off"}" data-id="${s.id}">
+    <div class="th"><img src="${s.canvas.toDataURL()}" alt=""></div>
+    <div class="meta">
+      <input class="input" value="${s.name.replace(/"/g,"&quot;")}" placeholder="Name it" aria-label="Scrap name">
+      <div class="chips">${CLUSTERS.map(([k,l])=>`<button class="chip" data-c="${k}" aria-pressed="${s.cluster===k}">${l}</button>`).join("")}</div>
+      <label class="chk"><input type="checkbox" data-k="lib" ${s.lib?"checked":""}> add to library</label>
+    </div>
+    <button class="x" data-rm aria-label="Delete scrap">✕</button>
+  </div>`).join("");
+}
+$("#scraps").addEventListener("input",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches(".input"))s.name=e.target.value});
+$("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.dataset.k==="lib"){s.lib=e.target.checked;row.classList.toggle("off",!s.lib)}});
+$("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
+  const c=e.target.closest("[data-c]");if(c){s.cluster=c.dataset.c;row.querySelectorAll(".chip").forEach(b=>b.setAttribute("aria-pressed",b===c))}
+  if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}});
+// auto-detect: background removal in the browser, then split into separate pieces
+$("#auto").onclick=async()=>{
+  const busy=$("#busy");busy.hidden=false;busy.textContent="Loading the cutting model… (first time takes a while)";
+  try{
+    const mod=await import("https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm");
+    busy.textContent="Finding scraps…";
+    const inBlob=await new Promise(r=>trimmed.toBlob(r,"image/png"));
+    const outBlob=await mod.removeBackground(inBlob,{output:{format:"image/png"}});
+    const img=await createImageBitmap(outBlob);const full=mk(trimmed.width,trimmed.height);full.getContext("2d").drawImage(img,0,0,full.width,full.height);
+    const found=splitPieces(full);
+    found.forEach(addScrapQuiet);drawCut();
+    toast(found.length?`Found ${found.length} scrap${found.length>1?"s":""}. Delete the ones you don't want.`:"Nothing obvious. Use the scissors.");
+  }catch(err){console.error(err);toast("Auto-detect couldn't run here. The scissors still work.",true)}
+  busy.hidden=true;
+};
+function addScrapQuiet(s){const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];s.id=++uid;s.name="";s.cluster="things";s.lib=true;s.par=true;scraps.push(s)}
+function splitPieces(full){
+  const S=Math.min(1,320/Math.max(full.width,full.height)),w=Math.round(full.width*S),h=Math.round(full.height*S),t=mk(w,h);t.getContext("2d").drawImage(full,0,0,w,h);
+  const d=t.getContext("2d").getImageData(0,0,w,h).data,lab=new Int32Array(w*h),out=[];let n=0;
+  for(let i=0;i<w*h;i++){if(lab[i]||d[i*4+3]<110)continue;n++;const q=[i],px=[];lab[i]=n;
+    while(q.length){const j=q.pop();px.push(j);const x=j%w,y=(j/w)|0;for(const k of [x>0?j-1:-1,x<w-1?j+1:-1,y>0?j-w:-1,y<h-1?j+w:-1])if(k>=0&&!lab[k]&&d[k*4+3]>=110){lab[k]=n;q.push(k)}}
+    if(px.length<w*h*.012)continue;
+    const m=mk(w,h),mg=m.getContext("2d"),md=mg.createImageData(w,h);let x0=w,y0=h,x1=0,y1=0;
+    px.forEach(j=>{md.data[j*4+3]=255;const x=j%w,y=(j/w)|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)});mg.putImageData(md,0,0);
+    const pad=2,X0=Math.max(0,Math.floor((x0-pad)/S)),Y0=Math.max(0,Math.floor((y0-pad)/S)),X1=Math.min(full.width,Math.ceil((x1+pad+1)/S)),Y1=Math.min(full.height,Math.ceil((y1+pad+1)/S));
+    const c2=mk(X1-X0,Y1-Y0),g2=c2.getContext("2d");g2.drawImage(full,-X0,-Y0);g2.globalCompositeOperation="destination-in";g2.imageSmoothingEnabled=true;g2.drawImage(m,-X0,-Y0,full.width,full.height);
+    out.push({canvas:tightCrop(c2),box:[X0,Y0,X1-X0,Y1-Y0],poly:null});
+  }
+  return out;
+}
+$("#to-pub").onclick=()=>{if(!scraps.length&&!confirmNoScraps())return;show("publish")};
+function confirmNoScraps(){toast("Publishing without scraps. You can still go back.");return true}
+
+// ---------- 4 publish ----------
+function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===1)return c;const o=mk(c.width*k,c.height*k);const g=o.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,o.width,o.height);return o}
+function renderPublish(){
+  $("#pub-preview").src=trimmed.toDataURL("image/webp",.8);
+  const lib=scraps.filter(s=>s.lib).length;
+  $("#pub-summary").textContent=`The collage goes on the table${scraps.length?` with ${scraps.length} parallax layer${scraps.length>1?"s":""}`:""}. ${lib} scrap${lib===1?"":"s"} go${lib===1?"es":""} to the library.`;
+  $("#pub-list").innerHTML=scraps.filter(s=>s.lib).map(s=>`<img src="${s.canvas.toDataURL()}" alt="${(s.name||"scrap").replace(/"/g,"&quot;")}">`).join("");
+  setTimeout(()=>$("#title").focus(),30);
+}
+const slug=t=>(t||"collage").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,32)||"collage";
+const webp=(c,q=.82)=>new Promise(r=>c.toBlob(r,"image/webp",q));
+$("#publish").onclick=async()=>{
+  const btn=$("#publish");btn.disabled=true;
+  try{
+    const title=$("#title").value.trim()||"Untitled",base=slug(title)+"-"+Math.random().toString(36).slice(2,6);
+    const col=fitTo(trimmed,1000),k=col.width/trimmed.width;
+    const pieces=scraps.map((s,i)=>({s,id:base+"-"+(i+1)+"-"+slug(s.name).slice(0,16),img:fitTo(s.canvas,600)}));
+    const depths=[.5,1,.8,.65,.95,.7,.9];
+    const layers=pieces.filter(p=>p.s.par).map((p,i)=>({id:p.id,x:+(p.s.box[0]/trimmed.width*100).toFixed(2),y:+(p.s.box[1]/trimmed.height*100).toFixed(2),w:+(p.s.box[2]/trimmed.width*100).toFixed(2),d:depths[i%depths.length],src:SB_URL+"/storage/v1/object/public/scraps/"+p.id+".webp"}));
+    const row={id:base,title,image_path:base+".webp",w:col.width,h:col.height,layers,sort:Date.now()%2147483647};
+    const srows=pieces.filter(p=>p.s.lib).map((p,i)=>({id:p.id,title:p.s.name||title+" "+(i+1),cluster:p.s.cluster,image_path:p.id+".webp",w:p.img.width,h:p.img.height,collage_id:base,sort:row.sort}));
+    if(DEMO){console.log({row,srows});toast("Demo mode: nothing saved. See the console for what would be published.");btn.disabled=false;return}
+    btn.textContent="Uploading…";
+    const up=async(bucket,path,c)=>{const {error}=await sb.storage.from(bucket).upload(path,await webp(c),{contentType:"image/webp",upsert:false});if(error)throw new Error(bucket+": "+error.message)};
+    await up("collages",row.image_path,col);
+    for(const p of pieces)await up("scraps",p.id+".webp",p.img);
+    let r=await sb.from("collages").insert(row);if(r.error)throw new Error(r.error.message);
+    if(srows.length){r=await sb.from("scraps").insert(srows);if(r.error)throw new Error(r.error.message)}
+    $("#pub-side").innerHTML=`<h2>Published</h2><p class="muted">“${title.replace(/</g,"&lt;")}” is on the table and ${srows.length} scrap${srows.length===1?" is":"s are"} in the library.</p><div class="row"><a class="btn" href="./" style="text-decoration:none">See it on the table</a><button class="ghost" id="again">Add another</button></div>`;
+    $("#again").onclick=()=>location.reload();btn.hidden=true;$$('#v-publish [data-go]').forEach(b=>b.hidden=true);
+  }catch(err){console.error(err);toast("Couldn't publish: "+err.message,true);btn.textContent="Publish";btn.disabled=false}
+};
+
+initAuth();
+</script>
+</body>
+</html>

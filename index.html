@@ -481,7 +481,9 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 
 <script>
 // ---------- data ----------
-const SRC=(p)=>(window.IMG&&IMG[p])||p;
+const SB_URL="https://wybuusahvefqbxnnidky.supabase.co",SB_KEY="sb_publishable_T3lcQF74EXSIjbIELHPoJA_eQR0c1M3";
+const REMOTE={};
+const SRC=(p)=>(window.IMG&&IMG[p])||REMOTE[p]||p;
 const LAYERS={"4471": [{"id": "4471_0", "x": 20.94, "y": 16.9, "w": 55.41, "d": 0.7}], "4472": [{"id": "riot-girl", "x": 0.0, "y": 45.71, "w": 68.7, "d": 0.5}, {"id": "riot-text", "x": 57.9, "y": 7.99, "w": 40.85, "d": 1}], "4474": [{"id": "blue-women", "x": 28.5, "y": 11.24, "w": 31.56, "d": 0.5}, {"id": "cramps-logo", "x": 53.0, "y": 8.89, "w": 44.09, "d": 1}], "4475": [{"id": "eyes", "x": 33.37, "y": 10.82, "w": 66.16, "d": 0.35}, {"id": "mushrooms", "x": 53.67, "y": 66.3, "w": 46.39, "d": 1}], "4476": [{"id": "boat", "x": 1.31, "y": 41.8, "w": 98.69, "d": 0.4}, {"id": "slow-side", "x": 10.05, "y": 14.7, "w": 76.37, "d": 1}], "4477": [{"id": "4477_0", "x": 23.47, "y": 19.9, "w": 53.74, "d": 0.6}, {"id": "soviet", "x": 30.93, "y": 75.8, "w": 40.67, "d": 1}], "4479": [{"id": "tshirt", "x": 0.0, "y": 20.8, "w": 24.49, "d": 0.5}, {"id": "cap", "x": 7.41, "y": 6.4, "w": 14.26, "d": 0.7}, {"id": "car", "x": 16.67, "y": 59.3, "w": 83.33, "d": 1}], "4480": [{"id": "jacket", "x": 29.6, "y": 28.2, "w": 50.54, "d": 0.8}], "4481": [{"id": "news", "x": 4.77, "y": 4.9, "w": 91.51, "d": 0.4}, {"id": "manon", "x": 32.76, "y": 26.6, "w": 60.08, "d": 0.6}, {"id": "manon-girls", "x": 33.42, "y": 52.0, "w": 61.43, "d": 0.9}], "4574": [{"id": "creatures", "x": -9.18, "y": 57.87, "w": 110.07, "d": 0.6}, {"id": "cancion", "x": 9.8, "y": 16.7, "w": 51.3, "d": 1}], "4575": [{"id": "money-talks", "x": 10.1, "y": 9.8, "w": 77.32, "d": 0.6}, {"id": "quote-amancio", "x": 30.17, "y": 29.6, "w": 51.9, "d": 1}, {"id": "quote-kiyosaki", "x": 6.06, "y": 58.9, "w": 51.11, "d": 0.9}], "4578": [{"id": "two-women", "x": 22.53, "y": 42.48, "w": 61.82, "d": 0.6}, {"id": "bubble", "x": 17.7, "y": 7.41, "w": 61.84, "d": 1}], "5156": [{"id": "figure", "x": 0.12, "y": 0.0, "w": 72.56, "d": 0.5}, {"id": "w-solo", "x": 71.73, "y": 3.3, "w": 26.84, "d": 1}, {"id": "w-los", "x": 81.27, "y": 15.3, "w": 13.88, "d": 0.9}, {"id": "w-ricos", "x": 75.03, "y": 25.3, "w": 21.83, "d": 1}, {"id": "w-tienen", "x": 69.96, "y": 36.0, "w": 29.17, "d": 0.9}, {"id": "w-derecho", "x": 61.13, "y": 48.8, "w": 36.46, "d": 1}, {"id": "w-q", "x": 86.81, "y": 59.4, "w": 7.13, "d": 0.8}]};
 const WORKS=[
   {id:"4472",t:"riot grrrl",w:1000,h:851},
@@ -526,7 +528,7 @@ function drawRulers(mat){
 // ---------- the mess (fits the screen, no scroll) ----------
 const board=$("#board"), mesa=$("#mesa");
 let z=10;
-const cards=WORKS.map((w,i)=>{
+function makeCard(w,i){
   const b=document.createElement("button");
   b.className="card"; b.setAttribute("aria-label","View "+w.t);
   b.innerHTML=`<img src="${SRC("a/"+w.id+".webp")}" alt="${esc(w.t)}" width="${w.w}" height="${w.h}">`
@@ -534,7 +536,9 @@ const cards=WORKS.map((w,i)=>{
     +`<span class="lbl">${esc(w.t)}</span>`;
   board.appendChild(b);
   return {el:b,w,i,x:0,y:0,r:0,j:null};
-});
+}
+const cards=WORKS.map(makeCard);
+function addWork(w){WORKS.push(w);const o=makeCard(w,WORKS.length-1);cards.push(o);order.push(o);makeDraggable(o,()=>openLb(o.i))}
 const note=document.createElement("div");
 note.className="note";
 note.innerHTML=`<h2>Cut. Glue. No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="hint">${coarse?"<b>Tap</b> to stare.":"<b>Drag</b> them around. <b>Click</b> to stare."} Then go <b>make a mess</b> with my scraps.</p>`;
@@ -619,8 +623,8 @@ function build(i){
   stg.style.width=W+"px";stg.style.height=H+"px";
   stg.classList.remove("lifted","zoomed");S.zt=1;S.z=1;
   let h=`<img class="base" src="${SRC("a/"+w.id+".webp")}" alt="${esc(w.t)}">`;
-  (LAYERS[w.id]||[]).forEach(l=>{h+=`<img class="shade" style="left:${l.x}%;top:${l.y}%;width:${l.w}%" src="${SRC("s/"+l.id+".webp")}" alt="">`});
-  (LAYERS[w.id]||[]).forEach(l=>{h+=`<img class="ly" data-d="${l.d}" style="--d:${l.d};left:${l.x}%;top:${l.y}%;width:${l.w}%" src="${SRC("s/"+l.id+".webp")}" alt="">`});
+  (LAYERS[w.id]||[]).forEach(l=>{h+=`<img class="shade" style="left:${l.x}%;top:${l.y}%;width:${l.w}%" src="${l.src||SRC("s/"+l.id+".webp")}" alt="">`});
+  (LAYERS[w.id]||[]).forEach(l=>{h+=`<img class="ly" data-d="${l.d}" style="--d:${l.d};left:${l.x}%;top:${l.y}%;width:${l.w}%" src="${l.src||SRC("s/"+l.id+".webp")}" alt="">`});
   stg.innerHTML=h;
   baseEl=stg.querySelector(".base");shades=[...stg.querySelectorAll(".shade")];
   lyrs=[...stg.querySelectorAll(".ly")].map(el=>({el,d:+el.dataset.d}));
@@ -1473,10 +1477,27 @@ $("#btn-dl").onclick=async()=>{
 };
 
 // ---------- boot ----------
-function boot(){
+// collages and scraps added from the studio live in Supabase
+async function loadRemote(){
+  try{
+    const h={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY},ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),4000);
+    const get=q=>fetch(SB_URL+"/rest/v1/"+q,{headers:h,signal:ctl.signal}).then(r=>r.ok?r.json():[]).catch(()=>[]);
+    const [cs,ss]=await Promise.all([get("collages?select=*&published=eq.true&order=sort.asc,created_at.asc"),get("scraps?select=*&published=eq.true&order=sort.asc,created_at.asc")]);
+    clearTimeout(t);
+    const pub=(b,path)=>SB_URL+"/storage/v1/object/public/"+b+"/"+path;
+    cs.forEach(r=>{if(WORKS.some(w=>w.id===r.id))return;REMOTE["a/"+r.id+".webp"]=pub("collages",r.image_path);LAYERS[r.id]=r.layers||[];addWork({id:r.id,t:r.title,w:r.w,h:r.h})});
+    ss.forEach(r=>{if(SCRAPS.some(x=>x.id===r.id))return;REMOTE["s/"+r.id+".webp"]=pub("scraps",r.image_path);CL[r.id]=r.cluster;
+      const sc={id:r.id,w:r.w,h:r.h,g:r.cluster==="words"||r.cluster==="heads"?"txt":"img",t:r.title};SCRAPS.push(sc);
+      const sec=libEls[clusterOf(sc.id)];if(sec){sec.querySelector(".lib").appendChild(scrapButton(sc));sec.querySelector(".lib-t span").textContent=sec.querySelectorAll(".scrap").length}});
+    if(ss.length)renderFilter();
+    if(cs.length&&mode==="mesa")layout();
+  }catch(e){}
+}
+async function boot(){
   const dw=store.get("recortes-dockw");if(typeof dw==="number")setDockW(dw);
   const d=store.get("recortes-dock");setDock(typeof d==="boolean"?d:!coarse&&innerWidth>720);
   renderFilter();setPane("scraps");
+  await loadRemote();
   load();
   const m=store.get("recortes-mode");setMode(m==="pega"?"pega":"mesa");
   applyView();
