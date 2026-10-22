@@ -11,7 +11,7 @@
 <style>
 /* Layout: same cutting mat as the public site. Top bar with a 4-step stepper; work area left, side panel right. Single dark look on purpose. */
 :root{
-  --mat:#2c6a4e;--mat-deep:#235640;--mat-dark:#173d2c;--mat-light:#3b7a5c;--panel:#367458;
+  --mat:#2c6a4e;--mat-deep:#235640;--mat-dark:#173d2c;--mat-light:#3b7a5c;--panel:#367458;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
   --mat-line:rgba(214,238,222,.13);--mat-line-strong:rgba(214,238,222,.30);--mat-ink:rgba(214,238,222,.62);
   --mint:#d4ecdc;--danger:#e58c84;
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
@@ -32,8 +32,8 @@ button{cursor:pointer}
 .logo{margin:0;font-weight:500;font-size:17px;white-space:nowrap}
 .logo a{color:inherit;text-decoration:none}
 .logo span{color:var(--mat-ink);font-weight:400}
-.steps{display:flex;gap:2px;background:var(--mat-dark);padding:3px;border-radius:999px;margin-left:8px}
-.steps li{list-style:none;padding:6px 18px;border-radius:999px;font-size:14px;color:var(--mat-ink);white-space:nowrap}
+.steps{display:flex;gap:2px;background:var(--mat-dark);padding:3px;border-radius:999px;margin-left:8px;padding-left:3px}
+.steps li{list-style:none;padding:6px 20px;border-radius:999px;font-size:14px;color:var(--mat-ink);white-space:nowrap}
 .steps li[aria-current="step"]{background:var(--mat-light);color:var(--mint)}
 .steps li.done{color:var(--mint)}
 .steps{margin-block:0}
@@ -49,6 +49,10 @@ button{cursor:pointer}
 
 .main{display:grid;grid-template-columns:minmax(0,1fr) 320px;min-height:0}
 .work{position:relative;min-width:0;min-height:0;display:grid;place-items:center;padding:24px}
+.work.view{display:flex;overflow:auto;padding:40px;scrollbar-width:thin}
+.work.view>.stage{margin:auto;flex:0 0 auto;max-width:none;max-height:none}
+.work.view.panning,.work.view.space{cursor:grab}
+.work.view.panning{cursor:grabbing}
 .side{background:var(--panel);border-left:1px solid rgba(0,0,0,.18);display:flex;flex-direction:column;min-height:0}
 .side-scroll{flex:1;min-height:0;overflow-y:auto;padding:18px 18px 12px;scrollbar-width:thin}
 .side-foot{padding:14px 18px;border-top:1px solid var(--mat-line);display:flex;gap:8px;justify-content:space-between;align-items:center}
@@ -70,11 +74,18 @@ h2{font-weight:500;font-size:17px;margin:0 0 6px;color:#fff}
 
 /* stage */
 .stage{position:relative;max-width:100%;max-height:100%;touch-action:none;user-select:none}
-.stage canvas{display:block;max-width:100%;max-height:calc(100dvh - 120px);box-shadow:var(--shadow)}
+.stage canvas{display:block;box-shadow:var(--shadow)}
 .stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .corner:active{cursor:grabbing}
-.stage.cut{cursor:crosshair}
+.stage.cut{cursor:var(--cutter)}
+.work.space .stage.cut{cursor:inherit}
+.zoom{position:absolute;z-index:6;left:16px;bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
+.zoom button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#fff;display:grid;place-items:center;padding:0}
+.zoom button:hover{background:var(--mat-light)}
+.zoom .zv{width:auto;min-width:56px;border-radius:999px;font-size:13px;color:var(--mint)}
+.zoom svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round}
+.main{position:relative}
 
 /* scraps list */
 .tools{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
@@ -86,7 +97,7 @@ h2{font-weight:500;font-size:17px;margin:0 0 6px;color:#fff}
 .scrap .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
 .scrap .input{padding:5px 8px;font-size:14px}
 .chips{display:flex;flex-wrap:wrap;gap:4px}
-.chip{border:1px solid var(--mat-line-strong);background:transparent;border-radius:999px;padding:2px 8px;font-size:12.5px;color:var(--mat-ink)}
+.chip{border:1px solid var(--mat-line-strong);background:transparent;border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--mat-ink)}
 .chip[aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
 .chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mat-ink)}
 .chk input{accent-color:var(--mint)}
@@ -101,7 +112,9 @@ h2{font-weight:500;font-size:17px;margin:0 0 6px;color:#fff}
 .done-list img{width:100%;aspect-ratio:1;object-fit:contain;background:rgba(0,0,0,.18);border-radius:8px;padding:4px}
 .embed body{background:transparent}
 .embed .logo{display:none}
-.embed .bar{background:transparent;border-bottom:0;padding-top:12px}
+.embed .bar{background:transparent;border-bottom:0;padding:12px 16px 10px 0}
+.embed .app{padding:30px 0 0 34px}
+.embed .side{border-radius:16px 0 0 0;border-top:1px solid rgba(0,0,0,.18)}
 .inbox{display:flex;flex-direction:column;gap:12px}
 .ibx{border:1px solid var(--mat-line);border-radius:12px;background:rgba(44,106,78,.35);padding:8px}
 .ibx img{display:block;width:100%;border-radius:6px;background:rgba(0,0,0,.2)}
@@ -115,6 +128,14 @@ h2{font-weight:500;font-size:17px;margin:0 0 6px;color:#fff}
 
 body{font-size:16.5px}
 h2,.logo,.drop b{font-family:var(--f-head);font-weight:400;line-height:1.5}
+h2{font-size:20px;margin-bottom:10px}
+.side-scroll{padding:22px 20px 16px}
+.tools .ghost{padding:8px 16px}
+.scrap .input{font-size:15px;padding:7px 10px}
+.chk{font-size:14px}
+.field label{font-size:14px}
+.who{font-size:14px}
+.drop b{font-size:22px}
 .steps li,.btn,.ghost,.chip{font-size:15.5px}
 .muted{font-size:15px}
 </style>
@@ -162,7 +183,7 @@ h2,.logo,.drop b{font-family:var(--f-head);font-weight:400;line-height:1.5}
 
   <!-- 2 sheet -->
   <main class="main" id="v-sheet" hidden>
-    <div class="work"><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
+    <div class="zoom" data-for="w-sheet" aria-label="zoom"><button data-z="out" aria-label="Zoom out"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M16 16l4 4"/></svg></button><button class="zv" data-z="reset" aria-label="Fit">100%</button><button data-z="in" aria-label="Zoom in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M11 8v6M16 16l4 4"/></svg></button></div><div class="work view" id="w-sheet"><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
     <aside class="side">
       <div class="side-scroll">
         <h2>Straighten it</h2>
@@ -176,7 +197,7 @@ h2,.logo,.drop b{font-family:var(--f-head);font-weight:400;line-height:1.5}
 
   <!-- 3 cut -->
   <main class="main" id="v-cut" hidden>
-    <div class="work"><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg><div class="busy" id="busy" hidden>Finding scraps…</div></div></div>
+    <div class="zoom" data-for="w-cut" aria-label="zoom"><button data-z="out" aria-label="Zoom out"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M16 16l4 4"/></svg></button><button class="zv" data-z="reset" aria-label="Fit">100%</button><button data-z="in" aria-label="Zoom in"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M11 8v6M16 16l4 4"/></svg></button></div><div class="work view" id="w-cut"><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg><div class="busy" id="busy" hidden>Finding scraps…</div></div></div>
     <aside class="side">
       <div class="side-scroll">
         <h2>Cut it up</h2>
@@ -344,7 +365,7 @@ function layoutSheet(){
   const cv=$("#src-cv");cv.width=srcImg.width;cv.height=srcImg.height;cv.getContext("2d").drawImage(srcImg,0,0);
   const st=$("#sheet-stage");st.querySelectorAll(".corner").forEach(c=>c.remove());
   quad.forEach((p,i)=>{const h=document.createElement("div");h.className="corner";h.dataset.i=i;h.tabIndex=0;h.setAttribute("aria-label","corner "+(i+1));st.appendChild(h);bindCorner(h)});
-  placeCorners();flatten();
+  VZ["w-sheet"]=1;sizeView("w-sheet");placeCorners();flatten();
 }
 function scaleOf(){const cv=$("#src-cv");return cv.clientWidth/cv.width}
 function placeCorners(){
@@ -361,7 +382,7 @@ function bindCorner(h){
   });
   h.addEventListener("keydown",e=>{const i=+h.dataset.i,d=e.shiftKey?10:2;const m={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[e.key];if(!m)return;e.preventDefault();quad[i]=[quad[i][0]+m[0],quad[i][1]+m[1]];placeCorners();clearTimeout(h._t);h._t=setTimeout(flatten,200)});
 }
-addEventListener("resize",()=>{if(!$("#v-sheet").hidden)placeCorners();if(!$("#v-cut").hidden)drawCut()});
+addEventListener("resize",()=>{if(!$("#v-sheet").hidden){sizeView("w-sheet");placeCorners()}if(!$("#v-cut").hidden)drawCut()});
 // homography: maps unit square (u,v) -> quad
 function homography(q){
   const [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=q;
@@ -397,13 +418,51 @@ function applyTrim(){
 }
 let trimT;$("#trim").oninput=()=>{clearTimeout(trimT);trimT=setTimeout(applyTrim,60)};
 function showFlat(){fullMask=null;const c=$("#flat-cv");c.width=trimmed.width;c.height=trimmed.height;const g=c.getContext("2d");g.clearRect(0,0,c.width,c.height);g.drawImage(trimmed,0,0)}
-$("#to-cut").onclick=()=>show("cut");
+$("#to-cut").onclick=()=>{VZ["w-cut"]=1;show("cut")};
+
+// ---------- work views: always fit the image, wheel / buttons zoom, space-drag pans ----------
+const VZ={"w-sheet":1,"w-cut":1};
+function viewDims(w){return w==="w-sheet"?[srcImg.width,srcImg.height,$("#src-cv")]:[trimmed.width,trimmed.height,$("#cut-cv")]}
+function sizeView(w){
+  const el=$("#"+w);if(!el||!el.clientWidth)return;const [iw,ih,cv]=viewDims(w);if(!iw)return;
+  const base=Math.min((el.clientWidth-80)/iw,(el.clientHeight-80)/ih,8),k=base*VZ[w];
+  cv.style.width=iw*k+"px";cv.style.height=ih*k+"px";
+  const zv=$(`.zoom[data-for="${w}"] .zv`);if(zv)zv.textContent=Math.round(VZ[w]*100)+"%";
+}
+const afterZoom=w=>w==="w-sheet"?placeCorners():drawCut();
+function zoomView(w,nz,cx,cy){
+  const el=$("#"+w),r=el.getBoundingClientRect();nz=Math.max(.5,Math.min(8,nz));
+  if(cx==null){cx=r.left+r.width/2;cy=r.top+r.height/2}
+  const st=el.querySelector(".stage").getBoundingClientRect(),fx=(cx-st.left)/st.width,fy=(cy-st.top)/st.height;
+  VZ[w]=nz;sizeView(w);afterZoom(w);
+  const st2=el.querySelector(".stage").getBoundingClientRect();
+  el.scrollLeft+=st2.left+fx*st2.width-cx;el.scrollTop+=st2.top+fy*st2.height-cy;
+}
+let spaceDown=false;
+addEventListener("keydown",e=>{if(e.code==="Space"&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();spaceDown=true;$$(".work.view").forEach(w=>w.classList.add("space"))}});
+addEventListener("keyup",e=>{if(e.code==="Space"){spaceDown=false;$$(".work.view").forEach(w=>w.classList.remove("space"))}});
+["w-sheet","w-cut"].forEach(w=>{
+  const el=$("#"+w);
+  el.addEventListener("wheel",e=>{e.preventDefault();
+    if(!e.ctrlKey&&VZ[w]>1.001&&Math.abs(e.deltaX)>Math.abs(e.deltaY)){el.scrollLeft+=e.deltaX;return}
+    zoomView(w,VZ[w]*Math.exp(-e.deltaY*(e.ctrlKey?.01:.0015)),e.clientX,e.clientY)},{passive:false});
+  el.addEventListener("pointerdown",e=>{
+    if(!(spaceDown||e.button===1||(e.target===el&&VZ[w]>1.001)))return;
+    e.preventDefault();e.stopPropagation();el.setPointerCapture(e.pointerId);el.classList.add("panning");
+    const sx=e.clientX,sy=e.clientY,l=el.scrollLeft,t=el.scrollTop;
+    const mv=ev=>{el.scrollLeft=l-(ev.clientX-sx);el.scrollTop=t-(ev.clientY-sy)};
+    const up=()=>{el.classList.remove("panning");el.removeEventListener("pointermove",mv);el.removeEventListener("pointerup",up);el.removeEventListener("pointercancel",up)};
+    el.addEventListener("pointermove",mv);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
+  },true);
+  $(`.zoom[data-for="${w}"]`).addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;
+    if(b.dataset.z==="in")zoomView(w,VZ[w]*1.4);else if(b.dataset.z==="out")zoomView(w,VZ[w]/1.4);else{VZ[w]=1;sizeView(w);afterZoom(w)}});
+});
 
 // ---------- 3 cut ----------
 let scraps=[],tool="smart",uid=0;
 $$("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;$$("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b))});
 function drawCut(){
-  const cv=$("#cut-cv");cv.width=trimmed.width;cv.height=trimmed.height;const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(trimmed,0,0);
+  const cv=$("#cut-cv");if(cv.width!==trimmed.width||cv.height!==trimmed.height||!cv.style.width){cv.width=trimmed.width;cv.height=trimmed.height}sizeView("w-cut");const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(trimmed,0,0);
   const svg=$("#cut-svg");svg.setAttribute("viewBox",`0 0 ${cv.width} ${cv.height}`);
   svg.innerHTML=scraps.map(s=>s.poly?`<polygon points="${s.poly.map(p=>p.join(",")).join(" ")}" fill="rgba(212,236,220,.18)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`
     :`<rect x="${s.box[0]}" y="${s.box[1]}" width="${s.box[2]}" height="${s.box[3]}" fill="rgba(212,236,220,.14)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`).join("")+`<polyline id="live" fill="none" stroke="#f0cd4a" stroke-width="${2/cvScale()}"/>`;

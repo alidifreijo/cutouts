@@ -428,6 +428,57 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
   .lb-hint{display:none}
 }
 
+
+/* the way out of make a mess: next to the scrap pile, travels with it */
+.pin-float{position:absolute;z-index:23;bottom:16px;right:16px;width:calc(var(--dock-w,320px) - 32px);justify-content:center;padding:13px 14px!important;font-size:16px!important;letter-spacing:-.02em;white-space:nowrap;box-shadow:var(--shadow-up);transition:width .25s ease,transform .15s,background .15s}
+#studio .dock-scroll{padding-bottom:84px}
+#studio .dock::after{content:"";position:absolute;left:0;right:0;bottom:0;height:96px;background:linear-gradient(rgba(54,116,88,0),var(--panel) 45%);pointer-events:none;z-index:3}
+.pin-float svg.i{width:18px;height:18px;flex:0 0 auto}
+.pin-float:hover{transform:translateY(-2px);background:#fff}
+#studio.dock-closed .pin-float{width:auto;right:24px;bottom:20px}
+#studio.has-pieces .pin-float{animation:pinhey 1s ease 1}
+@keyframes pinhey{0%,100%{transform:none}30%{transform:translateY(-6px) rotate(-2deg)}60%{transform:translateY(0) rotate(1deg)}}
+@media (max-width:720px){.pin-float{display:none}}
+
+/* ---------- phones: make a mess ---------- */
+.mbar,.mtrash,.m-only,.dock-x,.em-m{display:none}
+@media (max-width:720px){
+  .em-d{display:none}.em-m{display:inline}
+  body:has(#studio:not([hidden])) #tools-pega{display:none}
+  #studio .zoom,#studio .dock-tab{display:none}
+  .mbar{display:flex;position:absolute;z-index:22;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom,0px));align-items:center;gap:4px;padding:6px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow);white-space:nowrap}
+  .mbar .ib{width:42px;height:42px;border:0;color:#fff}
+  .mbar .ib:disabled{color:var(--mat-ink)}
+  .mb-add,.mb-pin{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;padding:10px 16px;font-size:15px}
+  .mb-add{background:var(--mat-dark);color:#fff}
+  .mb-pin{background:var(--mint);color:var(--mat-dark)}
+  .mb-add svg.i,.mb-pin svg.i{width:16px;height:16px}
+  #studio.has-sel .mbar{display:none}
+  #studio .rail{display:none;left:50%!important;top:auto!important;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom,0px));padding:6px;gap:2px;max-width:calc(100% - 20px);background:var(--panel)}
+  #studio.has-sel .rail{display:flex}
+  #studio .rail #rail-text,#studio .rail [data-pop],#studio .rail hr{display:none}
+  #studio .rail .ib{width:40px;height:40px}
+  .m-only{display:grid}
+  .m-done{background:var(--mint);color:var(--mat-dark)!important;margin-left:4px}
+  /* the scrap pile and edit panel become a sheet that rises from the bottom */
+  #studio .dock{top:auto;left:0;right:0;width:auto;height:min(58dvh,520px);border-left:0;border-radius:22px 22px 0 0;box-shadow:0 -12px 30px -8px rgba(0,0,0,.5);transform:none;transition:transform .3s cubic-bezier(.2,.8,.2,1);z-index:30;padding-top:10px}
+  #studio .dock::before{content:"";position:absolute;top:8px;left:50%;width:40px;height:4px;margin-left:-20px;border-radius:4px;background:var(--mat-line-strong)}
+  #studio.dock-closed .dock{transform:translateY(105%)}
+  .dock-x{display:grid;position:absolute;top:12px;right:10px;border:0;z-index:2}
+  #studio .seg{margin:14px 56px 4px 16px}
+  #studio .lib{grid-template-columns:repeat(3,1fr);gap:8px}
+  #studio .desk{transition:transform .3s cubic-bezier(.2,.8,.2,1);transform-origin:50% 0}
+  #studio.m-open .desk{transform:translateY(-14px) scale(.44)}
+  #studio .empty-msg{align-content:center;gap:6px}
+  #studio.m-open .mbar,#studio.m-open .rail{display:none}
+  .mtrash{display:grid;place-items:center;position:absolute;z-index:23;left:50%;bottom:max(18px,env(safe-area-inset-bottom,0px));width:56px;height:56px;margin-left:-28px;border-radius:50%;background:rgba(23,61,44,.9);color:#fff;opacity:0;transform:scale(.6);transition:opacity .15s,transform .15s,background .15s;pointer-events:none}
+  .mtrash svg.i{width:22px;height:22px}
+  #studio.moving .mtrash{opacity:1;transform:none}
+  #studio.moving .mbar,#studio.moving .rail{visibility:hidden}
+  .mtrash.on{background:#c7382c;transform:scale(1.15)!important}
+  .pinpop{left:12px;right:12px!important;width:auto!important;top:auto;bottom:max(12px,env(safe-area-inset-bottom,0px))}
+  #studio .pop{bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 66px)}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 /* type: Rock Salt for titles, Mynerve for everything else, mono only for the mat's numbers */
@@ -476,6 +527,8 @@ body{font-size:15px}
   <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
+  <symbol id="i-fx" viewBox="0 0 24 24"><path d="M4 7h10"/><path d="M18 7h2"/><circle cx="16" cy="7" r="2"/><path d="M4 17h2"/><path d="M10 17h10"/><circle cx="8" cy="17" r="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
   <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></symbol>
   <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M9.9 4.2A10 10 0 0 1 12 4c6.5 0 10 8 10 8a17 17 0 0 1-2.2 3.2"/><path d="M6.6 6.6A16 16 0 0 0 2 12s3.5 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="m2 2 20 20"/><path d="M14.1 14.1a3 3 0 1 1-4.2-4.2"/></symbol>
   <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
@@ -505,7 +558,6 @@ body{font-size:15px}
       <button class="ib" id="btn-redo" aria-label="Redo" data-tip="redo · ⇧⌘Z" disabled><svg class="i"><use href="#i-redo"/></svg></button>
       <button class="ib" id="btn-clear" aria-label="Clear sheet" data-tip="clear sheet"><svg class="i"><use href="#i-clear"/></svg></button>
       <button class="ib" id="btn-dl" aria-label="Download PNG" data-tip="download png" hidden><svg class="i"><use href="#i-download"/></svg></button>
-      <button class="pinbtn" id="btn-pin" hidden><svg class="i"><use href="#i-pin"/></svg>pin to the table</button>
     </div>
   </header>
 
@@ -522,7 +574,7 @@ body{font-size:15px}
       <div class="desk" id="desk">
         <div class="canvas" id="canvas">
           <div class="sheet" id="sheet">
-            <div class="empty-msg" id="empty" hidden>Blank page panic?<br>Drag something from the scrap pile →</div>
+            <div class="empty-msg" id="empty" hidden>Blank page panic?<br><span class="em-d">Drag something from the scrap pile →</span><span class="em-m">Tap + scraps to start.</span></div>
             <span class="sheet-tag">A4 · cutouts</span>
           </div>
         </div>
@@ -538,7 +590,20 @@ body{font-size:15px}
         <button class="ib sel-only" data-a="rot" aria-label="Rotate 90°" data-tip="rotate 90°"><svg class="i"><use href="#i-rotate"/></svg></button>
         <button class="ib sel-only" data-a="flip" aria-label="Mirror" data-tip="mirror"><svg class="i"><use href="#i-flip"/></svg></button>
         <button class="ib sel-only" data-a="del" aria-label="Remove" data-tip="remove"><svg class="i"><use href="#i-trash"/></svg></button>
+        <button class="ib sel-only m-only" id="m-fx" aria-label="Effects"><svg class="i"><use href="#i-fx"/></svg></button>
+        <button class="ib m-only m-done" id="m-done" aria-label="Done"><svg class="i"><use href="#i-check"/></svg></button>
       </nav>
+
+      <button class="pinbtn pin-float" id="btn-pin" hidden><svg class="i"><use href="#i-pin"/></svg>Done? Pin it</button>
+
+      <nav class="mbar" id="mbar" aria-label="make a mess">
+        <button class="mb-add" id="m-scraps"><svg class="i"><use href="#i-plus"/></svg>scraps</button>
+        <button class="ib" id="m-text" aria-label="Add text"><svg class="i"><use href="#i-type"/></svg></button>
+        <button class="ib" id="m-paper" aria-label="Paper colour"><svg class="i"><use href="#i-palette"/></svg></button>
+        <button class="ib" id="m-undo" aria-label="Undo" disabled><svg class="i"><use href="#i-undo"/></svg></button>
+        <button class="mb-pin" id="m-pin"><svg class="i"><use href="#i-pin"/></svg>pin it</button>
+      </nav>
+      <div class="mtrash" id="mtrash" aria-hidden="true"><svg class="i"><use href="#i-trash"/></svg></div>
 
       <div class="pop" id="pop-paper" hidden role="dialog" aria-label="Paper colour">
         <div class="pop-h"><strong>Paper</strong><button class="ib" data-close aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
@@ -547,6 +612,7 @@ body{font-size:15px}
 
       <aside class="dock" id="dock" aria-label="Scraps and edit">
         <div class="dock-grip" id="dock-grip" role="separator" aria-orientation="vertical" aria-label="Resize panel" tabindex="0"></div>
+        <button class="ib dock-x" id="dock-x" aria-label="Close"><svg class="i"><use href="#i-down"/></svg></button>
         <button class="dock-tab" id="dock-tab" aria-label="Fold or unfold the panel" aria-expanded="true"><svg class="i"><use href="#i-right"/></svg></button>
         <div class="seg" role="tablist" aria-label="panel">
           <button role="tab" id="seg-scraps" aria-selected="true" aria-controls="pane-scraps">Scraps</button>
@@ -1207,7 +1273,7 @@ function scrapButton(s){
       const sr=sheet.getBoundingClientRect();
       ghost=document.createElement("img");ghost.className="ghost";ghost.src=b.querySelector("img").src;ghost.style.width=defaultW(s)*sr.width+"px";
       document.body.appendChild(ghost);desk.classList.add("dropping");lastX=e.clientX;pos={x:e.clientX,y:e.clientY};paint();
-      if(mobile())setDock(false);
+      if(mobile())mSheet(null);
     }
     vx+=e.clientX-lastX;lastX=e.clientX;pos={x:e.clientX,y:e.clientY};
     const sr=sheet.getBoundingClientRect(),inSheet=e.clientX>sr.left&&e.clientX<sr.right&&e.clientY>sr.top&&e.clientY<sr.bottom;
@@ -1226,14 +1292,14 @@ function scrapButton(s){
     st=null;dragging=false;
   };
   b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);
-  b.addEventListener("click",()=>{if(justDragged)return;const p=addPiece({id:s.id,x:rnd(.4,.6),y:rnd(.4,.6),w:defaultW(s),r:rnd(-8,8)});p.el.classList.add("settle");save();if(mobile())setDock(false)});
+  b.addEventListener("click",()=>{if(justDragged)return;const p=addPiece({id:s.id,x:rnd(.4,.6),y:rnd(.4,.6),w:defaultW(s),r:rnd(-8,8)});p.el.classList.add("settle");save();if(mobile())mSheet(null)});
   return b;
 }
 
 // zoom + pan: the sheet stays put unless you zoom in
 let zoom=1,panX=0,panY=0;
 function region(){
-  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:34+52+30,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+30,bottom=m?64:0;
+  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:34+52+30,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+30,bottom=m?92:0;
   return {cx:left+(W-left-right)/2,cy:(H-bottom)/2,w:W-left-right,h:H-bottom};
 }
 function clampPan(){
@@ -1343,7 +1409,7 @@ function addPiece(d,silent){
 function addText(){
   if(mode!=="pega")return;
   const p=addPiece({kind:"text",x:.5,y:.45,w:.3,r:rnd(-4,4),t:{...TDEF}});p.el.classList.add("settle");save();
-  setDock(true);setPane("fx");setTimeout(()=>{const ta=$("#t-text");if(ta){ta.focus();ta.select()}},60);
+  if(mobile())mSheet("fx");else{setDock(true);setPane("fx")}setTimeout(()=>{const ta=$("#t-text");if(ta){ta.focus();ta.select()}},60);
 }
 $("#rail-text").onclick=addText;
 
@@ -1355,7 +1421,7 @@ function select(p,m="single",fromSheet){
   pieces.forEach(x=>x.el.classList.remove("sel"));
   sel=p;selMode=p?m:"single";if(!p)enteredG=null;
   if(p&&selMode==="single")p.el.classList.add("sel");
-  document.querySelectorAll("#rail .sel-only").forEach(b=>b.disabled=!p);
+  document.querySelectorAll("#rail .sel-only").forEach(b=>b.disabled=!p);studio.classList.toggle("has-sel",!!p);studio.classList.toggle("has-pieces",pieces.length>0);
   updateGbox();
   if(fromSheet&&p&&!isDockClosed()&&pane!=="fx")setPane("fx");else if(pane==="fx")renderEdit();
   updateBadge();
@@ -1424,14 +1490,16 @@ function bindPiece(p){
   });
   p.el.addEventListener("pointermove",e=>{
     if(e.pointerId!==id||!m)return;
-    const W=sheet.clientWidth*zoom,H=sheet.clientHeight*zoom;
-    if(m==="mv"){const dx=(e.clientX-sx)/W,dy=(e.clientY-sy)/H;start.forEach(o=>{o.t.x=o.x+dx;o.t.y=o.y+dy;renderPiece(o.t)});dock.classList.toggle("trash",overDock(e.clientX,e.clientY))}
+    const SR=sheet.getBoundingClientRect(),W=SR.width,H=SR.height;
+    if(m==="mv"){if(pinchP)return;const dx=(e.clientX-sx)/W,dy=(e.clientY-sy)/H;start.forEach(o=>{o.t.x=o.x+dx;o.t.y=o.y+dy;renderPiece(o.t)});dock.classList.toggle("trash",overDock(e.clientX,e.clientY));if(mobile()){studio.classList.add("moving");$("#mtrash").classList.toggle("on",overTrash(e.clientX,e.clientY))}}
     else{const a=Math.atan2(e.clientY-c0.y,e.clientX-c0.x),d=Math.hypot(e.clientY-c0.y,e.clientX-c0.x);
       p.r=r0+(a-a0)*180/Math.PI;p.w=Math.max(.03,Math.min(1.6,w0*d/d0));renderPiece(p)}
   });
   const end=e=>{
     if(e.pointerId!==id)return;
-    if(m==="mv"&&dock.classList.contains("trash")){dock.classList.remove("trash");act("del");toast("Binned.");m=null;id=null;return}
+    studio.classList.remove("moving");
+    if(m==="mv"&&(dock.classList.contains("trash")||(mobile()&&e.type==="pointerup"&&overTrash(e.clientX,e.clientY)))){dock.classList.remove("trash");$("#mtrash").classList.remove("on");act("del");toast("Binned.");m=null;id=null;return}
+    $("#mtrash").classList.remove("on");
     if(m==="rs"&&p.kind==="text"&&w0&&p.w!==w0){p.t.size=Math.round(Math.max(8,Math.min(400,p.t.size*p.w/w0)));refresh(p);if(pane==="fx")renderEdit()}
     m=null;id=null;save();
   };
@@ -1441,6 +1509,60 @@ function bindPiece(p){
     if(p.kind!=="text")return;setDock(true);setPane("fx");const ta=$("#t-text");if(ta){ta.focus();ta.select()}
   });
 }
+
+// ---------- phones: bottom bar, bottom sheet, two-finger scale + rotate ----------
+let pinchP=null;
+const overTrash=(x,y)=>{const r=$("#mtrash").getBoundingClientRect();return x>r.left-24&&x<r.right+24&&y>r.top-24&&y<r.bottom+24};
+function mSheet(p){ // open the bottom sheet on a pane, or close it (p=null)
+  if(!p){setDock(false);studio.classList.remove("m-open");return}
+  setPane(p);setDock(true);studio.classList.add("m-open");
+}
+$("#dock-x").onclick=()=>mSheet(null);
+$("#m-scraps").onclick=()=>mSheet("scraps");
+$("#m-fx").onclick=()=>mSheet("fx");
+$("#m-done").onclick=()=>{mSheet(null);select(null)};
+$("#m-text").onclick=()=>{addText()};
+$("#m-paper").onclick=()=>{mSheet(null);openPop("paper")};
+$("#m-undo").onclick=()=>$("#btn-undo").click();
+$("#m-pin").onclick=e=>{e.stopPropagation();select(null);mSheet(null);$("#btn-pin").click()};
+new MutationObserver(()=>{$("#m-undo").disabled=$("#btn-undo").disabled}).observe($("#btn-undo"),{attributes:true,attributeFilter:["disabled"]});
+const touches=new Map();
+studio.addEventListener("pointerdown",e=>{
+  if(e.pointerType!=="touch"||!mobile())return;
+  touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touches.size===2){
+    e.stopPropagation();
+    if(!sel)return;
+    const [a,b]=[...touches.values()],rc=sheet.getBoundingClientRect(),ts=targets();
+    const cx=ts.reduce((s,t)=>s+t.x,0)/ts.length,cy=ts.reduce((s,t)=>s+t.y,0)/ts.length;
+    pinchP={d:Math.hypot(a.x-b.x,a.y-b.y),a:Math.atan2(b.y-a.y,b.x-a.x),rc,cx,cy,start:ts.map(t=>({t,x:t.x,y:t.y,w:t.w,r:t.r,size:t.t&&t.t.size}))};
+  }else if(touches.size>2)e.stopPropagation();
+},true);
+studio.addEventListener("pointermove",e=>{
+  if(e.pointerType!=="touch"||!touches.has(e.pointerId))return;
+  touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(touches.size<2&&!pinchP)return;
+  e.stopPropagation();
+  if(!pinchP||touches.size<2)return;
+  const [a,b]=[...touches.values()],k=Math.max(.05,Math.hypot(a.x-b.x,a.y-b.y)/pinchP.d),da=Math.atan2(b.y-a.y,b.x-a.x)-pinchP.a;
+  const {rc,cx,cy}=pinchP,ar=rc.width/rc.height,co=Math.cos(da),si=Math.sin(da);
+  pinchP.start.forEach(o=>{
+    const dx=(o.x-cx)*ar,dy=o.y-cy; // work in square units so rotation stays round
+    o.t.x=cx+(dx*co-dy*si)*k/ar;o.t.y=cy+(dx*si+dy*co)*k;
+    o.t.w=Math.max(.03,Math.min(1.6,o.w*k));o.t.r=o.r+da*180/Math.PI;renderPiece(o.t);
+  });
+  gboxSoon();
+},true);
+const tEnd=e=>{
+  if(e.pointerType!=="touch"||!touches.has(e.pointerId))return;
+  touches.delete(e.pointerId);
+  if(pinchP){
+    e.stopPropagation();
+    if(!touches.size){pinchP.start.forEach(o=>{if(o.t.kind==="text"&&o.size){o.t.t.size=Math.round(Math.max(8,Math.min(400,o.size*o.t.w/o.w)));refresh(o.t)}});pinchP=null;studio.classList.remove("moving");$("#mtrash").classList.remove("on");save();if(pane==="fx")renderEdit()}
+  }
+};
+studio.addEventListener("pointerup",tEnd,true);studio.addEventListener("pointercancel",tEnd,true);
+addEventListener("resize",()=>{if(!mobile())studio.classList.remove("m-open")});
 
 // ---------- edit pane ----------
 let openFx=-1;
@@ -1691,6 +1813,7 @@ pinBtn.onclick=async()=>{
   if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
   if(!pinPop.hidden){pinPop.hidden=true;return}
   $("#pp-form").hidden=false;$("#pp-done").hidden=true;pinPop.hidden=false;
+  if(!mobile()){const r=pinBtn.getBoundingClientRect();pinPop.style.right=(innerWidth-r.right)+"px";pinPop.style.top="auto";pinPop.style.bottom=(innerHeight-r.top+10)+"px"}else{pinPop.style.right="";pinPop.style.top="";pinPop.style.bottom=""}
   $("#pin-name").value=store.get("recortes-signed")||"";$("#pp-count").textContent=$("#pin-desc").value.length+"/280";
   $("#pin-title").focus();
   try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.6)}catch(e){}
@@ -1765,7 +1888,7 @@ async function loadRemote(){
 }
 async function boot(){
   const dw=store.get("recortes-dockw");if(typeof dw==="number")setDockW(dw);
-  const d=store.get("recortes-dock");setDock(typeof d==="boolean"?d:!coarse&&innerWidth>720);
+  const d=store.get("recortes-dock");if(mobile())studio.classList.add("dock-closed");else setDock(typeof d==="boolean"?d:!coarse);
   renderFilter();setPane("scraps");
   await loadRemote();
   load();
