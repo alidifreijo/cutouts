@@ -34,8 +34,8 @@
   --tape:rgba(244,232,196,.78);
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
   --shadow-up:0 2px 2px rgba(0,0,0,.2),0 22px 36px -10px rgba(0,0,0,.55);
-  --f-ui:"Mynerve","Comic Sans MS",cursive;
-  --f-head:"Rock Salt","Mynerve",cursive;
+  --f-ui:"DM Mono",ui-monospace,Menlo,monospace;
+  --f-head:"Rock Salt",cursive;
   --f-mono:"DM Mono",ui-monospace,Menlo,monospace;
   --cm:38px;
   --rail-w:52px;
@@ -422,21 +422,39 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
   .zoom{top:36px;bottom:auto;right:16px;left:auto}
   .lb-hint{display:none}
 }
+
+/* ?paper — the scrap library as a hand-cut sheet of the same green */
+body.paper .dock{background:none;border-left:0;box-shadow:none;filter:drop-shadow(-6px 4px 10px rgba(0,0,0,.45)) drop-shadow(-1px 0 0 rgba(0,0,0,.25))}
+body.paper .dock::before{content:"";position:absolute;inset:0 0 0 -10px;z-index:-1;
+  background-color:var(--mat);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .6' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.18'/%3E%3C/svg%3E"),
+    linear-gradient(100deg,rgba(255,255,255,.05),rgba(0,0,0,.06) 60%,rgba(255,255,255,.03));
+  clip-path:polygon(2.2% 0,100% 0,100% 100%,1.4% 100%,3.1% 97%,0.6% 93.5%,2.8% 89%,1.2% 84%,3.4% 79.5%,0.9% 74%,2.6% 69%,0.4% 63.5%,3% 58%,1.5% 52%,3.3% 46.5%,0.7% 41%,2.4% 35%,0.5% 30%,3.2% 24.5%,1.1% 19%,2.9% 13.5%,0.8% 8.5%,2.7% 4%);}
+body.paper .dock::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background:linear-gradient(90deg,rgba(255,255,255,.07),transparent 18px)}
+body.paper .dock .dock-tab{background:var(--mat);border-color:rgba(0,0,0,.2);right:calc(100% + 4px)}
+body.paper .seg{background:rgba(0,0,0,.14)}
+body.paper .scrap{background:transparent;border-color:transparent}
+body.paper .scrap:hover{background:rgba(0,0,0,.1);border-color:transparent}
+body.paper .scrap img{filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.4))}
+body.paper #studio.dock-closed .dock{filter:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 /* type: Rock Salt for titles, Mynerve for everything else, mono only for the mat's numbers */
-body{font-size:15px}
+body{font-size:13px}
 .logo,.note h2,.pp-t,.empty-msg{font-family:var(--f-head);font-weight:400}
 .logo{font-size:17px;letter-spacing:0}
 .note h2{font-size:46px;line-height:1.25;letter-spacing:0;white-space:nowrap;margin:0 0 14px;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .pp-t{font-size:15px;line-height:1.5}
-.zbar .zt{font-size:17px;font-family:var(--f-ui)}
-.zbar .zby{font-size:14px}
-.zcap{font-size:16px;line-height:1.5}
+.zbar .zt{font-size:14px;font-family:var(--f-head);line-height:1.6}
+.zbar .zby{font-size:12px}
+.zcap{font-size:14px;line-height:1.6}
 .rn,.zoom-v,.zbar .zn,.seg .badge,.chip .c,.menu li .cnt,.num input,.ctl-h output,.stepper output{font-family:var(--f-mono)}
-.tab,.wallseg button,.newbtn,.pinbtn,.seg button,.chip,.dd-btn,.btn,.txt-btn,.pp-btn,.pp-ghost{font-size:14px}
-.note p{font-size:19px;line-height:1.45}.note .hint{font-size:16px}
-.card .lbl{font-size:16px}
+.tab,.wallseg button,.newbtn,.pinbtn,.seg button,.chip,.dd-btn,.btn,.txt-btn,.pp-btn,.pp-ghost{font-size:12.5px;letter-spacing:-.01em}
+.note-s,.credit,.empty-msg{letter-spacing:-.01em}
+.note p{font-size:16px;line-height:1.55}.note .hint{font-size:13px}
+.card .lbl{font-size:13px;font-family:var(--f-head);line-height:1.6}
 .credit{font-size:12px}
 [hidden]{display:none!important}
 </style>
@@ -910,7 +928,7 @@ function openAdd(){
   if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed"+addHash;addHash="";pane.appendChild(f)}
 }
 function initAdd(){
-  const q=new URLSearchParams(location.search),h=location.hash;
+  const q=new URLSearchParams(location.search),h=location.hash;if(q.has("paper"))document.body.classList.add("paper");
   if(/access_token|error_description/.test(h)){addHash=h;history.replaceState(null,"",location.pathname+"?studio")}
   return q.has("studio")||!!addHash;
 }
@@ -1220,7 +1238,7 @@ function scrapButton(s){
 // zoom + pan: the sheet stays put unless you zoom in
 let zoom=1,panX=0,panY=0;
 function region(){
-  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:34,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+52+30,bottom=m?64:0;
+  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:34+52+30,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+30,bottom=m?64:0;
   return {cx:left+(W-left-right)/2,cy:(H-bottom)/2,w:W-left-right,h:H-bottom};
 }
 function clampPan(){
@@ -1232,7 +1250,7 @@ function clampPan(){
 function placeRail(){
   const rail=$("#rail");if(mobile()){rail.style.left="";rail.style.top="";return}
   const r=region(),half=sheet.offsetWidth*zoom/2,dockW=isDockClosed()?0:dock.offsetWidth;
-  const x=Math.min(r.cx+panX+half+16,studio.clientWidth-dockW-rail.offsetWidth-(isDockClosed()?52:36));
+  const x=Math.max(34+16,r.cx+panX-half-16-rail.offsetWidth);
   const y=Math.max(rail.offsetHeight/2+40,Math.min(studio.clientHeight-rail.offsetHeight/2-16,r.cy+panY));
   rail.style.left=x+"px";rail.style.top=y+"px";
 }
