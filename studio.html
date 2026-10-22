@@ -16,7 +16,7 @@
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
   --shadow-up:0 2px 2px rgba(0,0,0,.2),0 22px 36px -10px rgba(0,0,0,.55);
   --f:"DM Mono",ui-monospace,Menlo,monospace;--f-head:"Rock Salt",cursive;--cm:38px;
-  --side:320px;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
+  --side:368px;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -91,8 +91,9 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wiz-wrap.enter .frame{animation-delay:.08s}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}}
 .frame>.pane{position:absolute;inset:0}
-.drop{display:grid;place-items:center;text-align:center;cursor:pointer;transition:background .15s}
-.drop:hover,.drop.over{background:rgba(214,238,222,.06)}
+.drop{display:grid;place-items:center;text-align:center;cursor:pointer}
+.drop>div{width:min(340px,90%);padding:30px 24px;border:1.5px dashed var(--mat-line-strong);border-radius:16px;transition:background .15s,border-color .15s}
+.drop:hover>div,.drop.over>div{background:rgba(214,238,222,.06);border-color:var(--mint)}
 .drop .ic{width:40px;height:40px;margin:0 auto 10px;color:var(--mint)}
 .drop b{font-family:var(--f-head);font-weight:400;font-size:24px;color:#fff;display:block;margin-bottom:8px}
 .drop p{color:var(--mat-ink);margin:0 0 18px;line-height:1.6;font-size:15px}
@@ -157,6 +158,16 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .scrap select.bad{border-color:#e5584d;box-shadow:0 0 0 1px #e5584d}
 .scrap.shake{animation:shake .35s}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.dd{position:relative}
+.dd-btn{width:100%;display:flex;align-items:center;gap:8px;border:1px dashed var(--mat-line-strong);background:transparent;border-radius:12px;padding:7px 10px;color:var(--mint);font-size:14px;text-align:left}
+.dd-btn:hover,.dd-btn[aria-expanded="true"]{border-style:solid;border-color:var(--mint)}
+.dd-btn .chev{width:14px;height:14px;margin-left:auto;fill:none;stroke:currentColor;stroke-width:2;transition:transform .2s}
+.dd-btn[aria-expanded="true"] .chev{transform:rotate(180deg)}
+.dd-btn.bad{border:1px solid #e5584d;box-shadow:0 0 0 1px #e5584d}
+.menu{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:7;background:var(--mat-deep);border:1px solid var(--mat-line-strong);border-radius:12px;padding:4px;margin:0;list-style:none;box-shadow:var(--shadow-up);max-height:260px;overflow:auto;scrollbar-width:thin}
+.menu.up{top:auto;bottom:calc(100% + 6px)}
+.menu li{padding:7px 10px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--mint)}
+.menu li[aria-selected="true"],.menu li:hover{background:var(--mat-light)}
 .bgx{align-self:flex-start;border:1px dashed var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:4px 10px;font-size:12.5px}
 .bgx:hover{border-color:var(--mint)}
 .bgx.on{border-style:solid;background:rgba(212,236,220,.14)}
@@ -253,7 +264,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       </ol>
       <div class="frame" id="frame">
         <label class="pane drop" id="drop">
-          <div><svg class="i ic"><use href="#i-photo"/></svg><b>Drop your mess</b><p>Flat, from above, daylight.<br>The whole page in. Phone pics are fine.</p><span class="btn">Pick a photo</span></div>
+          <div><svg class="i ic"><use href="#i-photo"/></svg><b id="drop-t">Drop your mess</b><p>Flat, from above, daylight.<br>The whole page in. Phone pics are fine.</p><span class="btn">Pick a photo</span></div>
           <input type="file" id="file" accept="image/*,.heic,.heif">
         </label>
         <div class="pane view" id="w-sheet" hidden><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
@@ -351,7 +362,7 @@ function show(v){
   $$("#steps .ln").forEach((l,j)=>l.classList.toggle("dn",v==="done"||j<i));
   $("#drop").hidden=v!=="snap";$("#w-sheet").hidden=v!=="square";$("#w-cut").hidden=v!=="cut";$("#w-send").hidden=v!=="send";$("#w-done").hidden=v!=="done";
   $("#zoom").hidden=!(v==="square"||v==="cut");
-  $("#v-wiz").classList.toggle("solo",v==="snap"||v==="done");$("#frame").classList.toggle("dropping",v==="snap");
+  $("#v-wiz").classList.toggle("solo",v==="snap"||v==="done");
   $("#v-sheet").hidden=v!=="square";$("#v-cut").hidden=v!=="cut";$("#v-send").hidden=v!=="send";
   if(v==="square")requestAnimationFrame(layoutSheet);
   if(v==="cut")requestAnimationFrame(drawCut);
@@ -369,6 +380,7 @@ function setPath(p){
   $("#send-h").textContent=p==="collage"?"Pin it to the table":"Add to the pile";
   const col=p==="collage";
   $("#snap-label").textContent=col?"Drop your mess":"Drop your page";
+  $("#drop-t").textContent=col?"Drop your mess":"Drop your page";
   $("#sq-label").textContent="Give it shape";$("#sq-h").textContent="Give it shape";
   $("#sq-p").textContent="Drag a corner to resize. Hold one still for a second to move it on its own.";
   $("#trim-f").hidden=col;
@@ -735,17 +747,20 @@ function renderScraps(){
     <div class="th"><img src="${s.canvas.toDataURL()}" alt=""></div>
     <div class="meta">
       <input class="input" value="${s.name.replace(/"/g,"&quot;")}" maxlength="60" placeholder="Name it" aria-label="Scrap name">
-      <select aria-label="Pile" class="${s.bad&&!s.cluster?"bad":""}"><option value="" ${s.cluster?"":"selected"} disabled>Pick a pile</option>${CLUSTERS.map(([k,l])=>`<option value="${k}" ${s.cluster===k?"selected":""}>${l}</option>`).join("")}</select>
+      <div class="dd"><button class="dd-btn${s.bad&&!s.cluster?" bad":""}" data-dd aria-haspopup="listbox" aria-expanded="false"><span>${s.cluster?CL[s.cluster]:"Pick a pile"}</span><svg class="i chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><ul class="menu" role="listbox" hidden>${CLUSTERS.map(([k,l])=>`<li role="option" data-v="${k}" aria-selected="${s.cluster===k}">${l}</li>`).join("")}</ul></div>
       <button class="bgx${s.clean?" on":""}" data-bg>${s.busy?"Cleaning…":s.clean?"✦ Undo":"✦ No background"}</button>
     </div>
     <button class="x" data-rm aria-label="Delete scrap">✕</button>
   </div>`).join("");
 }
 $("#scraps").addEventListener("input",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches(".input"))s.name=e.target.value});
-$("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches("select")){s.cluster=e.target.value;s.bad=false;e.target.classList.remove("bad")}});
+function closeDD(){$$("#scraps .menu").forEach(m=>{m.hidden=true;m.previousElementSibling.setAttribute("aria-expanded","false")})}
+document.addEventListener("pointerdown",e=>{if(!e.target.closest(".dd"))closeDD()});
 $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
   if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}
-  if(e.target.closest("[data-bg]"))cleanScrap(s);});
+  if(e.target.closest("[data-bg]"))cleanScrap(s);
+  const db=e.target.closest("[data-dd]");if(db){const m=db.nextElementSibling,open=m.hidden;closeDD();m.hidden=!open;db.setAttribute("aria-expanded",open);if(open){const r=db.getBoundingClientRect();m.classList.toggle("up",innerHeight-r.bottom<260)}}
+  const o=e.target.closest(".menu [data-v]");if(o){s.cluster=o.dataset.v;s.bad=false;const b=o.closest(".dd").querySelector(".dd-btn");b.classList.remove("bad");b.querySelector("span").textContent=CL[s.cluster];o.parentNode.querySelectorAll("li").forEach(li=>li.setAttribute("aria-selected",li===o));closeDD()}});
 async function cleanScrap(s){
   if(s.busy)return;
   if(s.clean){s.canvas=s.orig;s.clean=false;renderScraps();return}
@@ -835,7 +850,7 @@ function splitPieces(full){
 $("#to-pub").onclick=()=>{
   if(PATH==="scraps"&&!scraps.length){toast("Nothing cut yet. Draw around something first.");return}
   const miss=scraps.filter(s=>!s.cluster);
-  if(miss.length){toast(miss.length===1?"One scrap needs a pile.":`${miss.length} scraps need a pile.`);miss.forEach(s=>{s.bad=true;const r=$(`#scraps [data-id="${s.id}"]`);if(r){r.querySelector("select").classList.add("bad");r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}});const r=$(`#scraps [data-id="${miss[0].id}"]`);if(r)r.scrollIntoView({block:"nearest",behavior:"smooth"});return}
+  if(miss.length){toast(miss.length===1?"One scrap needs a pile.":`${miss.length} scraps need a pile.`);miss.forEach(s=>{s.bad=true;const r=$(`#scraps [data-id="${s.id}"]`);if(r){r.querySelector(".dd-btn").classList.add("bad");r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}});const r=$(`#scraps [data-id="${miss[0].id}"]`);if(r)r.scrollIntoView({block:"nearest",behavior:"smooth"});return}
   show("send")};
 function confirmNoScraps(){toast("No scraps. Just the collage, then.");return true}
 
