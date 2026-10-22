@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>cutouts · add yours</title>
+<title>cutouts · join the mess</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -85,8 +85,8 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wstep.past{opacity:0;transform:translateY(-48px);pointer-events:none}
 .wstep.next{opacity:0;transform:translateY(48px);pointer-events:none}
 .wstep.on{opacity:1;transform:none;transition-delay:.12s}
-.wstep .back{align-self:flex-start;width:40px;height:40px;margin:0 0 2px -8px;border:0;border-radius:50%;background:transparent;color:var(--mint);display:grid;place-items:center;padding:0}
-.wstep .back:hover{background:rgba(214,238,222,.1)}
+.wstep .back{align-self:flex-start;margin:0 0 4px -10px;border:0;border-radius:999px;background:transparent;color:var(--mint);padding:6px 10px;font-size:16px}
+.wstep .back:hover{background:rgba(214,238,222,.12);color:#fff}
 .wstep h2{font-size:clamp(74px,calc(10.5vw - 10px),166px);line-height:1.12;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .wstep .desc{color:var(--mint);font-size:17px;line-height:1.6;margin:0;max-width:30ch}
 .wstep .opt{margin:-4px 0 0;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink)}
@@ -94,6 +94,10 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wstep .acts .btn,.wstep .acts .ghost{font-size:17px;padding:11px 26px}
 .wstep .acts>*{opacity:0;transform:translateY(6px);transition:opacity .35s .45s,transform .35s .45s}
 .wstep.on .acts>*{opacity:1;transform:none}
+.quit{position:fixed;top:72px;right:16px;z-index:9;width:42px;height:42px;border-radius:50%;border:1px solid var(--mat-line-strong);background:var(--panel);color:#fff;font-size:17px;display:grid;place-items:center;padding:0;box-shadow:var(--shadow)}
+.embed .quit{top:44px}
+.quit:hover{border-color:var(--mint)}
+.wiz-wrap.with-side .quit{right:calc(var(--side) + 16px)}
 .pane.in-up{animation:inUp .6s cubic-bezier(.2,.8,.2,1) both}
 .pane.in-down{animation:inDown .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes inUp{from{opacity:0;transform:translateY(44px) scale(.98)}}
@@ -102,8 +106,8 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .frame{position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;width:100%;margin:0 auto}
 .frame>.pane{position:absolute;inset:0}
 .drop{display:grid;place-items:center;text-align:center;cursor:pointer}
-.drop>div{width:min(340px,90%);padding:30px 24px;border:1.5px dashed var(--mat-line-strong);border-radius:16px;transition:background .15s,border-color .15s}
-.drop:hover>div,.drop.over>div{background:rgba(214,238,222,.06);border-color:var(--mint)}
+.drop>div{padding:30px 24px;border-radius:16px}
+.drop.over{background:rgba(214,238,222,.06)}
 .drop .ic{width:40px;height:40px;margin:0 auto 10px;color:var(--mint)}
 .drop b{font-family:var(--f-head);font-weight:400;font-size:24px;color:#fff;display:block;margin-bottom:8px}
 .drop p{color:var(--mat-ink);margin:0 0 18px;line-height:1.6;font-size:15px}
@@ -122,10 +126,10 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .zoom button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#fff;display:grid;place-items:center;padding:0}
 .zoom button:hover{background:var(--mat-light)}
 .zoom .zv{width:auto;min-width:58px;border-radius:999px;font-size:13px;color:var(--mint)}
-.send{display:grid;place-items:center;padding:36px 28px;overflow:auto}
+.send{display:grid;place-items:center;padding:56px 20px 28px;overflow:auto}
 .send .table{display:flex;align-items:center;justify-content:center;gap:56px;max-width:100%;max-height:100%;flex-wrap:wrap}
 .pinned{position:relative;margin:0;transform:rotate(-1.5deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
-.pinned img{display:block;max-height:calc(100dvh - 330px);max-width:min(48vw,760px);min-height:min(56vh,520px);object-fit:contain}
+.pinned img{display:block;max-height:calc(100dvh - 250px);max-width:min(56vw,900px);min-height:min(64vh,620px);object-fit:contain}
 .tape{position:absolute;top:-11px;left:50%;width:30%;height:22px;background:rgba(244,232,196,.78);transform:translateX(-50%) rotate(2deg);z-index:1;
   clip-path:polygon(0 8%,6% 0,12% 10%,18% 0,24% 8%,30% 0,70% 0,76% 9%,82% 0,88% 8%,94% 0,100% 10%,100% 92%,94% 100%,88% 90%,82% 100%,76% 92%,70% 100%,30% 100%,24% 91%,18% 100%,12% 92%,6% 100%,0 90%)}
 .pinwrap{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
@@ -253,7 +257,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 </svg>
 <div class="app">
   <header class="bar">
-    <h1 class="logo"><a href="./">cutouts</a> <span>add yours</span></h1>
+    <h1 class="logo"><a href="./">cutouts</a> <span>join the mess</span></h1>
   </header>
 
   <!-- 0 · what did you bring -->
@@ -286,25 +290,25 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       <div class="dots" id="dots"></div>
       <div class="track">
         <section class="wstep" data-s="snap">
-          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <button class="back" data-back>← Back</button>
           <h2 id="snap-h">Drop your mess</h2>
           <p class="desc">Flat, from above, daylight. Phone pics are fine.</p>
         </section>
         <section class="wstep" data-s="square">
-          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <button class="back" data-back>← Back</button>
           <h2>Give it shape</h2>
           <p class="desc">Drag a corner to resize. Hold one still for a second to move it on its own.</p>
           <div class="acts"><button class="btn" id="to-cut">Next</button></div>
         </section>
         <section class="wstep" data-s="cut">
-          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <button class="back" data-back>← Back</button>
           <h2>Cut the bits</h2>
           <p class="desc">Scissors or box. Each bit picks a pile.</p>
           <p class="opt" id="cut-opt">optional</p>
           <div class="acts"><button class="ghost" id="skip-cut">Skip</button><button class="btn" id="to-pub">Next</button></div>
         </section>
         <section class="wstep" data-s="send">
-          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <button class="back" data-back>← Back</button>
           <h2 id="send-h">Pin it</h2>
           <p class="desc" id="send-note">Name it and tell its story, right under the collage.</p>
           <div class="acts"><button class="btn" id="publish">Pin it</button></div>
@@ -317,6 +321,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       </div>
     </aside>
     <div class="area">
+      <button class="quit" id="quit" aria-label="Leave">✕</button>
       <div class="frame" id="frame">
         <label class="pane drop" id="drop">
           <div><svg class="i ic"><use href="#i-photo"/></svg><b id="drop-t">Drop your mess</b><p>or click to pick a photo</p></div>
@@ -411,7 +416,8 @@ function show(v){
   $("#v-wiz").classList.toggle("with-side",v==="cut");
   $("#w-send").classList.toggle("sent",v==="done");
   if(v==="square")requestAnimationFrame(layoutSheet);
-  if(v==="cut")requestAnimationFrame(drawCut);
+  if(v==="cut"){requestAnimationFrame(drawCut);setTimeout(drawCut,560)}
+  if(v==="square")setTimeout(()=>{sizeView("w-sheet");placeCorners()},560);
   if(v==="send"&&prev!=="done")renderPublish();
 }
 $$("[data-back]").forEach(b=>b.onclick=()=>{const O=order(),i=O.indexOf(step);show(i>0?O[i-1]:"pick")});
@@ -476,6 +482,7 @@ PAPERS.forEach(o=>{
   };
 });
 function resetWork(){srcImg=null;scraps=[];trimmed=null;quad=null;$("#title").value="";$("#desc").value=""}
+$("#quit").onclick=()=>{const q=$("#quit");if((srcImg||scraps.length)&&step!=="done"&&q.dataset.sure!=="1"){q.dataset.sure="1";toast("Tap ✕ again to drop this one.");setTimeout(()=>q.dataset.sure="",3000);return}q.dataset.sure="";resetWork();show("pick")};
 $("#again").onclick=()=>{resetWork();show("pick")};
 $("#go-mess").onclick=()=>{if(EMBED)parent.postMessage({type:"cutouts:mess"},location.origin);else location.href="./"};
 $("#skip-cut").onclick=()=>{scraps=[];show("send")};
