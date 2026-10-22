@@ -24,6 +24,7 @@
 /* Layout: one green cutting mat fills the screen in both modes, never scrolls. "the mess": collages loose, fitted to the screen; opening one flies it up with parallax layers. "make a mess": icon rail left, A4 sheet centre (zoomable), dock right with Scraps / Effects tabs. Single look on purpose: the mat is the world. */
 :root{
   --mat:#2c6a4e;
+  --panel:#367458;
   --mat-deep:#235640;
   --mat-dark:#173d2c;
   --mat-light:#3b7a5c;
@@ -65,7 +66,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .ib{width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--mat-line-strong);background:transparent;border-radius:50%;color:var(--mat-ink);padding:0;position:relative}
 .ib:hover{color:var(--mint);border-color:var(--mint)}
 .ib[aria-pressed="true"]{background:var(--mat-light);border-color:var(--mat-light);color:var(--mint)}
-.ib:disabled{opacity:.3;cursor:default;border-color:var(--mat-line-strong);color:var(--mat-ink)}
+.ib:disabled{opacity:.5;cursor:default;border-color:var(--mat-line-strong);color:var(--mat-ink)}
 .ib[hidden]{display:none}
 [data-tip]:hover::after{content:attr(data-tip);position:absolute;z-index:80;white-space:nowrap;background:var(--mat-dark);color:var(--mint);font-size:11.5px;padding:4px 9px;border-radius:999px;pointer-events:none;box-shadow:var(--shadow)}
 .bar [data-tip]:hover::after{top:calc(100% + 8px);left:50%;transform:translateX(-50%)}
@@ -144,7 +145,7 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .note .fine{display:none;margin:8px 0 0;font-size:10.5px;color:var(--mat-ink)}
 .board.small .note p:not(.hint){display:none}
 .board.small .note{font-size:15px}
-.board.small .note h2{font-size:30px}
+.board.small .note h2{font-size:72px}
 .addpane .add-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
 .pinbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--mint);background:var(--mint);color:var(--mat-dark);border-radius:999px;padding:6px 13px 6px 10px;font-size:12.5px;font-weight:500;white-space:nowrap}
 .pinbtn svg.i{width:15px;height:15px}
@@ -186,8 +187,10 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 #studio.dock-closed{--dock:0px}
 .rail{position:absolute;z-index:20;left:max(34px,env(safe-area-inset-left,0px));top:50%;transform:translateY(-50%);transition:left .25s ease;
   display:flex;flex-direction:column;align-items:center;gap:8px;padding:10px 8px;width:var(--rail-w);
-  background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow)}
+  background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
 .rail .ib{border-color:transparent}
+.rail .ib:not(:disabled),.zoom .ib:not(:disabled){color:#fff}
+.rail .ib:not(:disabled) svg.i{stroke-width:2}
 .rail .ib:hover{border-color:var(--mat-line-strong)}
 .rail hr{width:20px;border:0;border-top:1px solid var(--mat-line-strong);margin:4px 0}
 
@@ -224,26 +227,26 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .ghost{position:fixed;left:0;top:0;z-index:300;pointer-events:none;filter:drop-shadow(0 16px 18px rgba(0,0,0,.45));transition:opacity .15s;will-change:transform}
 .ghost.out{opacity:.4}
 
-.zoom{position:absolute;z-index:20;left:max(40px,calc(env(safe-area-inset-left,0px) + 40px));bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow)}
+.zoom{position:absolute;z-index:20;left:max(40px,calc(env(safe-area-inset-left,0px) + 40px));bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
 .zoom .ib{width:30px;height:30px;border:0}
 .zoom .ib svg.i{width:16px;height:16px}
 .zoom-v{min-width:46px;text-align:center;font-size:11.5px;color:var(--mat-ink);font-variant-numeric:tabular-nums;border:0;background:transparent;padding:4px 2px}
 
 /* dock */
 .dock{position:absolute;z-index:21;top:0;right:0;bottom:0;width:var(--dock-w);display:flex;flex-direction:column;
-  background:rgba(23,61,44,.96);border-left:1px solid var(--mat-line-strong);box-shadow:-10px 0 24px -12px rgba(0,0,0,.5);transition:transform .25s ease}
+  background:var(--panel);border-left:1px solid rgba(0,0,0,.18);box-shadow:-10px 0 24px -12px rgba(0,0,0,.5);transition:transform .25s ease}
 #studio.dock-closed .dock{transform:translateX(100%);box-shadow:none}
 .dock.trash::before{content:"Drop here to bin it";position:absolute;inset:8px;z-index:6;display:grid;place-items:center;border-radius:14px;background:rgba(199,56,44,.22);border:2px dashed #e58c84;color:#fff;font-size:13px;pointer-events:none}
 .dock-grip{position:absolute;left:-5px;top:0;bottom:0;width:10px;cursor:ew-resize;z-index:3;touch-action:none}
 .dock-grip::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:2px;background:var(--mint);opacity:0;transition:opacity .15s}
 .dock-grip:hover::after,.dock-grip.on::after,.dock-grip:focus-visible::after{opacity:.6}
 .dock-grip:focus-visible{outline:none}
-.dock-tab{position:absolute;right:100%;top:50%;transform:translateY(-50%);width:26px;height:56px;padding:0;display:grid;place-items:center;
-  background:var(--mat-dark);color:var(--mint);border:1px solid var(--mat-line-strong);border-right:0;border-radius:14px 0 0 14px;z-index:4}
+.dock-tab{position:absolute;right:100%;top:14px;width:26px;height:38px;padding:0;display:grid;place-items:center;
+  background:var(--panel);color:var(--mint);border:1px solid rgba(0,0,0,.18);border-right:0;border-radius:14px 0 0 14px;z-index:4}
 .dock-tab:hover{background:var(--mat-light)}
 .dock-tab svg.i{width:16px;height:16px;transition:transform .25s}
 #studio.dock-closed .dock-tab svg.i{transform:rotate(180deg)}
-.seg{display:flex;gap:2px;margin:14px 16px 4px;background:var(--mat);padding:3px;border-radius:999px}
+.seg{display:flex;gap:2px;margin:14px 16px 4px;background:rgba(0,0,0,.14);padding:3px;border-radius:999px}
 .seg button{flex:1;border:0;background:transparent;padding:6px 8px;font-size:12.5px;border-radius:999px;color:var(--mat-ink)}
 .seg button:hover{color:var(--mint)}
 .seg button[aria-selected="true"]{background:var(--mat-light);color:var(--mint)}
@@ -423,37 +426,22 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
   .lb-hint{display:none}
 }
 
-/* ?paper — the scrap library as a hand-cut sheet of the same green */
-body.paper .dock{background:none;border-left:0;box-shadow:none;filter:drop-shadow(-6px 4px 10px rgba(0,0,0,.45)) drop-shadow(-1px 0 0 rgba(0,0,0,.25))}
-body.paper .dock::before{content:"";position:absolute;inset:0 0 0 -10px;z-index:-1;
-  background-color:var(--mat);
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.16'/%3E%3C/svg%3E"),
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.035 .6' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .9 -.35'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)' opacity='.18'/%3E%3C/svg%3E"),
-    linear-gradient(100deg,rgba(255,255,255,.05),rgba(0,0,0,.06) 60%,rgba(255,255,255,.03));
-  clip-path:polygon(2.2% 0,100% 0,100% 100%,1.4% 100%,3.1% 97%,0.6% 93.5%,2.8% 89%,1.2% 84%,3.4% 79.5%,0.9% 74%,2.6% 69%,0.4% 63.5%,3% 58%,1.5% 52%,3.3% 46.5%,0.7% 41%,2.4% 35%,0.5% 30%,3.2% 24.5%,1.1% 19%,2.9% 13.5%,0.8% 8.5%,2.7% 4%);}
-body.paper .dock::after{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;
-  background:linear-gradient(90deg,rgba(255,255,255,.07),transparent 18px)}
-body.paper .dock .dock-tab{background:var(--mat);border-color:rgba(0,0,0,.2);right:calc(100% + 4px)}
-body.paper .seg{background:rgba(0,0,0,.14)}
-body.paper .scrap{background:transparent;border-color:transparent}
-body.paper .scrap:hover{background:rgba(0,0,0,.1);border-color:transparent}
-body.paper .scrap img{filter:drop-shadow(1px 2px 1.5px rgba(0,0,0,.4))}
-body.paper #studio.dock-closed .dock{filter:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
 /* type: Rock Salt for titles, Mynerve for everything else, mono only for the mat's numbers */
 body{font-size:13px}
 .logo,.note h2,.pp-t,.empty-msg{font-family:var(--f-head);font-weight:400}
 .logo{font-size:17px;letter-spacing:0}
-.note h2{font-size:46px;line-height:1.25;letter-spacing:0;white-space:nowrap;margin:0 0 14px;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.note h2{font-size:clamp(84px,10.5vw,176px);line-height:1.12;letter-spacing:0;white-space:nowrap;margin:0 0 34px;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .pp-t{font-size:15px;line-height:1.5}
 .zbar .zt{font-size:14px;font-family:var(--f-head);line-height:1.6}
 .zbar .zby{font-size:12px}
 .zcap{font-size:14px;line-height:1.6}
 .rn,.zoom-v,.zbar .zn,.seg .badge,.chip .c,.menu li .cnt,.num input,.ctl-h output,.stepper output{font-family:var(--f-mono)}
-.tab,.wallseg button,.newbtn,.pinbtn,.seg button,.chip,.dd-btn,.btn,.txt-btn,.pp-btn,.pp-ghost{font-size:12.5px;letter-spacing:-.01em}
+.tab,.wallseg button,.newbtn,.pinbtn,.seg button,.chip,.dd-btn,.btn,.txt-btn,.pp-btn,.pp-ghost{font-size:14px;letter-spacing:-.01em}
 .note-s,.credit,.empty-msg{letter-spacing:-.01em}
-.note p{font-size:16px;line-height:1.55}.note .hint{font-size:13px}
+@media (max-width:520px){.tab,.wallseg button,.newbtn,.pinbtn{font-size:12px;letter-spacing:-.03em}}
+.note p{font-size:16px;line-height:1.55;max-width:34em}.note .hint{font-size:13px}
 .card .lbl{font-size:13px;font-family:var(--f-head);line-height:1.6}
 .credit{font-size:12px}
 [hidden]{display:none!important}
@@ -660,7 +648,7 @@ const board=$("#board"), mesa=$("#mesa");
 let MESS_SEED=Math.floor(Math.random()*1e6);
 let wallStyle="strict",messyOrder=null; // always opens strict
 const note=document.createElement("div");note.className="note";
-note.innerHTML=`<h2>Cut. Glue. No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="hint">${coarse?"<b>Swipe</b> to wander. <b>Tap</b> to stare.":"<b>Drag</b> to wander. <b>Click</b> to stare."} Then go <b>make a mess</b>.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
+note.innerHTML=`<h2>Cut. Glue.<br>No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
 board.appendChild(note);
 const cardsById=new Map();
 let camX=0,camY=0,velX=0,velY=0,inertia=0,boardW=0,boardH=0,dragging=false;
@@ -677,8 +665,9 @@ function layout(){
   const small=W<720,messy=wallStyle==="messy",ALL=WORKS.map((w,i)=>({w,i})).filter(o=>!o.w.gone),N=ALL.length;
   const cw=small?Math.round((W-40)/1.85):Math.round(Math.max(210,Math.min(390,W/4.5)));
   const pad=small?44:64,gap=Math.round(cw*(small?.14:.18)),lbl=small?10:26;
-  const noteW=small?Math.min(W-pad-16,340):Math.min(560,W*.42);note.style.width=noteW+"px";{const h=note.querySelector('h2');if(h){h.style.fontSize='';let f=parseFloat(getComputedStyle(h).fontSize);while(h.scrollWidth>noteW&&f>14){f-=1;h.style.fontSize=f+'px'}}}note.style.transform=`translate(${pad}px,${pad}px)`;
-  const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad-gap,x1:pad+noteW+gap,y1:pad+nh+gap};
+  note.style.width="max-content";{const h=note.querySelector('h2');if(h){h.style.fontSize='';let f=parseFloat(getComputedStyle(h).fontSize);const lim=W-pad-16;while(h.scrollWidth>lim&&f>14){f-=1;h.style.fontSize=f+'px'}}}
+  const noteW=Math.min(W-pad-16,Math.ceil(note.offsetWidth));note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad}px)`;
+  const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad-gap,x1:pad+noteW+gap,y1:pad+nh+gap+24};
   const live=new Set(),place=[];
   // the endless wall's look, on a table with edges: at least ~1.5 screens each way,
   // bigger when there are more collages. Columns run one shuffled sequence at
@@ -688,8 +677,11 @@ function layout(){
   if(!messy){
     // strict: each collage once, in columns; at least a screen wide, growing as collages are added
     const cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
-    const tops=[...Array(cols)].map((_,c)=>{let y=pad+hs("col"+c,11)*cw*.45;if(pad+c*colW<noteBox.x1)y=Math.max(y,noteBox.y1);return y});
-    order.forEach(({w,i})=>{const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops));place.push({w,i,key:w.id,x:pad+c*colW,y:tops[c],r:0,s:1,z:1});tops[c]+=h+lbl+gap});
+    // columns under the title share its width evenly; the rest start right beside it, level with "Cut"
+    const span=noteBox.x1-pad;let k=small?cols:Math.ceil(span/colW);if(!small&&span/k<cw+gap*.5)k=Math.max(1,k-1);
+    const xs=[...Array(cols)].map((_,c)=>small||c<k?pad+c*(small?colW:span/k):noteBox.x1+(c-k)*colW);
+    const tops=[...Array(cols)].map((_,c)=>{let y=pad+hs("col"+c,11)*cw*.45;if(small||c<k)y=Math.max(y,noteBox.y1);else y=pad+18+hs("col"+c,11)*cw*.12;return y});
+    order.forEach(({w,i})=>{const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops));place.push({w,i,key:w.id,x:xs[c],y:tops[c],r:0,s:1,z:1});tops[c]+=h+lbl+gap});
   }else{
     // messy: scattered at random (new shuffle every visit), trying hard not to pile up
     const area=ALL.reduce((a,o)=>a+(cw+gap)*(cw*o.w.h/o.w.w+lbl+gap),0)*1.25+(noteBox.x1*noteBox.y1);
@@ -928,7 +920,7 @@ function openAdd(){
   if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed"+addHash;addHash="";pane.appendChild(f)}
 }
 function initAdd(){
-  const q=new URLSearchParams(location.search),h=location.hash;if(q.has("paper"))document.body.classList.add("paper");
+  const q=new URLSearchParams(location.search),h=location.hash;
   if(/access_token|error_description/.test(h)){addHash=h;history.replaceState(null,"",location.pathname+"?studio")}
   return q.has("studio")||!!addHash;
 }
@@ -1776,7 +1768,7 @@ async function boot(){
   load();
   setWallStyle(wallStyle);
   const goAdd=initAdd();
-  setMode(goAdd?"add":document.body.classList.contains("paper")?"pega":"mesa");
+  setMode(goAdd?"add":"mesa");
   applyView();
 }
 addEventListener("resize",()=>{clearTimeout(window.__rz);window.__rz=setTimeout(()=>{
