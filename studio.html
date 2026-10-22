@@ -98,6 +98,11 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .embed .quit{top:44px}
 .quit:hover{border-color:var(--mint)}
 .wiz-wrap.with-side .quit{right:calc(var(--side) + 16px)}
+.wiz-wrap{position:relative}
+.loose{position:absolute;inset:0;pointer-events:none;z-index:8;overflow:hidden}
+.loose img{position:absolute;left:0;top:0;pointer-events:auto;cursor:grab;touch-action:none;user-select:none;-webkit-user-drag:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 8px 10px rgba(0,0,0,.35));transition:filter .2s}
+.loose img.drag{cursor:grabbing;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25)) drop-shadow(0 22px 22px rgba(0,0,0,.45));transition:none}
+.loose img.fly{transition:transform .65s cubic-bezier(.3,1.3,.5,1),filter .2s}
 .pane.in-up{animation:inUp .6s cubic-bezier(.2,.8,.2,1) both}
 .pane.in-down{animation:inDown .6s cubic-bezier(.2,.8,.2,1) both}
 @keyframes inUp{from{opacity:0;transform:translateY(44px) scale(.98)}}
@@ -349,6 +354,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       </div>
       <div hidden><input type="range" id="trim" min="0" max="60" value="0"><span id="trim-v"></span><canvas id="flat-cv"></canvas><button id="skip-sq"></button></div>
     </div>
+    <div class="loose" id="loose" hidden></div>
     <aside class="side" id="side">
       <section class="side-pane" id="v-cut">
         <div class="side-scroll">
@@ -412,7 +418,7 @@ function show(v){
   $(".wstep[data-s=snap] .back").hidden=false;
   const panes={snap:"#drop",square:"#w-sheet",cut:"#w-cut",send:"#w-send",done:"#w-send"};
   ["#drop","#w-sheet","#w-cut","#w-send"].forEach(id=>{const el=$(id),on=panes[v]===id;if(on&&el.hidden){el.hidden=false;el.classList.remove("in-up","in-down");void el.offsetWidth;el.classList.add(dir>0?"in-up":"in-down")}else if(!on)el.hidden=true});
-  $("#zoom").hidden=!(v==="square"||v==="cut");
+  $("#zoom").hidden=!(v==="square"||v==="cut");$("#loose").hidden=v!=="cut";
   $("#v-wiz").classList.toggle("with-side",v==="cut");
   $("#w-send").classList.toggle("sent",v==="done");
   if(v==="square")requestAnimationFrame(layoutSheet);
@@ -481,7 +487,7 @@ PAPERS.forEach(o=>{
     };
   };
 });
-function resetWork(){srcImg=null;scraps=[];trimmed=null;quad=null;$("#title").value="";$("#desc").value=""}
+function resetWork(){srcImg=null;scraps=[];$("#loose").innerHTML="";trimmed=null;quad=null;$("#title").value="";$("#desc").value=""}
 $("#quit").onclick=()=>{const q=$("#quit");if((srcImg||scraps.length)&&step!=="done"&&q.dataset.sure!=="1"){q.dataset.sure="1";toast("Tap ✕ again to drop this one.");setTimeout(()=>q.dataset.sure="",3000);return}q.dataset.sure="";resetWork();show("pick")};
 $("#again").onclick=()=>{resetWork();show("pick")};
 $("#go-mess").onclick=()=>{if(EMBED)parent.postMessage({type:"cutouts:mess"},location.origin);else location.href="./"};
@@ -802,6 +808,7 @@ function addScrap(s){
   setTimeout(()=>{const i=$(`#scraps [data-id="${s.id}"] .input`);if(i)i.focus()},30);
 }
 function renderScraps(){
+  syncLoose();
   const el=$("#scraps");$("#bits-n").textContent=scraps.length||"";
   if(!scraps.length){el.innerHTML=`<div class="empty">${PATH==="collage"?"Optional. Cut out bits for the pile,<br>or skip and send the collage.":"Draw around something.<br>Roughly is fine."}</div>`;return}
   el.innerHTML=scraps.map(s=>`<div class="scrap" data-id="${s.id}">
@@ -822,6 +829,36 @@ $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");i
   if(e.target.closest("[data-bg]"))cleanScrap(s);
   const db=e.target.closest("[data-dd]");if(db){const m=db.nextElementSibling,open=m.hidden;closeDD();m.hidden=!open;db.setAttribute("aria-expanded",open);if(open){const r=db.getBoundingClientRect();m.classList.toggle("up",innerHeight-r.bottom<260)}}
   const o=e.target.closest(".menu [data-v]");if(o){s.cluster=o.dataset.v;s.bad=false;const b=o.closest(".dd").querySelector(".dd-btn");b.classList.remove("bad");b.querySelector("span").textContent=CL[s.cluster];o.parentNode.querySelectorAll("li").forEach(li=>li.setAttribute("aria-selected",li===o));closeDD()}});
+// cut bits come loose: they lift off the page and can be dragged anywhere on the mat
+function syncLoose(){
+  const L=$("#loose");if(!L)return;const live=new Set(scraps.map(s=>s.id));
+  [...L.children].forEach(el=>{if(!live.has(+el.dataset.id))el.remove()});
+  const W=$("#v-wiz").getBoundingClientRect(),cv=$("#cut-cv").getBoundingClientRect(),fr=$("#frame").getBoundingClientRect(),k=cvScale();
+  const on=$(".wstep.on"),railB=on?on.getBoundingClientRect().bottom:W.top+200,rail=$("#rail").getBoundingClientRect();
+  scraps.forEach(s=>{
+    let el=L.querySelector(`[data-id="${s.id}"]`);const src=s.canvas.toDataURL();
+    if(!el){
+      el=document.createElement("img");el.dataset.id=s.id;el.alt=s.name||"scrap";el.src=src;L.appendChild(el);bindLoose(el,s);
+      const n=L.children.length-1,w=Math.min(Math.max(48,s.canvas.width*k),130),h=s.canvas.height*w/s.canvas.width;el.style.width=w+"px";
+      const x0=cv.left-W.left+s.box[0]*k,y0=cv.top-W.top+s.box[1]*k;
+      // land on free mat: beside the page if there's room, else under the step text
+      const right=fr.right-cv.right,below=W.bottom-railB-70;let tx,ty;
+      if(right>w+40){tx=cv.right-W.left+(right-w)/2+((n%2)*30-15);ty=40+(n*113)%Math.max(60,W.height-h-80)}
+      else{tx=Math.max(rail.left-W.left+20,cv.left-W.left-w-24-(n%2)*18);ty=60+(n*(h*.55+24))%Math.max(80,W.height-h-140)}
+      s.pos={x:x0,y:y0,r:0};place(el,s);
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{el.classList.add("fly");s.pos={x:tx,y:ty,r:(Math.random()-.5)*16};place(el,s);setTimeout(()=>el.classList.remove("fly"),700)}));
+    }else if(el.getAttribute("src")!==src)el.src=src;
+  });
+}
+let LZ=1;function place(el,s){el.style.transform=`translate(${s.pos.x}px,${s.pos.y}px) rotate(${s.pos.r}deg)`}
+function bindLoose(el,s){
+  let st=null;
+  el.addEventListener("pointerdown",e=>{e.stopPropagation();e.preventDefault();el.setPointerCapture(e.pointerId);el.classList.add("drag");el.style.zIndex=++LZ;st={x:e.clientX,y:e.clientY,px:s.pos.x,py:s.pos.y,r:s.pos.r,lx:e.clientX}});
+  el.addEventListener("pointermove",e=>{if(!st)return;const vx=e.clientX-st.lx;st.lx=e.clientX;s.pos.x=st.px+e.clientX-st.x;s.pos.y=st.py+e.clientY-st.y;s.pos.r=st.r+Math.max(-12,Math.min(12,vx*.6));place(el,s)});
+  const end=()=>{if(!st)return;st=null;el.classList.remove("drag");el.classList.add("fly");s.pos.r=Math.max(-10,Math.min(10,s.pos.r));place(el,s);setTimeout(()=>el.classList.remove("fly"),700)};
+  el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
+}
+
 async function cleanScrap(s){
   if(s.busy)return;
   if(s.clean){s.canvas=s.orig;s.clean=false;renderScraps();return}
