@@ -617,7 +617,7 @@ function layout(){
   // and the table grows (more columns and rows) as collages are added
   const colW=cw+gap,cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
   const tops=[...Array(cols)].map((_,c)=>{let y=pad+hs("col"+c,11)*cw*.45;if(pad+c*colW<noteBox.x1)y=Math.max(y,noteBox.y1);return y});
-  ALL.slice().sort((a,b)=>hs(a.w.id,1)-hs(b.w.id,1)).forEach(({w,i})=>{
+  ALL.slice().sort((a,b)=>(b.w.pending?1:0)-(a.w.pending?1:0)||hs(a.w.id,1)-hs(b.w.id,1)).forEach(({w,i})=>{
     const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops)),id=w.id;
     const p={w,i,key:id,x:pad+c*colW,y:tops[c],r:0,s:1,z:1};
     // same jitter as the endless wall: ±5°, small nudges, normal gaps
@@ -655,17 +655,14 @@ function addWork(w){WORKS.push(w);if(!$("#mesa").hidden)layout()}
 function render(){}
 // drag, fling (with a soft edge), wheel, keys
 (()=>{let st=null,last=null,hits=[];
-  function glide(){const b=bounds();let tx=null,ty=null;
-    if(camX<b.x0)tx=b.x0;else if(camX>b.x1)tx=b.x1;if(camY<b.y0)ty=b.y0;else if(camY>b.y1)ty=b.y1;
-    if(tx!==null){velX=velX*.6+(tx-camX)*.18;glide.sx=1}else velX*=glide.sx?0:.94;
-    if(ty!==null){velY=velY*.6+(ty-camY)*.18;glide.sy=1}else velY*=glide.sy?0:.94;
-    if(Math.hypot(velX,velY)<.15&&tx===null&&ty===null){inertia=0;return}
-    setCam(camX+velX,camY+velY);inertia=requestAnimationFrame(glide)}
+  function glide(){velX*=.94;velY*=.94;if(Math.hypot(velX,velY)<.15){inertia=0;return}
+    const b=bounds(),nx=camX+velX,ny=camY+velY;if(nx<=b.x0||nx>=b.x1)velX=0;if(ny<=b.y0||ny>=b.y1)velY=0;
+    setCam(nx,ny,true);inertia=requestAnimationFrame(glide)}
   mesa.addEventListener("pointerdown",e=>{if(e.button!==0)return;const mod=e.target.closest("[data-mod]");if(mod){e.stopPropagation();return}
     cancelAnimationFrame(inertia);velX=velY=0;glide.sx=glide.sy=0;st={x:e.clientX,y:e.clientY,cx:camX,cy:camY,id:e.pointerId,card:e.target.closest(".card"),moved:false};last={x:e.clientX,y:e.clientY,t:performance.now()};hits=[];mesa.setPointerCapture(e.pointerId)});
   mesa.addEventListener("pointermove",e=>{if(!st||e.pointerId!==st.id)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
     if(!st.moved&&Math.hypot(dx,dy)>5){st.moved=true;mesa.classList.add("panning")}
-    if(st.moved){const b=bounds();setCam(rubber(st.cx+dx,b.x0,b.x1),rubber(st.cy+dy,b.y0,b.y1));const t=performance.now();hits.push({vx:(e.clientX-last.x)/Math.max(1,t-last.t)*16,vy:(e.clientY-last.y)/Math.max(1,t-last.t)*16});if(hits.length>4)hits.shift();last={x:e.clientX,y:e.clientY,t}}});
+    if(st.moved){setCam(st.cx+dx,st.cy+dy,true);const t=performance.now();hits.push({vx:(e.clientX-last.x)/Math.max(1,t-last.t)*16,vy:(e.clientY-last.y)/Math.max(1,t-last.t)*16});if(hits.length>4)hits.shift();last={x:e.clientX,y:e.clientY,t}}});
   const end=e=>{if(!st||e.pointerId!==st.id)return;const s=st;st=null;mesa.classList.remove("panning");
     if(!s.moved){if(s.card&&e.type==="pointerup")openLb(+s.card.dataset.i,s.card);return}
     if(hits.length&&performance.now()-last.t<80){velX=hits.reduce((a,h)=>a+h.vx,0)/hits.length;velY=hits.reduce((a,h)=>a+h.vy,0)/hits.length}
