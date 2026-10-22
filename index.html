@@ -606,7 +606,7 @@ function layout(){
   const W=mesa.clientWidth,H=mesa.clientHeight;if(!W)return;
   const small=W<720,messy=wallStyle==="messy",ALL=WORKS.map((w,i)=>({w,i})).filter(o=>!o.w.gone),N=ALL.length;
   const cw=small?Math.round((W-48)/2.1):Math.round(Math.max(180,Math.min(330,W/5.4)));
-  const pad=small?44:64,gap=Math.round(cw*.2),lbl=small?10:26;
+  const pad=small?44:64,gap=Math.round(cw*(small?.14:.18)),lbl=small?10:26;
   const noteW=small?Math.min(W-pad-16,320):270;note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad}px)`;
   const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad-gap,x1:pad+noteW+gap,y1:pad+nh+gap};
   const live=new Set(),place=[];
@@ -624,8 +624,9 @@ function layout(){
     while(y<tableH&&n<N){
       const {w,i}=seq[k%N],h=cw*w.h/w.w,key=w.id+"|"+c,id=key;
       const p={w,i,key,x:pad+c*colW,y,r:0,s:1,z:1};
-      if(messy){p.x+=(hs(id,2)-.5)*cw*.14;p.y+=(hs(id,3)-.5)*cw*.1;p.r=(hs(id,4)-.5)*9;p.z=1+Math.floor(hs(id,6)*50)}
-      place.push(p);y+=h+lbl+(messy?gap*.35:gap);k++;n++;
+      // same jitter as the endless wall: ±5°, small nudges, normal gaps
+      if(messy){p.x+=(hs(id,2)-.5)*cw*.08;p.y+=(hs(id,3)-.5)*cw*.06;p.r=(hs(id,4)-.5)*10;p.z=1+Math.floor(hs(id,6)*50)}
+      place.push(p);y+=h+lbl+gap;k++;n++;
     }
   }
   let mx=0,my=0;
