@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>cutouts studio</title>
+<title>cutouts · add yours</title>
 <meta name="robots" content="noindex, nofollow">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -16,7 +16,7 @@
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
   --shadow-up:0 2px 2px rgba(0,0,0,.2),0 22px 36px -10px rgba(0,0,0,.55);
   --f:"DM Mono",ui-monospace,Menlo,monospace;--f-head:"Rock Salt",cursive;--cm:38px;
-  --side:368px;--rail:340px;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
+  --side:368px;--rail:440px;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -32,6 +32,7 @@ button{cursor:pointer}
 svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;display:block;flex:0 0 auto}
 .app{height:100%;height:100dvh;display:flex;flex-direction:column}
 .embed .app{padding:30px 0 0 34px}
+.embed .zoom{left:40px}
 .bar{display:flex;align-items:center;gap:16px;padding:10px 16px;background:var(--mat-deep);border-bottom:1px solid var(--mat-line-strong)}
 .embed .bar{display:none}
 .logo{margin:0;font-family:var(--f-head);font-weight:400;font-size:19px;white-space:nowrap}
@@ -84,12 +85,13 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wstep.past{opacity:0;transform:translateY(-48px);pointer-events:none}
 .wstep.next{opacity:0;transform:translateY(48px);pointer-events:none}
 .wstep.on{opacity:1;transform:none;transition-delay:.12s}
-.wstep .back{align-self:flex-start;width:34px;height:34px;margin:0 0 2px -8px;border:0;border-radius:50%;background:transparent;color:var(--mint);display:grid;place-items:center;padding:0}
+.wstep .back{align-self:flex-start;width:40px;height:40px;margin:0 0 2px -8px;border:0;border-radius:50%;background:transparent;color:var(--mint);display:grid;place-items:center;padding:0}
 .wstep .back:hover{background:rgba(214,238,222,.1)}
-.wstep h2{font-size:clamp(26px,2.4vw,34px);line-height:1.25;margin:0;text-shadow:2px 2px 0 rgba(0,0,0,.18)}
-.wstep .desc{color:var(--mat-ink);font-size:15px;line-height:1.6;margin:0;max-width:30ch}
-.wstep .opt{margin:-4px 0 0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink)}
-.wstep .acts{display:flex;gap:8px;margin-top:10px}
+.wstep h2{font-size:clamp(32px,4.4vw,58px);line-height:1.2;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.wstep .desc{color:var(--mint);font-size:17px;line-height:1.6;margin:0;max-width:30ch}
+.wstep .opt{margin:-4px 0 0;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink)}
+.wstep .acts{display:flex;gap:10px;margin-top:14px}
+.wstep .acts .btn,.wstep .acts .ghost{font-size:17px;padding:11px 26px}
 .wstep .acts>*{opacity:0;transform:translateY(6px);transition:opacity .35s .45s,transform .35s .45s}
 .wstep.on .acts>*{opacity:1;transform:none}
 .pane.in-up{animation:inUp .6s cubic-bezier(.2,.8,.2,1) both}
@@ -116,31 +118,33 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .corner{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px;border-radius:50%;background:var(--mint);border:2px solid var(--mat-dark);cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,.4);transition:transform .15s,background .15s}
 .corner.free{transform:scale(1.35);background:var(--warn)}
 .busy{position:absolute;inset:0;display:grid;place-items:center;background:rgba(23,61,44,.6);font-size:16px;z-index:5}
-.zoom{position:absolute;z-index:6;left:12px;bottom:12px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
+.zoom{position:fixed;z-index:6;left:16px;bottom:16px;display:flex;align-items:center;gap:2px;padding:4px;background:var(--panel);border-radius:999px;box-shadow:var(--shadow)}
 .zoom button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#fff;display:grid;place-items:center;padding:0}
 .zoom button:hover{background:var(--mat-light)}
 .zoom .zv{width:auto;min-width:58px;border-radius:999px;font-size:13px;color:var(--mint)}
 .send{display:grid;place-items:center;padding:36px 28px;overflow:auto}
 .send .table{display:flex;align-items:center;justify-content:center;gap:56px;max-width:100%;max-height:100%;flex-wrap:wrap}
 .pinned{position:relative;margin:0;transform:rotate(-1.5deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
-.pinned img{display:block;max-height:min(52vh,520px);max-width:min(40vw,520px)}
+.pinned img{display:block;max-height:calc(100dvh - 330px);max-width:min(48vw,760px);min-height:min(56vh,520px);object-fit:contain}
 .tape{position:absolute;top:-11px;left:50%;width:30%;height:22px;background:rgba(244,232,196,.78);transform:translateX(-50%) rotate(2deg);z-index:1;
   clip-path:polygon(0 8%,6% 0,12% 10%,18% 0,24% 8%,30% 0,70% 0,76% 9%,82% 0,88% 8%,94% 0,100% 10%,100% 92%,94% 100%,88% 90%,82% 100%,76% 92%,70% 100%,30% 100%,24% 91%,18% 100%,12% 92%,6% 100%,0 90%)}
 .pinwrap{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
-.label-in{display:flex;flex-direction:column;gap:6px;width:100%;max-width:min(46vw,560px)}
+.label-in{display:flex;flex-direction:column;gap:8px;width:100%}
 .label-in input,.label-in textarea,.sign2{background:transparent;border:0;border-bottom:1px dashed var(--mat-line-strong);color:var(--mint);outline:none;padding:4px 2px;resize:none;width:100%}
 .label-in input:focus,.label-in textarea:focus,.sign2:focus{border-bottom-color:var(--mint)}
-#title{font-family:var(--f-head);font-size:20px;color:#fff;line-height:1.5}
+#title{font-family:var(--f-head);font-size:26px;color:#fff;line-height:1.5}
 #title::placeholder{color:var(--mat-ink)}
-#desc{font-size:14.5px;line-height:1.55;overflow:hidden}
+#desc{font-size:16px;line-height:1.55;overflow:hidden;color:var(--mint)}
+.label-in ::placeholder,.sign2::placeholder{color:rgba(214,238,222,.72);opacity:1}
+#signed,.sign2{font-size:15px}
 #signed,.sign2{font-size:14px}
 .sent .label-in :placeholder-shown,.sent .sign2:placeholder-shown{display:none}
 .sent .label-in input,.sent .label-in textarea,.sent .sign2{border-bottom-color:transparent;pointer-events:none}
 .pinned figcaption{position:absolute;left:2px;top:calc(100% + 8px);font-family:var(--f-head);font-size:15px;line-height:1.6;color:var(--mat-ink);white-space:nowrap;max-width:110%;overflow:hidden;text-overflow:ellipsis}
 .bits{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:min(36vw,380px)}
 .bits .pile{display:flex;flex-wrap:wrap;gap:22px 26px;justify-content:center;align-items:flex-end}
-.bits figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;max-width:130px}
-.bits figure img{max-width:120px;max-height:120px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 8px 10px rgba(0,0,0,.35))}
+.bits figure{margin:0;display:flex;flex-direction:column;align-items:center;gap:6px;max-width:180px}
+.bits figure img{max-width:170px;max-height:170px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 8px 10px rgba(0,0,0,.35))}
 .bits figcaption{font-family:var(--f-head);font-size:12.5px;color:var(--mat-ink);text-align:center;line-height:1.5}
 .bits .lbl{color:var(--mat-ink);font-size:13px}
 .send.only .table{gap:0}
@@ -249,7 +253,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 </svg>
 <div class="app">
   <header class="bar">
-    <h1 class="logo"><a href="./">cutouts</a> <span>studio</span></h1>
+    <h1 class="logo"><a href="./">cutouts</a> <span>add yours</span></h1>
   </header>
 
   <!-- 0 · what did you bring -->
@@ -268,6 +272,9 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
         <h2>Waiting for a look<span class="badge" id="inbox-n" hidden></span></h2>
         <p class="muted" id="inbox-note">Checking…</p>
         <div class="inbox" id="inbox"></div>
+        <h2 style="margin-top:28px">On the table<span class="badge" id="live-n" style="background:var(--mat-light)" hidden></span></h2>
+        <p class="muted" style="margin-bottom:12px">Changed your mind? Take it down.</p>
+        <div class="inbox" id="live"></div>
       </div>
       <div class="side-foot"><span class="muted" style="margin:0;font-size:13px" id="who-email"></span><button class="link" id="signout">Sign out</button></div>
     </aside>
@@ -515,7 +522,7 @@ async function loadInbox(){
   c.data.forEach(r=>{const k=r.batch||r.id;map.set(k,{key:k,col:r,scraps:[],at:r.created_at})});
   s.data.forEach(r=>{const k=r.batch||r.id;if(!map.has(k))map.set(k,{key:k,col:null,scraps:[],at:r.created_at});map.get(k).scraps.push(r)});
   BATCHES=[...map.values()].sort((a,b)=>b.at.localeCompare(a.at));
-  renderInbox();
+  renderInbox();loadLive();
 }
 function ago(t){const m=Math.round((Date.now()-new Date(t))/6e4);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"}
 function renderInbox(){
@@ -545,6 +552,26 @@ function openBig(i){
 }
 $("#bigview").addEventListener("click",e=>{if(e.target.id==="bigview")$("#bigview").hidden=true});
 addEventListener("keydown",e=>{if(e.key==="Escape"){$("#bigview").hidden=true;$("#login").hidden=true}});
+// owner: everything already on the table, removable
+let LIVE=[];
+async function loadLive(){
+  const [a,b]=await Promise.all([sb.from("collages").select("id,title,image_path,created_at").order("created_at",{ascending:false}),
+    sb.from("community").select("id,title,signed,image_path,created_at").eq("approved",true).order("created_at",{ascending:false})]);
+  LIVE=[...(a.data||[]).map(r=>({kind:"collages",r,img:pub("collages",r.image_path),t:r.title||"Untitled",who:"yours"})),
+        ...(b.data||[]).map(r=>({kind:"community",r,img:pub("community",r.image_path),t:r.title||"Untitled mess",who:r.signed?"by "+r.signed:"anonymous"}))]
+    .sort((x,y)=>y.r.created_at.localeCompare(x.r.created_at));
+  $("#live-n").hidden=!LIVE.length;$("#live-n").textContent=LIVE.length;
+  $("#live").innerHTML=LIVE.map((x,i)=>`<div class="ibx" style="cursor:default"><span class="th"><img src="${x.img}" alt="" loading="lazy"></span><span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="flex:1;min-width:0"><b>${esc(x.t)}</b><small>${esc(x.who)} · ${ago(x.r.created_at)}</small></span><button class="ghost" data-down="${i}" style="padding:5px 12px;font-size:13px">Take down</button></span></div>`).join("")||'<p class="muted">Nothing yet.</p>';
+}
+$("#live").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-down]");if(!b)return;const x=LIVE[+b.dataset.down];
+  if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Sure?";b.style.borderColor="#e5584d";setTimeout(()=>{if(b.isConnected){b.dataset.sure="";b.textContent="Take down";b.style.borderColor=""}},3000);return}
+  b.disabled=true;
+  try{const r=await sb.from(x.kind).delete().eq("id",x.r.id);if(r.error)throw r.error;
+    await sb.storage.from(x.kind).remove([x.r.image_path]);toast("Off the table.");tell("cutouts:published");loadLive()}
+  catch(err){toast("Couldn't take it down: "+err.message,true);b.disabled=false}
+});
+
 async function decide(b,keep,btn){
   btn.disabled=true;
   try{
