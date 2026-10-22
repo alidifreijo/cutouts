@@ -143,8 +143,8 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .note .hint b{color:var(--mint);font-weight:500}
 .note .fine{display:none;margin:8px 0 0;font-size:10.5px;color:var(--mat-ink)}
 .board.small .note p:not(.hint){display:none}
-.board.small .note{font-size:11.5px}
-.board.small .note h2{font-size:17px}
+.board.small .note{font-size:15px}
+.board.small .note h2{font-size:30px}
 .addpane .add-frame{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
 .pinbtn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--mint);background:var(--mint);color:var(--mat-dark);border-radius:999px;padding:6px 13px 6px 10px;font-size:12.5px;font-weight:500;white-space:nowrap}
 .pinbtn svg.i{width:15px;height:15px}
@@ -426,15 +426,17 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 
 /* type: Rock Salt for titles, Mynerve for everything else, mono only for the mat's numbers */
 body{font-size:15px}
-.logo,.note h2,.pp-t,.zbar .zt,.empty-msg{font-family:var(--f-head);font-weight:400}
+.logo,.note h2,.pp-t,.empty-msg{font-family:var(--f-head);font-weight:400}
 .logo{font-size:17px;letter-spacing:0}
-.note h2{font-size:24px;line-height:1.35;letter-spacing:0}
+.note h2{font-size:46px;line-height:1.25;letter-spacing:0;white-space:nowrap;margin:0 0 14px;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .pp-t{font-size:15px;line-height:1.5}
-.zbar .zt{font-size:13px}
+.zbar .zt{font-size:17px;font-family:var(--f-ui)}
+.zbar .zby{font-size:14px}
+.zcap{font-size:16px;line-height:1.5}
 .rn,.zoom-v,.zbar .zn,.seg .badge,.chip .c,.menu li .cnt,.num input,.ctl-h output,.stepper output{font-family:var(--f-mono)}
 .tab,.wallseg button,.newbtn,.pinbtn,.seg button,.chip,.dd-btn,.btn,.txt-btn,.pp-btn,.pp-ghost{font-size:14px}
-.note p{font-size:15px}.note .hint{font-size:13px}
-.card .lbl{font-size:13px}
+.note p{font-size:19px;line-height:1.45}.note .hint{font-size:16px}
+.card .lbl{font-size:16px}
 .credit{font-size:12px}
 [hidden]{display:none!important}
 </style>
@@ -657,7 +659,7 @@ function layout(){
   const small=W<720,messy=wallStyle==="messy",ALL=WORKS.map((w,i)=>({w,i})).filter(o=>!o.w.gone),N=ALL.length;
   const cw=small?Math.round((W-40)/1.85):Math.round(Math.max(210,Math.min(390,W/4.5)));
   const pad=small?44:64,gap=Math.round(cw*(small?.14:.18)),lbl=small?10:26;
-  const noteW=small?Math.min(W-pad-16,320):270;note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad}px)`;
+  const noteW=small?Math.min(W-pad-16,340):Math.min(560,W*.42);note.style.width=noteW+"px";{const h=note.querySelector('h2');if(h){h.style.fontSize='';let f=parseFloat(getComputedStyle(h).fontSize);while(h.scrollWidth>noteW&&f>14){f-=1;h.style.fontSize=f+'px'}}}note.style.transform=`translate(${pad}px,${pad}px)`;
   const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad-gap,x1:pad+noteW+gap,y1:pad+nh+gap};
   const live=new Set(),place=[];
   // the endless wall's look, on a table with edges: at least ~1.5 screens each way,
