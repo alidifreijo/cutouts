@@ -247,6 +247,17 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
   .big{grid-template-columns:1fr}
   .send{grid-template-columns:1fr}.send .half+.half{border-left:0;border-top:1.5px dashed var(--mat-line-strong)}
 }
+
+/* bit cards: compact for a narrow panel */
+.scrap{grid-template-columns:52px minmax(0,1fr) 28px!important;grid-template-areas:"th name x" "dd dd dd" "bg bg bg";gap:8px 10px!important;align-items:center!important;padding:10px!important}
+.scrap .meta{display:contents}
+.scrap .th{grid-area:th;width:52px!important;height:52px!important}
+.scrap .input{grid-area:name;min-width:0}
+.scrap .dd{grid-area:dd}
+.scrap .dd-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scrap .bgx{grid-area:bg;justify-self:start;border:0!important;background:none!important;padding:2px 0!important;font-size:13px;color:var(--mat-ink);text-decoration:underline;text-underline-offset:3px}
+.scrap .bgx:hover,.scrap .bgx.on{color:var(--mint)}
+.scrap .x{grid-area:x}
 </style>
 </head>
 <body>
@@ -845,7 +856,7 @@ function renderScraps(){
     <div class="meta">
       <input class="input" value="${s.name.replace(/"/g,"&quot;")}" maxlength="60" placeholder="Name it" aria-label="Scrap name">
       <div class="dd"><button class="dd-btn${s.bad&&!s.cluster?" bad":""}" data-dd aria-haspopup="listbox" aria-expanded="false"><span>${s.cluster?CL[s.cluster]:"Pick a pile"}</span><svg class="i chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><ul class="menu" role="listbox" hidden>${CLUSTERS.map(([k,l])=>`<li role="option" data-v="${k}" aria-selected="${s.cluster===k}">${l}</li>`).join("")}</ul></div>
-      <button class="bgx${s.clean?" on":""}" data-bg>${s.busy?"Cleaning…":s.clean?"✦ Undo":"✦ No background"}</button>
+      <button class="bgx${s.clean?" on":""}" data-bg>${s.busy?"Cleaning…":s.clean?"✦ Bring background back":"✦ Remove background"}</button>
     </div>
     <button class="x" data-rm aria-label="Delete scrap">✕</button>
   </div>`).join("");
