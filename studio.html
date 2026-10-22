@@ -58,23 +58,16 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .pick h1{font-family:var(--f-head);font-weight:400;font-size:clamp(32px,4.4vw,58px);line-height:1.2;margin:0 0 6px;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .pick .lede{color:var(--mat-ink);margin:0 0 34px;font-size:16px}
 .papers{display:flex;gap:34px;justify-content:center;flex-wrap:wrap}
-.paper{position:relative;width:min(300px,80vw);min-height:220px;border:0;background:var(--paper);color:var(--mat-dark);padding:30px 28px;text-align:left;
-  clip-path:polygon(0 3%,9% 0,22% 2%,37% 0,52% 3%,66% 0,81% 2%,100% 0,98% 18%,100% 37%,97% 55%,100% 74%,98% 100%,80% 97%,61% 100%,43% 97%,24% 100%,6% 97%,0 100%,2% 79%,0 58%,3% 39%,0 20%);
-  filter:drop-shadow(0 10px 14px rgba(0,0,0,.38));transition:transform .2s cubic-bezier(.3,1.4,.5,1)}
-.paper:nth-child(1){transform:rotate(-2.5deg)}.paper:nth-child(2){transform:rotate(2deg)}
-.paper:hover{transform:rotate(0) translateY(-6px) scale(1.02)}
+.paper{position:relative;width:min(300px,80vw);aspect-ratio:4/5;border:0;background:transparent;padding:0;cursor:pointer;color:var(--mat-dark);text-align:left;filter:drop-shadow(0 12px 16px rgba(28,22,14,.42))}
+.paper .sheet{position:absolute;inset:0;background:var(--paper);overflow:hidden}
+.paper .fold{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,transparent 32.6%,rgba(0,0,0,.09) 33.2%,rgba(255,255,255,.35) 33.6%,transparent 35%,transparent 65.6%,rgba(0,0,0,.08) 66.2%,rgba(255,255,255,.3) 66.6%,transparent 68%),linear-gradient(180deg,rgba(255,255,255,.18),transparent 33%,rgba(0,0,0,.035) 34%,transparent 66%,rgba(0,0,0,.05) 67%,rgba(255,255,255,.08))}
+.paper .crease{position:absolute;inset:-2%;pointer-events:none;background-size:100% 100%;mix-blend-mode:multiply}
+.paper .shine{position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 80% at 25% 15%,rgba(255,255,255,.45),transparent 55%);mix-blend-mode:soft-light}
+.paper .txt{position:absolute;inset:0;padding:30px 28px;display:flex;flex-direction:column}
 .paper b{font-family:var(--f-head);font-weight:400;font-size:24px;display:block;margin-bottom:12px;line-height:1.35}
-.paper span{font-size:15px;line-height:1.55;color:#3d5a4b;display:block}
-.paper .go{margin-top:18px;font-size:14px;color:var(--mat-dark);text-decoration:underline;text-underline-offset:4px}
-.paper::after{content:"";position:absolute;inset:0;opacity:0;pointer-events:none;background:repeating-linear-gradient(35deg,transparent 0 9px,rgba(0,0,0,.12) 9px 10px,rgba(255,255,255,.28) 10px 11px),repeating-linear-gradient(-50deg,transparent 0 12px,rgba(0,0,0,.1) 12px 13px);transition:opacity .2s}
-.paper.crumple{animation:crumple .7s cubic-bezier(.5,0,.7,.4) forwards;pointer-events:none}
-.paper.crumple::after{opacity:1}
-.paper.away{transition:opacity .3s,transform .3s;opacity:.35;transform:scale(.96)}
-@keyframes crumple{
- 0%{transform:none}
- 25%{transform:scale(.92) rotate(-6deg);clip-path:polygon(4% 8%,14% 0,26% 9%,39% 2%,51% 10%,64% 1%,78% 8%,96% 3%,90% 21%,99% 38%,91% 56%,98% 73%,92% 96%,76% 90%,59% 99%,44% 91%,27% 98%,9% 92%,3% 97%,8% 78%,1% 60%,9% 41%,2% 22%)}
- 60%{transform:scale(.55) rotate(-25deg);clip-path:polygon(22% 18%,33% 8%,42% 20%,50% 6%,58% 19%,67% 9%,74% 22%,88% 20%,80% 34%,92% 47%,79% 57%,88% 72%,74% 79%,66% 92%,55% 81%,45% 93%,36% 80%,22% 86%,25% 71%,10% 62%,21% 50%,9% 37%,24% 31%)}
- 100%{transform:scale(.3) rotate(-50deg) translate(60px,90px);opacity:0;clip-path:polygon(30% 28%,40% 20%,48% 30%,56% 18%,62% 30%,71% 24%,72% 36%,82% 44%,72% 52%,79% 64%,67% 66%,61% 78%,52% 68%,43% 80%,37% 67%,25% 70%,31% 57%,19% 50%,31% 43%,22% 33%)}}
+.paper .txt>span{font-size:15px;line-height:1.55;color:#3d5a4b;display:block}
+.paper .go{margin-top:auto;font-size:14px;color:var(--mat-dark)!important;text-decoration:underline;text-underline-offset:4px}
+.paper.away{transition:opacity .3s;opacity:.35}
 .owner{margin-top:34px;font-size:14px;color:var(--mat-ink)}
 
 /* ---------- wizard layout ---------- */
@@ -212,8 +205,8 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       <h1>What did you bring?</h1>
       <p class="lede">Everything gets a look before it goes public.</p>
       <div class="papers">
-        <button class="paper" data-path="collage"><b>A collage</b><span>Pin it to the table. Spare scraps go to the pile.</span><span class="go">Start →</span></button>
-        <button class="paper" data-path="scraps"><b>Just scraps</b><span>A magazine, an ad, junk mail. Cut it up for everyone.</span><span class="go">Start →</span></button>
+        <button class="paper" data-path="collage"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>A collage</b><span>Pin it to the table. Spare scraps go to the pile.</span><span class="go">Start →</span></span></span></button>
+        <button class="paper" data-path="scraps"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>Just scraps</b><span>A magazine, an ad, junk mail. Cut it up for everyone.</span><span class="go">Start →</span></span></span></button>
       </div>
       <p class="owner" id="owner-line">Yours? <button class="link" id="owner-in">Owner sign in</button></p>
     </div></div>
@@ -327,7 +320,7 @@ let step="pick";
 function show(v){
   step=v;
   $("#v-pick").hidden=v!=="pick";$("#v-wiz").hidden=v==="pick";
-  if(v==="pick")return;
+  if(v==="pick"){revealPapers();return}
   const i=STEPS.indexOf(v);
   $$("#steps li").forEach((li,j)=>{li.classList.toggle("on",j===i);li.classList.toggle("dn",v==="done"||j<i);li.querySelector(".c").innerHTML=(v==="done"||j<i)?'<svg class="i" style="width:15px;height:15px"><use href="#i-check"/></svg>':String(j+1)});
   $$("#steps .ln").forEach((l,j)=>l.classList.toggle("dn",v==="done"||j<i));
@@ -350,9 +343,53 @@ function setPath(p){
   $$("[data-col]").forEach(f=>f.hidden=p!=="collage");
   $("#send-h").textContent=p==="collage"?"Pin it to the table":"Add to the pile";
 }
-$$(".paper").forEach(b=>b.onclick=()=>{
-  $$(".paper").forEach(o=>{if(o!==b)o.classList.add("away")});b.classList.add("crumple");
-  setTimeout(()=>{$$(".paper").forEach(o=>o.classList.remove("crumple","away"));setPath(b.dataset.path);resetWork();show("snap")},matchMedia("(prefers-reduced-motion:reduce)").matches?0:620);
+// ---------- paper cards: unfold on arrival, crumple when picked ----------
+const REDUCE=matchMedia("(prefers-reduced-motion:reduce)").matches;
+function rng(seed){return()=>(seed=(seed*16807)%2147483647)/2147483647}
+function creaseSVG(seed){ // jittered grid split into triangles, each a slightly different shade of paper
+  const r=rng(seed),N=7,M=9,P=[];
+  for(let y=0;y<=M;y++)for(let x=0;x<=N;x++){const e=x===0||x===N||y===0||y===M;P.push([x/N*100+(e?0:(r()-.5)*11),y/M*100+(e?0:(r()-.5)*9)])}
+  let t="";const at=(x,y)=>P[y*(N+1)+x];
+  for(let y=0;y<M;y++)for(let x=0;x<N;x++){const a=at(x,y),b=at(x+1,y),c=at(x+1,y+1),d=at(x,y+1),f=r()<.5;
+    for(const tri of f?[[a,b,c],[a,c,d]]:[[a,b,d],[b,c,d]]){const v=r(),col=v<.5?`rgba(60,45,25,${(.5-v)*.5})`:`rgba(255,255,255,${(v-.5)*.9})`;t+=`<polygon points="${tri.map(p=>p.join(",")).join(" ")}" fill="${col}"/>`}}
+  return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'>${t}</svg>`)}")`;
+}
+function paperShape(el,seed){ // outline points: a slightly torn rectangle and an irregular ball
+  const r=rng(seed+7),K=36,rect=[],ball=[];
+  for(let i=0;i<K;i++){const u=i/K*4,side=Math.floor(u),f=u-side,j=()=>(r()-.5)*1.4;
+    rect.push(side===0?[f*100,j()]:side===1?[100+j(),f*100]:side===2?[100-f*100,100+j()]:[j(),100-f*100]);
+    const a=Math.atan2(rect[i][1]-50,rect[i][0]-50),rad=21+(r()-.5)*6+(i%2?1.5:-1.5);ball.push([50+Math.cos(a)*rad,50+Math.sin(a)*rad*.8])}
+  return {rect,ball};
+}
+const PAPERS=$$(".paper").map((el,k)=>{
+  const seed=1234+k*977,sh=paperShape(el,seed),crease=el.querySelector(".crease"),txt=el.querySelector(".txt"),fold=el.querySelector(".fold"),tilt=k?2:-2.5;
+  crease.style.backgroundImage=creaseSVG(seed);
+  const o={el,t:0,tilt,draw(t){
+    const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const pts=sh.rect.map((p,i)=>{const q=sh.ball[i],w=Math.sin(i*1.7+t*9)*e*(1-e)*14;return `${p[0]+(q[0]-p[0])*e+w}% ${p[1]+(q[1]-p[1])*e+w*.6}%`});
+    el.querySelector(".sheet").style.clipPath=`polygon(${pts.join(",")})`;
+    crease.style.opacity=.09+e*.95;crease.style.transform=`scale(${1+e*.35}) rotate(${e*24}deg)`;
+    fold.style.opacity=1-e;txt.style.opacity=Math.max(0,1-e*2.4);txt.style.transform=`scale(${1-e*.4}) rotate(${e*-14}deg)`;
+    el.style.transform=`rotate(${tilt+e*-40}deg) scale(${1-e*.1})`;
+    el.style.filter=`drop-shadow(0 ${12-e*6}px ${16-e*8}px rgba(28,22,14,${.42+e*.1}))`;
+  }};
+  o.draw(1);return o;
+});
+function tween(o,to,ms){return new Promise(res=>{if(REDUCE){o.t=to;o.draw(to);return res()}
+  const from=o.t,t0=performance.now();cancelAnimationFrame(o.raf);
+  const step=now=>{const k=Math.min(1,(now-t0)/ms);o.t=from+(to-from)*k;o.draw(o.t);if(k<1)o.raf=requestAnimationFrame(step);else res()};o.raf=requestAnimationFrame(step)})}
+function revealPapers(){PAPERS.forEach((o,k)=>{o.draw(1);setTimeout(()=>tween(o,0,900),200+k*160)})}
+PAPERS.forEach(o=>{
+  o.el.addEventListener("pointerenter",()=>{if(o.t<.2&&!o.busy)tween(o,.07,260)});
+  o.el.addEventListener("pointerleave",()=>{if(o.t<.2&&!o.busy)tween(o,0,300)});
+  o.el.onclick=async()=>{
+    if(o.busy)return;PAPERS.forEach(x=>{x.busy=true;if(x!==o)x.el.classList.add("away")});
+    await tween(o,1,650);
+    o.el.animate([{opacity:1,translate:"0 0"},{opacity:0,translate:"40px 90px"}],{duration:REDUCE?1:260,easing:"ease-in",fill:"forwards"}).onfinish=()=>{
+      PAPERS.forEach(x=>{x.busy=false;x.el.classList.remove("away");x.el.getAnimations().forEach(a=>a.cancel())});
+      setPath(o.el.dataset.path);resetWork();show("snap");
+    };
+  };
 });
 function resetWork(){srcImg=null;scraps=[];trimmed=null;quad=null;$("#title").value="";$("#desc").value="";$("#desc-n").textContent="0/280"}
 $("#again").onclick=()=>{resetWork();show("pick")};
@@ -805,7 +842,7 @@ async function ownerPublish(title,description,up){
   if(srows.length){r=await sb.from("scraps").insert(srows);if(r.error)throw new Error(r.error.message)}
 }
 
-initAuth();
+initAuth();revealPapers();
 </script>
 </body>
 </html>
