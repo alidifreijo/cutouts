@@ -95,6 +95,19 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .wall .card{transform-origin:50% 50%;transition:transform .7s cubic-bezier(.2,.85,.25,1)}
 .wall .card:hover{z-index:900!important}
 .wall .rulers{z-index:50;pointer-events:none}
+.logo a{color:inherit;text-decoration:none}
+.wall .board.zooming{transition:transform .85s cubic-bezier(.55,-.12,.2,1.12)}
+.wall.zoomed{cursor:zoom-out}
+.wall .card{transition:transform .7s cubic-bezier(.2,.85,.25,1),filter .5s ease}
+.wall.zoomed .card:not(.zoomed){filter:brightness(.45) saturate(.6)}
+.wall .card.zoomed{z-index:999!important}
+.wall.zoomed .card.zoomed .lbl{opacity:0}
+.zbar{position:absolute;z-index:60;left:50%;bottom:max(18px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 8px 6px 8px;background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.zbar[hidden]{display:none}
+.zbar .ib{border-color:transparent;width:32px;height:32px}
+.zbar .ib:hover{border-color:var(--mat-line-strong)}
+.zbar .zt{color:var(--mint);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:46vw}
+.zbar .zn{color:var(--mat-ink);font-size:11.5px;font-variant-numeric:tabular-nums}
 .wall .rulers::before,.wall .rulers::after{content:"";position:absolute;background:var(--mat)}
 .wall .rulers::before{left:0;right:0;top:0;height:24px;box-shadow:0 1px 0 var(--mat-line-strong)}
 .wall .rulers::after{left:0;top:0;bottom:0;width:24px;box-shadow:1px 0 0 var(--mat-line-strong)}
@@ -379,7 +392,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
   .bar{gap:10px}
   .tab{padding:5px 10px}
   #tools-mesa{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom,0px));margin:0;box-shadow:var(--shadow);border-radius:999px}
-  #tools-mesa[hidden]{display:none}
+  #tools-mesa[hidden],body.zoomin #tools-mesa{display:none}
   .credit{display:none}
   .note h2{font-size:18px;margin-bottom:4px}
   .note p:not(.hint):not(.fine){display:none}
@@ -442,7 +455,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 
 <div class="app">
   <header class="bar">
-    <h1 class="logo">cutouts</h1>
+    <h1 class="logo"><a href="./" id="home">cutouts</a></h1>
     <nav class="tabs" role="tablist" aria-label="mode">
       <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa">the mess</button>
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio">make a mess</button>
@@ -627,16 +640,18 @@ function layout(){
   let mx=0,my=0;
   place.forEach(p=>{const b=cardFor(p.w,p.i,p.key);live.add(b);b.style.width=cw+"px";b.style.zIndex=p.z;b.dataset.r=p.r;
     b.style.transform=`translate(${p.x}px,${p.y}px) rotate(${p.r}deg) scale(${p.s})`;
-    const h=cw*p.w.h/p.w.w;mx=Math.max(mx,p.x+cw*Math.max(1,p.s)+20);my=Math.max(my,p.y+h*Math.max(1,p.s)+lbl+20)});
+    const h=cw*p.w.h/p.w.w;b._p={x:p.x,y:p.y,r:p.r,s:p.s,cw,ch:h};mx=Math.max(mx,p.x+cw*Math.max(1,p.s)+20);my=Math.max(my,p.y+h*Math.max(1,p.s)+lbl+20)});
+  placed=place.map(p=>cardsById.get(p.key));
   cardsById.forEach((b,id)=>{if(!live.has(b)){b.remove();cardsById.delete(id)}});
   boardW=Math.max(mx+pad*.5,noteBox.x1);boardH=Math.max(my+pad*.5,noteBox.y1);
   setCam(camX,camY,true);
+  if(Z&&Z.el){if(Z.el.isConnected)zoomTo(Z.el,true);else unzoom(true)}
 }
 function bounds(){const W=mesa.clientWidth,H=mesa.clientHeight;
   return {x0:boardW<W?(W-boardW)/2:W-boardW,x1:boardW<W?(W-boardW)/2:0,y0:boardH<H?0:H-boardH,y1:0}}
 function setCam(x,y,hard){const b=bounds();
   if(hard){x=Math.max(b.x0,Math.min(b.x1,x));y=Math.max(b.y0,Math.min(b.y1,y))}
-  camX=x;camY=y;board.style.transform=`translate3d(${x}px,${y}px,0)`;
+  camX=x;camY=y;if(!Z)boardT(x,y,0,1,0,0);
   mesa.style.backgroundPosition=`${28+x}px ${28+y}px`;wallRulers();}
 const rubber=(v,lo,hi)=>v<lo?lo+(v-lo)*.35:v>hi?hi+(v-hi)*.35:v;
 let rulerKey="";
@@ -653,6 +668,35 @@ function setWallStyle(s){wallStyle=s;store.set("recortes-style",s);document.quer
 document.querySelectorAll("[data-wall]").forEach(b=>b.onclick=()=>setWallStyle(b.dataset.wall));
 function addWork(w){WORKS.push(w);if(!$("#mesa").hidden)layout()}
 function render(){}
+// ---------- zoom straight into a collage on the table ----------
+let Z=null,placed=[];
+function boardT(X,Y,R,S,A,B){board.style.transform=`translate(${X}px,${Y}px) rotate(${R}deg) scale(${S}) translate(${A}px,${B}px)`}
+const zbar=document.createElement("div");zbar.className="zbar";zbar.hidden=true;
+zbar.innerHTML=`<button class="ib" data-z="-1" aria-label="Previous"><svg class="i"><use href="#i-left"/></svg></button><span class="zt" id="zt"></span><span class="zn" id="zn"></span><button class="ib" data-z="1" aria-label="Next"><svg class="i"><use href="#i-right"/></svg></button><button class="ib" data-z="x" aria-label="Back to the table"><svg class="i"><use href="#i-x"/></svg></button>`;
+mesa.appendChild(zbar);
+zbar.addEventListener("pointerdown",e=>e.stopPropagation());
+zbar.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(!b)return;b.dataset.z==="x"?unzoom():stepZoom(+b.dataset.z)});
+function zoomTo(el,instant){
+  const p=el._p;if(!p)return;cancelAnimationFrame(inertia);velX=velY=0;
+  const W=mesa.clientWidth,H=mesa.clientHeight,small=W<720,barH=small?96:84;
+  const s=Math.min((W-(small?32:140))/p.cw,(H-barH-(small?60:70))/p.ch,6);
+  if(!Z)Z={camX,camY};
+  if(Z.el)Z.el.classList.remove("zoomed");
+  Z.el=el;el.classList.add("zoomed");mesa.classList.add("zoomed");document.body.classList.add("zoomin");
+  board.classList.toggle("zooming",!instant&&!reduce);
+  boardT(W/2,(H-barH)/2+12,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
+  const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
+  zbar.hidden=false;
+}
+function unzoom(instant){
+  if(!Z)return;const z=Z;Z=null;
+  if(z.el)z.el.classList.remove("zoomed");mesa.classList.remove("zoomed");document.body.classList.remove("zoomin");zbar.hidden=true;
+  board.classList.toggle("zooming",!instant&&!reduce);
+  setCam(z.camX,z.camY,true);
+}
+function stepZoom(d){if(!Z||!placed.length)return;const i=placed.indexOf(Z.el);zoomTo(placed[(i+d+placed.length)%placed.length])}
+board.addEventListener("transitionend",e=>{if(e.target===board&&e.propertyName==="transform")board.classList.remove("zooming")});
+document.addEventListener("keydown",e=>{if(!Z||mode!=="mesa")return;if(e.key==="Escape")unzoom();if(e.key==="ArrowRight")stepZoom(1);if(e.key==="ArrowLeft")stepZoom(-1)});
 // drag, fling (with a soft edge), wheel, keys
 (()=>{let st=null,last=null,hits=[];
   function glide(){velX*=.94;velY*=.94;if(Math.hypot(velX,velY)<.15){inertia=0;return}
@@ -660,17 +704,18 @@ function render(){}
     setCam(nx,ny,true);inertia=requestAnimationFrame(glide)}
   mesa.addEventListener("pointerdown",e=>{if(e.button!==0)return;const mod=e.target.closest("[data-mod]");if(mod){e.stopPropagation();return}
     cancelAnimationFrame(inertia);velX=velY=0;glide.sx=glide.sy=0;st={x:e.clientX,y:e.clientY,cx:camX,cy:camY,id:e.pointerId,card:e.target.closest(".card"),moved:false};last={x:e.clientX,y:e.clientY,t:performance.now()};hits=[];mesa.setPointerCapture(e.pointerId)});
-  mesa.addEventListener("pointermove",e=>{if(!st||e.pointerId!==st.id)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
+  mesa.addEventListener("pointermove",e=>{if(!st||e.pointerId!==st.id||Z)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
     if(!st.moved&&Math.hypot(dx,dy)>5){st.moved=true;mesa.classList.add("panning")}
     if(st.moved){setCam(st.cx+dx,st.cy+dy,true);const t=performance.now();hits.push({vx:(e.clientX-last.x)/Math.max(1,t-last.t)*16,vy:(e.clientY-last.y)/Math.max(1,t-last.t)*16});if(hits.length>4)hits.shift();last={x:e.clientX,y:e.clientY,t}}});
   const end=e=>{if(!st||e.pointerId!==st.id)return;const s=st;st=null;mesa.classList.remove("panning");
-    if(!s.moved){if(s.card&&e.type==="pointerup")openLb(+s.card.dataset.i,s.card);return}
+    if(!s.moved){if(e.type==="pointerup"){if(Z){s.card&&s.card!==Z.el?zoomTo(s.card):unzoom()}else if(s.card)zoomTo(s.card)}return}
+    if(Z)return;
     if(hits.length&&performance.now()-last.t<80){velX=hits.reduce((a,h)=>a+h.vx,0)/hits.length;velY=hits.reduce((a,h)=>a+h.vy,0)/hits.length}
     if(reduce){setCam(camX,camY,true);return}inertia=requestAnimationFrame(glide)};
   mesa.addEventListener("pointerup",end);mesa.addEventListener("pointercancel",end);
-  mesa.addEventListener("wheel",e=>{e.preventDefault();cancelAnimationFrame(inertia);setCam(camX-e.deltaX,camY-e.deltaY,true)},{passive:false});
-  mesa.addEventListener("keydown",e=>{const m={ArrowLeft:[1,0],ArrowRight:[-1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[e.key];if(!m)return;e.preventDefault();setCam(camX+m[0]*240,camY+m[1]*200,true)});
-  mesa.addEventListener("click",e=>{const c=e.target.closest(".card");if(c&&e.detail===0&&!e.target.closest("[data-mod]"))openLb(+c.dataset.i,c)});
+  mesa.addEventListener("wheel",e=>{e.preventDefault();if(Z){if(Math.abs(e.deltaY)+Math.abs(e.deltaX)>12)unzoom();return}cancelAnimationFrame(inertia);setCam(camX-e.deltaX,camY-e.deltaY,true)},{passive:false});
+  mesa.addEventListener("keydown",e=>{if(Z)return;const m={ArrowLeft:[1,0],ArrowRight:[-1,0],ArrowUp:[0,1],ArrowDown:[0,-1]}[e.key];if(!m)return;e.preventDefault();setCam(camX+m[0]*240,camY+m[1]*200,true)});
+  mesa.addEventListener("click",e=>{const c=e.target.closest(".card");if(c&&e.detail===0&&!e.target.closest("[data-mod]"))zoomTo(c)});
 })();
 
 // ---------- close-up: fly-in, layered parallax, zoom ----------
@@ -819,6 +864,7 @@ addEventListener("message",e=>{
   if(e.data.type==="cutouts:show")setMode("mesa");
   if(e.data.type==="cutouts:signedout"){history.replaceState(null,"",location.pathname);setMode("mesa");const f=$("#addpane iframe");if(f)f.remove()}
 });
+$("#home").onclick=e=>{e.preventDefault();if(location.search)history.replaceState(null,"",location.pathname);unzoom();setMode("mesa")};
 $("#tab-mesa").onclick=()=>setMode("mesa");$("#tab-pega").onclick=()=>setMode("pega");$("#tab-add").onclick=()=>setMode("add");
 
 // ---------- effects: a stack of canvas passes ----------
@@ -1633,7 +1679,7 @@ async function boot(){
   load();
   setWallStyle(wallStyle);
   const goAdd=initAdd();
-  const m=store.get("recortes-mode");setMode(goAdd?"add":m==="pega"?"pega":"mesa");
+  setMode(goAdd?"add":"mesa");
   applyView();
 }
 addEventListener("resize",()=>{clearTimeout(window.__rz);window.__rz=setTimeout(()=>{
