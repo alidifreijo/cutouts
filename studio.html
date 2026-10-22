@@ -37,8 +37,8 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stro
 .logo{margin:0;font-family:var(--f-head);font-weight:400;font-size:19px;white-space:nowrap}
 .logo a{color:inherit;text-decoration:none}
 .logo span{color:var(--mat-ink)}
-h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;margin:0 0 8px;color:#fff}
-.muted{color:var(--mat-ink);font-size:15px;line-height:1.55;margin:0 0 14px}
+h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;margin:0 0 6px;color:#fff}
+.muted{color:var(--mat-ink);font-size:14.5px;line-height:1.55;margin:0}
 .btn{border:1px solid var(--mint);background:var(--mint);color:var(--mat-dark);border-radius:999px;padding:9px 24px;font-size:16px;font-weight:500;white-space:nowrap}
 .btn:hover{background:#fff;border-color:#fff}
 .btn:disabled{opacity:.45;cursor:default}
@@ -48,8 +48,8 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .link:hover{color:var(--mint)}
 .input{width:100%;background:var(--mat);border:1px solid var(--mat-line-strong);border-radius:10px;padding:9px 11px;color:var(--mint);outline:none;font-size:15px}
 .input:focus{border-color:var(--mint)}
-.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.field label{font-size:14px;color:var(--mat-ink);display:flex;justify-content:space-between}
+.field{display:flex;flex-direction:column;gap:6px;margin:0}
+.field label{font-size:13px;color:var(--mat-ink);display:flex;justify-content:space-between}
 .range{width:100%;accent-color:var(--mint)}
 
 /* ---------- 0 · pick ---------- */
@@ -73,14 +73,14 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 /* ---------- wizard layout ---------- */
 .wiz-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
 .area{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;padding:18px 24px 20px}
-.steps{display:flex;align-items:flex-start;justify-content:center;gap:0;margin:0 auto 16px;padding:0;list-style:none;width:min(560px,100%)}
-.steps li{display:flex;flex-direction:column;align-items:center;gap:6px;width:110px;flex:0 0 auto;position:relative;color:var(--mat-ink);font-size:14px;white-space:nowrap}
+.steps{display:flex;align-items:flex-start;justify-content:center;gap:36px;margin:0 auto 16px;padding:0;list-style:none;width:min(560px,100%)}
+.steps li{display:flex;flex-direction:column;align-items:center;gap:6px;width:auto;min-width:96px;flex:0 0 auto;position:relative;color:var(--mat-ink);font-size:14px;white-space:nowrap}
 .steps li .c{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--mat-line-strong);display:grid;place-items:center;background:var(--mat);font-size:14px;position:relative;z-index:1}
 .steps li.opt .c{border-style:dashed}
 .steps li .o{font-size:11.5px;color:var(--mat-ink);margin-top:-4px}
 .steps li.on{color:#fff}.steps li.on .c{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
 .steps li.dn{color:var(--mint);cursor:pointer}.steps li.dn .c{background:var(--mat-light);border-color:var(--mat-light)}
-.steps .ln{flex:1;height:1.5px;background:var(--mat-line-strong);margin-top:15px;min-width:16px}
+.steps .ln{display:none!important}
 .steps .ln.dn{background:var(--mint)}
 .frame{position:relative;flex:1;min-height:0;border:1.5px dashed var(--mat-line-strong);border-radius:14px;background:rgba(23,61,44,.32);overflow:hidden}
 .frame>.pane{position:absolute;inset:0}
@@ -93,7 +93,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .view{display:flex;overflow:auto;padding:32px;scrollbar-width:thin}
 .view>.stage{margin:auto;flex:0 0 auto;position:relative;touch-action:none;user-select:none}
 .view.space,.view.panning{cursor:grab}.view.panning{cursor:grabbing}
-.stage canvas{display:block;box-shadow:var(--shadow)}
+.stage canvas{display:block}
 .stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .stage.cut{cursor:var(--cutter)}
 .view.space .stage.cut{cursor:inherit}
@@ -107,7 +107,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .send .half{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;min-height:0;overflow:auto}
 .send .half+.half{border-left:1.5px dashed var(--mat-line-strong)}
 .send .lbl{color:var(--mat-ink);font-size:14px}
-.send .col{width:auto;height:min(62%,560px);max-width:100%;object-fit:contain;box-shadow:var(--shadow-up);transform:rotate(-1.5deg);background:var(--paper)}
+.send .col{width:auto;height:min(62%,560px);max-width:100%;object-fit:contain;transform:rotate(-1.5deg);background:var(--paper)}
 .send .pile{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-content:center;max-width:100%}
 .send .pile img{width:120px;height:120px;object-fit:contain;filter:drop-shadow(0 4px 5px rgba(0,0,0,.4))}
 .send.only{grid-template-columns:1fr}
@@ -119,23 +119,28 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .side{background:var(--panel);border-left:1px solid rgba(0,0,0,.18);display:flex;flex-direction:column;min-height:0}
 .embed .side{border-radius:16px 0 0 0;border-top:1px solid rgba(0,0,0,.18)}
 .side.blank{background:transparent;border-color:transparent}
-.side-scroll{flex:1;min-height:0;overflow-y:auto;padding:22px 20px 16px;scrollbar-width:thin}
-.side-foot{padding:14px 20px;border-top:1px solid var(--mat-line);display:flex;gap:8px;justify-content:space-between;align-items:center}
-.tools{display:flex;align-items:center;gap:4px;margin:4px 0 16px}
+.side-scroll{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:20px 16px 24px;scrollbar-width:thin}
+.side-pane{flex:1;min-height:0;display:flex;flex-direction:column}
+.side-pane[hidden]{display:none!important}
+.sec{border-top:1px solid var(--mat-line);padding:16px 0 4px;margin-top:16px;display:flex;flex-direction:column;gap:12px}
+.sec-t{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink);margin:0}
+.sec-t span{letter-spacing:0;text-transform:none;opacity:.7}
+.side-foot{flex:0 0 auto;padding:14px 16px;border-top:1px solid var(--mat-line);display:flex;gap:8px;justify-content:space-between;align-items:center}
+.tools{display:flex;align-items:center;gap:6px;margin:0}
 .tool{width:40px;height:40px;border-radius:50%;border:1px solid var(--mat-line-strong);background:transparent;color:#fff;display:grid;place-items:center;padding:0;position:relative}
 .tool[aria-pressed="true"]{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
 .tool:hover::after{content:attr(data-tip);position:absolute;top:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--mat-dark);color:var(--mint);font-size:12.5px;white-space:nowrap;padding:5px 9px;border-radius:8px;z-index:9;box-shadow:var(--shadow)}
 .findall{margin-left:auto;display:inline-flex;align-items:center;gap:6px;border:1px dashed var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:7px 12px;font-size:14px}
 .findall:hover{border-color:var(--mint)}
-.hint{font-size:14px;color:var(--mat-ink);line-height:1.5;margin:-6px 0 14px}
+.hint{font-size:14px;color:var(--mat-ink);line-height:1.5;margin:0}
 .scraps{display:flex;flex-direction:column;gap:10px}
-.scrap{display:grid;grid-template-columns:60px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px;border-radius:12px;background:rgba(0,0,0,.1)}
-.scrap .th{width:60px;height:60px;border-radius:8px;background:rgba(0,0,0,.15);display:grid;place-items:center;overflow:hidden}
+.scrap{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:12px;align-items:start;padding:10px;border-radius:12px;border:1px solid var(--mat-line);background:rgba(44,106,78,.35)}
+.scrap .th{width:64px;height:64px;border-radius:8px;background:rgba(0,0,0,.15);display:grid;place-items:center;overflow:hidden}
 .scrap .th img{max-width:100%;max-height:100%}
 .scrap .meta{display:flex;flex-direction:column;gap:6px;min-width:0}
 .scrap .input{padding:6px 9px;font-size:14.5px}
 .scrap select{appearance:none;width:100%;background:var(--mat) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23d4ecdc' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 9px center;border:1px solid var(--mat-line-strong);border-radius:10px;padding:6px 28px 6px 9px;font-size:14.5px;color:var(--mint);cursor:pointer}
-.scrap select.need{border-color:var(--warn);color:var(--warn)}
+.scrap select.bad{border-color:#e5584d;box-shadow:0 0 0 1px #e5584d}
 .scrap.shake{animation:shake .35s}
 @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 .x{border:0;background:none;color:var(--mat-ink);width:28px;height:28px;border-radius:50%;padding:0;font-size:14px}
@@ -176,7 +181,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
   .side{max-height:42dvh}.flat{display:none}
   .zoom{display:none!important}
   .area{padding:12px}
-  .steps li{width:74px;font-size:12.5px}.steps li .o{display:none}
+  .steps{gap:14px}.steps li{min-width:0;font-size:12.5px}.steps li .o{display:none}
   .pick{grid-template-columns:1fr}.inbox-side{width:auto}
   .big{grid-template-columns:1fr}
   .send{grid-template-columns:1fr}.send .half+.half{border-left:0;border-top:1.5px dashed var(--mat-line-strong)}
@@ -224,7 +229,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
   <main class="wiz-wrap" id="v-wiz" hidden>
     <div class="area">
       <ol class="steps" id="steps">
-        <li data-s="snap"><span class="c">1</span>Snap it</li><span class="ln"></span>
+        <li data-s="snap"><span class="c">1</span><span id="snap-label">Drop your mess</span></li><span class="ln"></span>
         <li data-s="square"><span class="c">2</span><span id="sq-label">Square it</span></li><span class="ln"></span>
         <li data-s="cut" class="opt"><span class="c">3</span><span id="cut-label">Cut it up</span><span class="o">optional</span></li><span class="ln"></span>
         <li data-s="send"><span class="c">4</span><span id="send-label">Send it</span></li>
@@ -251,31 +256,32 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
         <div class="side-scroll">
           <h2 id="sq-h">Square it</h2>
           <p class="muted" id="sq-p">Drag the dots to the paper's corners. It flattens itself.</p>
-          <div class="field" id="trim-f"><label for="trim">Lose the table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div>
-          <canvas id="flat-cv" class="flat"></canvas>
+          <div class="sec" id="trim-f"><div class="field"><label for="trim">Lose the table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div></div>
+          <div class="sec"><p class="sec-t">Preview</p><canvas id="flat-cv" class="flat"></canvas></div>
         </div>
         <div class="side-foot"><button class="ghost" data-back>Back</button><span style="display:flex;gap:8px"><button class="ghost" id="skip-sq" hidden>Skip</button><button class="btn" id="to-cut">Next</button></span></div>
       </section>
       <section class="side-pane" id="v-cut" hidden>
         <div class="side-scroll">
           <h2 id="cut-h">Cut it up</h2>
+          <div class="sec"><p class="sec-t">Cut with</p>
           <div class="tools" role="group" aria-label="Scissors">
             
             <button class="tool" data-tool="lasso" aria-pressed="true" aria-label="Scissors" data-tip="Scissors: freehand"><svg class="i"><use href="#i-scissors"/></svg></button>
             <button class="tool" data-tool="rect" aria-pressed="false" aria-label="Box" data-tip="Box: straight cuts"><svg class="i"><use href="#i-square"/></svg></button>
           </div>
-          <p class="hint" id="tool-hint">Cut freehand. The line gets smoothed, like real scissors.</p>
-          <div class="scraps" id="scraps"></div>
+          <p class="hint" id="tool-hint">Cut freehand. The line gets smoothed, like real scissors.</p></div>
+          <div class="sec"><p class="sec-t">Your bits <span id="bits-n"></span></p><div class="scraps" id="scraps"></div></div>
         </div>
         <div class="side-foot"><button class="ghost" data-back>Back</button><span style="display:flex;gap:8px;align-items:center"><button class="ghost" id="skip-cut" hidden>Skip</button><button class="btn" id="to-pub">Next</button></span></div>
       </section>
       <section class="side-pane" id="v-send" hidden>
         <div class="side-scroll">
           <h2 id="send-h">Send it</h2>
-          <div class="field" data-col><label for="title">Name it</label><input class="input" id="title" maxlength="60" placeholder="Untitled mess"></div>
+          <div class="sec" style="border-top:0;margin-top:10px;padding-top:6px"><div class="field" data-col><label for="title">Name it</label><input class="input" id="title" maxlength="60" placeholder="Untitled mess"></div>
           <div class="field" data-col><label for="desc">What's going on here? <span id="desc-n">0/280</span></label><textarea class="input" id="desc" rows="3" maxlength="280" placeholder="Optional. A story, a joke, a confession." style="resize:vertical;line-height:1.45"></textarea></div>
           <div class="field" data-visitor><label for="signed">Sign it</label><input class="input" id="signed" maxlength="40" placeholder="Name or @handle. Optional."></div>
-          <p class="muted" id="send-note"></p>
+          <p class="muted" id="send-note"></p></div>
         </div>
         <div class="side-foot"><button class="ghost" data-back>Back</button><button class="btn" id="publish">Send it</button></div>
       </section>
@@ -343,10 +349,11 @@ function setPath(p){
   $$("[data-col]").forEach(f=>f.hidden=p!=="collage");
   $("#send-h").textContent=p==="collage"?"Pin it to the table":"Add to the pile";
   const col=p==="collage";
-  $("#sq-label").textContent=col?"Frame it":"Square it";$("#sq-h").textContent=col?"Frame it":"Square it";
+  $("#snap-label").textContent=col?"Drop your mess":"Drop your page";
+  $("#sq-label").textContent="Give it shape";$("#sq-h").textContent="Give it shape";
   $("#sq-p").textContent=col?"Drag the dots to your collage's corners. That's the canvas.":"Drag the dots to the paper's corners. It flattens itself.";
   $("#trim-f").hidden=col;
-  $("#cut-label").textContent=col?"Scraps":"Cut it up";$("#cut-h").innerHTML=col?'Scraps? <span class="muted" style="font-family:var(--f);font-size:14px">optional</span>':"Cut it up";
+  $("#cut-label").textContent="Cut the bits";$("#cut-h").innerHTML=col?'Cut the bits <span class="muted" style="font-family:var(--f);font-size:14px">optional</span>':"Cut the bits";
   $("#skip-cut").hidden=!col;
   const sq=$("#steps li[data-s=square]");sq.hidden=!col;sq.nextElementSibling.hidden=!col;
 }
@@ -692,19 +699,19 @@ function addScrap(s){
   setTimeout(()=>{const i=$(`#scraps [data-id="${s.id}"] .input`);if(i)i.focus()},30);
 }
 function renderScraps(){
-  const el=$("#scraps");
+  const el=$("#scraps");$("#bits-n").textContent=scraps.length||"";
   if(!scraps.length){el.innerHTML=`<div class="empty">${PATH==="collage"?"Optional. Cut out bits for the pile,<br>or skip and send the collage.":"Draw around something.<br>Roughly is fine."}</div>`;return}
   el.innerHTML=scraps.map(s=>`<div class="scrap" data-id="${s.id}">
     <div class="th"><img src="${s.canvas.toDataURL()}" alt=""></div>
     <div class="meta">
       <input class="input" value="${s.name.replace(/"/g,"&quot;")}" maxlength="60" placeholder="Name it" aria-label="Scrap name">
-      <select aria-label="Pile" class="${s.cluster?"":"need"}"><option value="" ${s.cluster?"":"selected"} disabled>Pick a pile</option>${CLUSTERS.map(([k,l])=>`<option value="${k}" ${s.cluster===k?"selected":""}>${l}</option>`).join("")}</select>
+      <select aria-label="Pile" class="${s.bad&&!s.cluster?"bad":""}"><option value="" ${s.cluster?"":"selected"} disabled>Pick a pile</option>${CLUSTERS.map(([k,l])=>`<option value="${k}" ${s.cluster===k?"selected":""}>${l}</option>`).join("")}</select>
     </div>
     <button class="x" data-rm aria-label="Delete scrap">✕</button>
   </div>`).join("");
 }
 $("#scraps").addEventListener("input",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches(".input"))s.name=e.target.value});
-$("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches("select")){s.cluster=e.target.value;e.target.classList.toggle("need",!s.cluster)}});
+$("#scraps").addEventListener("change",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches("select")){s.cluster=e.target.value;s.bad=false;e.target.classList.remove("bad")}});
 $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
   if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}});
 // the cut-out model runs in the browser; loaded once, on first use
@@ -787,7 +794,7 @@ function splitPieces(full){
 $("#to-pub").onclick=()=>{
   if(PATH==="scraps"&&!scraps.length){toast("Nothing cut yet. Draw around something first.");return}
   const miss=scraps.filter(s=>!s.cluster);
-  if(miss.length){toast(miss.length===1?"One scrap needs a pile.":`${miss.length} scraps need a pile.`);miss.forEach(s=>{const r=$(`#scraps [data-id="${s.id}"]`);if(r){r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}});const r=$(`#scraps [data-id="${miss[0].id}"]`);if(r)r.scrollIntoView({block:"nearest",behavior:"smooth"});return}
+  if(miss.length){toast(miss.length===1?"One scrap needs a pile.":`${miss.length} scraps need a pile.`);miss.forEach(s=>{s.bad=true;const r=$(`#scraps [data-id="${s.id}"]`);if(r){r.querySelector("select").classList.add("bad");r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}});const r=$(`#scraps [data-id="${miss[0].id}"]`);if(r)r.scrollIntoView({block:"nearest",behavior:"smooth"});return}
   show("send")};
 function confirmNoScraps(){toast("No scraps. Just the collage, then.");return true}
 
