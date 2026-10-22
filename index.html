@@ -450,7 +450,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
     <div class="tools" id="tools-mesa">
       <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true">messy</button><button data-wall="strict" aria-pressed="false">strict</button></div>
     </div>
-    <button class="newbtn" id="tab-add" aria-selected="false" aria-controls="addpane" hidden><svg class="i"><use href="#i-plus"/></svg>new</button>
+    <button class="newbtn" id="tab-add" aria-selected="false" aria-controls="addpane"><svg class="i"><use href="#i-scissors"/></svg>studio</button>
     <div class="tools" id="tools-pega" hidden>
       <button class="ib" id="btn-undo" aria-label="Undo" data-tip="undo · ⌘Z" disabled><svg class="i"><use href="#i-undo"/></svg></button>
       <button class="ib" id="btn-redo" aria-label="Redo" data-tip="redo · ⇧⌘Z" disabled><svg class="i"><use href="#i-redo"/></svg></button>
@@ -803,7 +803,7 @@ function setMode(m){
 // owner-only "+ new" tab: the studio page in an iframe (same site, shares the login)
 const AUTH_KEY="sb-wybuusahvefqbxnnidky-auth-token",OWNER="adiazdefreijovalino@gmail.com";
 let addHash="";
-function ownerSignedIn(){try{const t=JSON.parse(localStorage.getItem(AUTH_KEY));return !!(t&&t.user&&t.user.email===OWNER)}catch(e){return false}}
+function ownerSignedIn(){try{const t=JSON.parse(localStorage.getItem(AUTH_KEY));const u=t&&(t.user||(t.currentSession&&t.currentSession.user));return !!(u&&String(u.email).toLowerCase()===OWNER)}catch(e){return false}}
 function openAdd(){
   const pane=$("#addpane");drawRulers(pane);
   if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed"+addHash;addHash="";pane.appendChild(f)}
@@ -811,14 +811,13 @@ function openAdd(){
 function initAdd(){
   const q=new URLSearchParams(location.search),h=location.hash;
   if(/access_token|error_description/.test(h)){addHash=h;history.replaceState(null,"",location.pathname+"?studio")}
-  if(ownerSignedIn()||q.has("studio")||addHash){$("#tab-add").hidden=false;return q.has("studio")||!!addHash}
-  return false;
+  return q.has("studio")||!!addHash;
 }
 addEventListener("message",e=>{
   if(e.origin!==location.origin||!e.data)return;
   if(e.data.type==="cutouts:published")loadRemote().then(()=>toast("Pinned to the table."));
   if(e.data.type==="cutouts:show")setMode("mesa");
-  if(e.data.type==="cutouts:signedout"){$("#tab-add").hidden=true;history.replaceState(null,"",location.pathname);setMode("mesa");const f=$("#addpane iframe");if(f)f.remove()}
+  if(e.data.type==="cutouts:signedout"){history.replaceState(null,"",location.pathname);setMode("mesa");const f=$("#addpane iframe");if(f)f.remove()}
 });
 $("#tab-mesa").onclick=()=>setMode("mesa");$("#tab-pega").onclick=()=>setMode("pega");$("#tab-add").onclick=()=>setMode("add");
 
@@ -1611,7 +1610,7 @@ board.addEventListener("click",async e=>{
   try{const sb=await ownerClient();
     if(m.dataset.mod==="ok"){const {error}=await sb.from("community").update({approved:true}).eq("id",w.row.id);if(error)throw error;w.pending=false;cardsById.forEach((el,k)=>{if(k===w.id){el.classList.remove("pending");const m=el.querySelector(".mod");if(m)m.remove()}});toast("On the table.")}
     else{const {error}=await sb.from("community").delete().eq("id",w.row.id);if(error)throw error;await sb.storage.from("community").remove([w.row.image_path]);w.gone=true;cardsById.forEach((el,k)=>{if(k===w.id){el.remove();cardsById.delete(k)}});layout();toast("Binned.")}
-  }catch(err){console.error(err);toast("Couldn't do that. Sign in again from + new.")}
+  }catch(err){console.error(err);toast("Couldn't do that. Sign in again from studio.")}
 });
 // collages and scraps added from the studio live in Supabase
 async function loadRemote(){
