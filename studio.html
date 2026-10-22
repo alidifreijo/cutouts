@@ -16,7 +16,7 @@
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
   --shadow-up:0 2px 2px rgba(0,0,0,.2),0 22px 36px -10px rgba(0,0,0,.55);
   --f:"DM Mono",ui-monospace,Menlo,monospace;--f-head:"Rock Salt",cursive;--cm:38px;
-  --side:368px;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
+  --side:368px;--rail:340px;--cutter:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2232%22%20height%3D%2232%22%20viewBox%3D%220%200%2032%2032%22%3E%3Cg%20transform%3D%22rotate%2845%2016%2016%29%22%3E%3Cpath%20d%3D%22M-4.5%2016.5%204%2012.5h5.5v5H4z%22%20fill%3D%22%23e4e7e9%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.1%22%20stroke-linejoin%3D%22round%22%2F%3E%3Cpath%20d%3D%22M5.3%2012.6%204.3%2017.4M7.6%2012.6%206.6%2017.4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.8%22%2F%3E%3Crect%20x%3D%229%22%20y%3D%2211%22%20width%3D%2226%22%20height%3D%2210%22%20rx%3D%222.6%22%20fill%3D%22%23f0cd4a%22%20stroke%3D%22%23151515%22%20stroke-width%3D%221.2%22%2F%3E%3Crect%20x%3D%2214%22%20y%3D%229.3%22%20width%3D%227%22%20height%3D%223.2%22%20rx%3D%221.2%22%20fill%3D%22%23151515%22%2F%3E%3Cpath%20d%3D%22M24%2014v4M27%2014v4M30%2014v4%22%20stroke%3D%22%23151515%22%20stroke-width%3D%22.9%22%20stroke-linecap%3D%22round%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") 1 2, crosshair;
   color-scheme:dark;
 }
 *{box-sizing:border-box}
@@ -71,25 +71,33 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .owner{margin-top:34px;font-size:14px;color:var(--mat-ink)}
 
 /* ---------- wizard layout ---------- */
-.wiz-wrap{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) var(--side)}
-.area{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;padding:18px 24px 20px}
-.steps{display:flex;align-items:flex-start;justify-content:center;gap:36px;margin:0 auto 16px;padding:0;list-style:none;width:min(560px,100%)}
-.steps li{display:flex;flex-direction:column;align-items:center;gap:6px;width:auto;min-width:96px;flex:0 0 auto;position:relative;color:var(--mat-ink);font-size:14px;white-space:nowrap}
-.steps li .c{width:30px;height:30px;border-radius:50%;border:1.5px solid var(--mat-line-strong);display:grid;place-items:center;background:var(--mat);font-size:14px;position:relative;z-index:1}
-.steps li.opt .c{border-style:dashed}
-.steps li .o{font-size:11.5px;color:var(--mat-ink);margin-top:-4px}
-.steps li.on{color:#fff}.steps li.on .c{background:var(--mint);border-color:var(--mint);color:var(--mat-dark)}
-.steps li.dn{color:var(--mint);cursor:pointer}.steps li.dn .c{background:var(--mat-light);border-color:var(--mat-light)}
-.steps .ln{display:none!important}
-.steps .ln.dn{background:var(--mint)}
+.wiz-wrap{flex:1;min-height:0;display:grid;grid-template-columns:var(--rail) minmax(0,1fr) 0;transition:grid-template-columns .5s cubic-bezier(.65,0,.25,1)}
+.wiz-wrap.with-side{grid-template-columns:var(--rail) minmax(0,1fr) var(--side)}
+.wiz-wrap .side{overflow:hidden;min-width:0}
+.rail{position:relative;padding:64px 20px 24px 64px;min-height:0}
+.rail .dots{position:absolute;left:30px;top:76px;display:flex;flex-direction:column;gap:8px}
+.rail .dots i{width:6px;height:6px;border-radius:3px;background:var(--mat-line-strong);transition:height .45s cubic-bezier(.65,0,.25,1),background .3s}
+.rail .dots i.dn{background:var(--mat-ink)}
+.rail .dots i.on{height:22px;background:var(--mint)}
+.rail .track{position:relative}
+.wstep{position:absolute;left:0;right:0;top:0;display:flex;flex-direction:column;gap:12px;transition:opacity .45s,transform .6s cubic-bezier(.65,0,.25,1)}
+.wstep.past{opacity:0;transform:translateY(-48px);pointer-events:none}
+.wstep.next{opacity:0;transform:translateY(48px);pointer-events:none}
+.wstep.on{opacity:1;transform:none;transition-delay:.12s}
+.wstep .back{align-self:flex-start;width:34px;height:34px;margin:0 0 2px -8px;border:0;border-radius:50%;background:transparent;color:var(--mint);display:grid;place-items:center;padding:0}
+.wstep .back:hover{background:rgba(214,238,222,.1)}
+.wstep h2{font-size:clamp(26px,2.4vw,34px);line-height:1.25;margin:0;text-shadow:2px 2px 0 rgba(0,0,0,.18)}
+.wstep .desc{color:var(--mat-ink);font-size:15px;line-height:1.6;margin:0;max-width:30ch}
+.wstep .opt{margin:-4px 0 0;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink)}
+.wstep .acts{display:flex;gap:8px;margin-top:10px}
+.wstep .acts>*{opacity:0;transform:translateY(6px);transition:opacity .35s .45s,transform .35s .45s}
+.wstep.on .acts>*{opacity:1;transform:none}
+.pane.in-up{animation:inUp .6s cubic-bezier(.2,.8,.2,1) both}
+.pane.in-down{animation:inDown .6s cubic-bezier(.2,.8,.2,1) both}
+@keyframes inUp{from{opacity:0;transform:translateY(44px) scale(.98)}}
+@keyframes inDown{from{opacity:0;transform:translateY(-44px) scale(.98)}}
+.area{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;padding:24px 24px 24px 0}
 .frame{position:relative;flex:1;min-height:0;border-radius:14px;overflow:hidden;width:100%;margin:0 auto}
-.frame.dropping{border:1.5px dashed var(--mat-line-strong)}
-.wiz-wrap.solo{grid-template-columns:1fr}
-.wiz-wrap.solo .side{display:none}
-.wiz-wrap.solo .frame{max-width:calc(100% - var(--side))}
-.wiz-wrap.enter .area>*{animation:rise .5s cubic-bezier(.2,.8,.2,1) both}
-.wiz-wrap.enter .frame{animation-delay:.08s}
-@keyframes rise{from{opacity:0;transform:translateY(14px)}}
 .frame>.pane{position:absolute;inset:0}
 .drop{display:grid;place-items:center;text-align:center;cursor:pointer}
 .drop>div{width:min(340px,90%);padding:30px 24px;border:1.5px dashed var(--mat-line-strong);border-radius:16px;transition:background .15s,border-color .15s}
@@ -112,12 +120,22 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .zoom button{width:34px;height:34px;border:0;background:transparent;border-radius:50%;color:#fff;display:grid;place-items:center;padding:0}
 .zoom button:hover{background:var(--mat-light)}
 .zoom .zv{width:auto;min-width:58px;border-radius:999px;font-size:13px;color:var(--mint)}
-.send{display:grid;place-items:center;padding:36px 28px}
+.send{display:grid;place-items:center;padding:36px 28px;overflow:auto}
 .send .table{display:flex;align-items:center;justify-content:center;gap:56px;max-width:100%;max-height:100%;flex-wrap:wrap}
 .pinned{position:relative;margin:0;transform:rotate(-1.5deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
-.pinned img{display:block;max-height:min(58vh,560px);max-width:min(46vw,560px)}
+.pinned img{display:block;max-height:min(52vh,520px);max-width:min(40vw,520px)}
 .tape{position:absolute;top:-11px;left:50%;width:30%;height:22px;background:rgba(244,232,196,.78);transform:translateX(-50%) rotate(2deg);z-index:1;
   clip-path:polygon(0 8%,6% 0,12% 10%,18% 0,24% 8%,30% 0,70% 0,76% 9%,82% 0,88% 8%,94% 0,100% 10%,100% 92%,94% 100%,88% 90%,82% 100%,76% 92%,70% 100%,30% 100%,24% 91%,18% 100%,12% 92%,6% 100%,0 90%)}
+.pinwrap{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
+.label-in{display:flex;flex-direction:column;gap:6px;width:100%;max-width:min(46vw,560px)}
+.label-in input,.label-in textarea,.sign2{background:transparent;border:0;border-bottom:1px dashed var(--mat-line-strong);color:var(--mint);outline:none;padding:4px 2px;resize:none;width:100%}
+.label-in input:focus,.label-in textarea:focus,.sign2:focus{border-bottom-color:var(--mint)}
+#title{font-family:var(--f-head);font-size:20px;color:#fff;line-height:1.5}
+#title::placeholder{color:var(--mat-ink)}
+#desc{font-size:14.5px;line-height:1.55;overflow:hidden}
+#signed,.sign2{font-size:14px}
+.sent .label-in :placeholder-shown,.sent .sign2:placeholder-shown{display:none}
+.sent .label-in input,.sent .label-in textarea,.sent .sign2{border-bottom-color:transparent;pointer-events:none}
 .pinned figcaption{position:absolute;left:2px;top:calc(100% + 8px);font-family:var(--f-head);font-size:15px;line-height:1.6;color:var(--mat-ink);white-space:nowrap;max-width:110%;overflow:hidden;text-overflow:ellipsis}
 .bits{display:flex;flex-direction:column;align-items:center;gap:14px;max-width:min(36vw,380px)}
 .bits .pile{display:flex;flex-wrap:wrap;gap:22px 26px;justify-content:center;align-items:flex-end}
@@ -203,13 +221,14 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 
 @media (max-width:820px){
   .embed .app{padding:0}
-  .wiz-wrap{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto}
+  .wiz-wrap,.wiz-wrap.with-side{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto}
+  .rail{padding:16px 16px 8px 40px;min-height:150px}.rail .dots{left:16px;top:24px}.wstep h2{font-size:24px}.area{padding:8px 12px}
+  .wiz-wrap:not(.with-side) .side{display:none}
   .side{border-left:0;border-top:1px solid var(--mat-line-strong);max-height:46dvh}
   .side.blank{display:none}
   .side{max-height:42dvh}.flat{display:none}
   .zoom{display:none!important}
   .area{padding:12px}
-  .steps{gap:14px}.steps li{min-width:0;font-size:12.5px}.steps li .o{display:none}
   .pick{grid-template-columns:1fr}.inbox-side{width:auto}
   .big{grid-template-columns:1fr}
   .send{grid-template-columns:1fr}.send .half+.half{border-left:0;border-top:1.5px dashed var(--mat-line-strong)}
@@ -225,6 +244,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
   <symbol id="i-photo" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.8"/><path d="M21 16l-5-5-8 8"/></symbol>
   <symbol id="i-zin" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M11 8v6M16 16l4 4"/></symbol>
   <symbol id="i-zout" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M8 11h6M16 16l4 4"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M19 12H5"/><path d="M11 18l-6-6 6-6"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
 </svg>
 <div class="app">
@@ -255,65 +275,79 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 
   <!-- 1-4 · the wizard -->
   <main class="wiz-wrap" id="v-wiz" hidden>
+    <aside class="rail" id="rail">
+      <div class="dots" id="dots"></div>
+      <div class="track">
+        <section class="wstep" data-s="snap">
+          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <h2 id="snap-h">Drop your mess</h2>
+          <p class="desc">Flat, from above, daylight. Phone pics are fine.</p>
+        </section>
+        <section class="wstep" data-s="square">
+          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <h2>Give it shape</h2>
+          <p class="desc">Drag a corner to resize. Hold one still for a second to move it on its own.</p>
+          <div class="acts"><button class="btn" id="to-cut">Next</button></div>
+        </section>
+        <section class="wstep" data-s="cut">
+          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <h2>Cut the bits</h2>
+          <p class="desc">Scissors or box. Each bit picks a pile.</p>
+          <p class="opt" id="cut-opt">optional</p>
+          <div class="acts"><button class="ghost" id="skip-cut">Skip</button><button class="btn" id="to-pub">Next</button></div>
+        </section>
+        <section class="wstep" data-s="send">
+          <button class="back" data-back aria-label="Back"><svg class="i"><use href="#i-left"/></svg></button>
+          <h2 id="send-h">Pin it</h2>
+          <p class="desc" id="send-note">Name it and tell its story, right under the collage.</p>
+          <div class="acts"><button class="btn" id="publish">Pin it</button></div>
+        </section>
+        <section class="wstep" data-s="done">
+          <h2 id="done-h">Sent.</h2>
+          <p class="desc" id="done-p">It shows up once it's had a look. Usually soon-ish.</p>
+          <div class="acts"><button class="ghost" id="again">Cut another</button><button class="btn" id="go-mess">Make a mess</button></div>
+        </section>
+      </div>
+    </aside>
     <div class="area">
-      <ol class="steps" id="steps">
-        <li data-s="snap"><span class="c">1</span><span id="snap-label">Drop your mess</span></li><span class="ln"></span>
-        <li data-s="square"><span class="c">2</span><span id="sq-label">Square it</span></li><span class="ln"></span>
-        <li data-s="cut" class="opt"><span class="c">3</span><span id="cut-label">Cut it up</span><span class="o">optional</span></li><span class="ln"></span>
-        <li data-s="send"><span class="c">4</span><span id="send-label">Send it</span></li>
-      </ol>
       <div class="frame" id="frame">
         <label class="pane drop" id="drop">
-          <div><svg class="i ic"><use href="#i-photo"/></svg><b id="drop-t">Drop your mess</b><p>Flat, from above, daylight.<br>The whole page in. Phone pics are fine.</p><span class="btn">Pick a photo</span></div>
+          <div><svg class="i ic"><use href="#i-photo"/></svg><b id="drop-t">Drop your mess</b><p>or click to pick a photo</p></div>
           <input type="file" id="file" accept="image/*,.heic,.heif">
         </label>
         <div class="pane view" id="w-sheet" hidden><div class="stage" id="sheet-stage"><canvas id="src-cv"></canvas><svg id="quad-svg"><polygon id="quad" fill="rgba(212,236,220,.12)" stroke="#d4ecdc" stroke-width="1.5" stroke-dasharray="6 4"/></svg></div></div>
         <div class="pane view" id="w-cut" hidden><div class="stage cut" id="cut-stage"><canvas id="cut-cv"></canvas><svg id="cut-svg"></svg></div></div>
         <div class="pane send" id="w-send" hidden>
           <div class="table">
-            <figure class="pinned" id="send-col"><span class="tape"></span><img id="pub-preview" alt="Your collage"><figcaption id="pub-title"></figcaption></figure>
-            <div class="bits" id="send-pile"><div class="pile" id="pub-list"></div><span class="lbl" id="pile-n"></span></div>
+            <div class="pinwrap" id="send-col">
+              <figure class="pinned"><span class="tape"></span><img id="pub-preview" alt="Your collage"></figure>
+              <div class="label-in">
+                <input id="title" maxlength="60" placeholder="Name it" aria-label="Name it" autocomplete="off">
+                <textarea id="desc" rows="2" maxlength="280" placeholder="What's going on here? Optional." aria-label="Description"></textarea>
+                <input id="signed" data-visitor maxlength="40" placeholder="Sign it · name or @handle" aria-label="Sign it" autocomplete="off">
+                <span id="desc-n" hidden></span>
+              </div>
+            </div>
+            <div class="bits" id="send-pile"><div class="pile" id="pub-list"></div><span class="lbl" id="pile-n"></span>
+              <input id="signed2" data-visitor class="sign2" maxlength="40" placeholder="Sign it · name or @handle" aria-label="Sign it" autocomplete="off"></div>
           </div>
         </div>
-        <div class="pane done" id="w-done" hidden><div><h1 id="done-h">Sent.</h1><p id="done-p">It shows up once it's had a look. Usually soon-ish.</p><div style="display:flex;gap:10px;justify-content:center"><button class="ghost" id="again">Cut another</button><button class="btn" id="go-mess">Make a mess</button></div></div></div>
         <div class="busy" id="busy" hidden>Finding scraps…</div>
         <div class="zoom" id="zoom" hidden><button data-z="out" aria-label="Zoom out"><svg class="i"><use href="#i-zout"/></svg></button><button class="zv" data-z="reset" aria-label="Fit">100%</button><button data-z="in" aria-label="Zoom in"><svg class="i"><use href="#i-zin"/></svg></button></div>
       </div>
+      <div hidden><input type="range" id="trim" min="0" max="60" value="0"><span id="trim-v"></span><canvas id="flat-cv"></canvas><button id="skip-sq"></button></div>
     </div>
-
     <aside class="side" id="side">
-      <section class="side-pane" id="v-sheet" hidden>
+      <section class="side-pane" id="v-cut">
         <div class="side-scroll">
-          <h2 id="sq-h">Square it</h2>
-          <p class="muted" id="sq-p">Drag the dots to the paper's corners. It flattens itself.</p>
-          <div class="sec" id="trim-f"><div class="field"><label for="trim">Lose the table <span id="trim-v"></span></label><input class="range" type="range" id="trim" min="0" max="60" value="0"></div></div>
-          <div class="sec"><p class="sec-t">Preview</p><canvas id="flat-cv" class="flat"></canvas></div>
-        </div>
-        <div class="side-foot"><button class="ghost" data-back>Back</button><span style="display:flex;gap:8px"><button class="ghost" id="skip-sq" hidden>Skip</button><button class="btn" id="to-cut">Next</button></span></div>
-      </section>
-      <section class="side-pane" id="v-cut" hidden>
-        <div class="side-scroll">
-          <h2 id="cut-h">Cut it up</h2>
-          <div class="sec"><p class="sec-t">Cut with</p>
+          <div class="sec" style="border-top:0;margin-top:0;padding-top:0"><p class="sec-t">Cut with</p>
           <div class="tools" role="group" aria-label="Scissors">
-            
             <button class="tool" data-tool="lasso" aria-pressed="true" aria-label="Scissors" data-tip="Scissors: freehand"><svg class="i"><use href="#i-scissors"/></svg></button>
             <button class="tool" data-tool="rect" aria-pressed="false" aria-label="Box" data-tip="Box: straight cuts"><svg class="i"><use href="#i-square"/></svg></button>
           </div>
           <p class="hint" id="tool-hint">Cut freehand. The line gets smoothed, like real scissors.</p></div>
           <div class="sec"><p class="sec-t">Your bits <span id="bits-n"></span></p><div class="scraps" id="scraps"></div></div>
         </div>
-        <div class="side-foot"><button class="ghost" data-back>Back</button><span style="display:flex;gap:8px;align-items:center"><button class="ghost" id="skip-cut" hidden>Skip</button><button class="btn" id="to-pub">Next</button></span></div>
-      </section>
-      <section class="side-pane" id="v-send" hidden>
-        <div class="side-scroll">
-          <h2 id="send-h">Send it</h2>
-          <div class="sec" style="border-top:0;margin-top:10px;padding-top:6px"><div class="field" data-col><label for="title">Name it</label><input class="input" id="title" maxlength="60" placeholder="Untitled mess"></div>
-          <div class="field" data-col><label for="desc">What's going on here? <span id="desc-n">0/280</span></label><textarea class="input" id="desc" rows="3" maxlength="280" placeholder="Optional. A story, a joke, a confession." style="resize:vertical;line-height:1.45"></textarea></div>
-          <div class="field" data-visitor><label for="signed">Sign it</label><input class="input" id="signed" maxlength="40" placeholder="Name or @handle. Optional."></div>
-          <p class="muted" id="send-note"></p></div>
-        </div>
-        <div class="side-foot"><button class="ghost" data-back>Back</button><button class="btn" id="publish">Send it</button></div>
       </section>
     </aside>
   </main>
@@ -350,43 +384,36 @@ const tell=type=>{if(EMBED)parent.postMessage({type},location.origin)};
 let OWNER=false,PATH="collage";
 
 // ---------- views ----------
-const STEPS=["snap","square","cut","send"];
 let step="pick";
+const order=()=>PATH==="collage"?["snap","square","cut","send"]:["snap","cut","send"];
 function show(v){
-  if(v==="square"&&PATH==="scraps"){if(step==="cut")v="snap";else{quad=[[0,0],[srcImg.width,0],[srcImg.width,srcImg.height],[0,srcImg.height]];$("#trim").value=0;flatten();VZ["w-cut"]=1;v="cut"}}
-  step=v;
+  if(v==="square"&&PATH==="scraps"){quad=[[0,0],[srcImg.width,0],[srcImg.width,srcImg.height],[0,srcImg.height]];$("#trim").value=0;flatten();VZ["w-cut"]=1;v="cut"}
+  const prev=step;step=v;
   $("#v-pick").hidden=v!=="pick";$("#v-wiz").hidden=v==="pick";
   if(v==="pick"){revealPapers();return}
-  const i=STEPS.indexOf(v);
-  let num=0;$$("#steps li").forEach((li,j)=>{if(li.hidden)return;num++;li.classList.toggle("on",j===i);li.classList.toggle("dn",v==="done"||j<i);li.querySelector(".c").innerHTML=(v==="done"||j<i)?'<svg class="i" style="width:15px;height:15px"><use href="#i-check"/></svg>':String(num)});
-  $$("#steps .ln").forEach((l,j)=>l.classList.toggle("dn",v==="done"||j<i));
-  $("#drop").hidden=v!=="snap";$("#w-sheet").hidden=v!=="square";$("#w-cut").hidden=v!=="cut";$("#w-send").hidden=v!=="send";$("#w-done").hidden=v!=="done";
+  const O=order(),i=v==="done"?O.length:O.indexOf(v),pi=prev==="done"?O.length:O.indexOf(prev),dir=i>=pi?1:-1;
+  // the rail: only the current step shows; it rolls up on Next, down on Back
+  $$(".wstep").forEach(w=>{const k=w.dataset.s==="done"?O.length:O.indexOf(w.dataset.s),on=w.dataset.s===v;
+    w.classList.toggle("on",on);w.classList.toggle("past",!on&&(k<i||k<0&&dir>0));w.classList.toggle("next",!on&&!(k<i||k<0&&dir>0));
+    w.hidden=k<0;});
+  $("#dots").innerHTML=O.map((_,k)=>`<i class="${k===i?"on":k<i?"dn":""}"></i>`).join("");
+  $(".wstep[data-s=snap] .back").hidden=false;
+  const panes={snap:"#drop",square:"#w-sheet",cut:"#w-cut",send:"#w-send",done:"#w-send"};
+  ["#drop","#w-sheet","#w-cut","#w-send"].forEach(id=>{const el=$(id),on=panes[v]===id;if(on&&el.hidden){el.hidden=false;el.classList.remove("in-up","in-down");void el.offsetWidth;el.classList.add(dir>0?"in-up":"in-down")}else if(!on)el.hidden=true});
   $("#zoom").hidden=!(v==="square"||v==="cut");
-  $("#v-wiz").classList.toggle("solo",v==="snap"||v==="done");
-  $("#v-sheet").hidden=v!=="square";$("#v-cut").hidden=v!=="cut";$("#v-send").hidden=v!=="send";
+  $("#v-wiz").classList.toggle("with-side",v==="cut");
+  $("#w-send").classList.toggle("sent",v==="done");
   if(v==="square")requestAnimationFrame(layoutSheet);
   if(v==="cut")requestAnimationFrame(drawCut);
-  if(v==="send")renderPublish();
+  if(v==="send"&&prev!=="done")renderPublish();
 }
-$$("#steps li").forEach((li,j)=>li.onclick=()=>{if(li.classList.contains("dn")&&step!=="done")show(STEPS[j])});
-$$("[data-back]").forEach(b=>b.onclick=()=>{const i=STEPS.indexOf(step);show(i>0?STEPS[i-1]:"snap")});
+$$("[data-back]").forEach(b=>b.onclick=()=>{const O=order(),i=O.indexOf(step);show(i>0?O[i-1]:"pick")});
 function setPath(p){
-  PATH=p;
-  $("#send-label").textContent=p==="collage"?"Pin it":"Pile it";
-  $("#skip-sq").hidden=p!=="scraps";
-  $("#steps li[data-s=cut]").classList.toggle("opt",p==="collage");
-  $("#steps li[data-s=cut] .o").hidden=p!=="collage";
-  $$("[data-col]").forEach(f=>f.hidden=p!=="collage");
-  $("#send-h").textContent=p==="collage"?"Pin it to the table":"Add to the pile";
-  const col=p==="collage";
-  $("#snap-label").textContent=col?"Drop your mess":"Drop your page";
+  PATH=p;const col=p==="collage";
+  $("#snap-h").textContent=col?"Drop your mess":"Drop your page";
   $("#drop-t").textContent=col?"Drop your mess":"Drop your page";
-  $("#sq-label").textContent="Give it shape";$("#sq-h").textContent="Give it shape";
-  $("#sq-p").textContent="Drag a corner to resize. Hold one still for a second to move it on its own.";
-  $("#trim-f").hidden=col;
-  $("#cut-label").textContent="Cut the bits";$("#cut-h").innerHTML=col?'Cut the bits <span class="muted" style="font-family:var(--f);font-size:14px">optional</span>':"Cut the bits";
-  $("#skip-cut").hidden=!col;
-  const sq=$("#steps li[data-s=square]");sq.hidden=!col;sq.nextElementSibling.hidden=!col;
+  $("#cut-opt").hidden=!col;$("#skip-cut").hidden=!col;
+  $("#send-h").textContent=col?"Pin it":"Pile it";
 }
 // ---------- paper cards: unfold on arrival, crumple when picked ----------
 const REDUCE=matchMedia("(prefers-reduced-motion:reduce)").matches;
@@ -441,17 +468,17 @@ PAPERS.forEach(o=>{
     };
   };
 });
-function resetWork(){srcImg=null;scraps=[];trimmed=null;quad=null;$("#title").value="";$("#desc").value="";$("#desc-n").textContent="0/280"}
+function resetWork(){srcImg=null;scraps=[];trimmed=null;quad=null;$("#title").value="";$("#desc").value=""}
 $("#again").onclick=()=>{resetWork();show("pick")};
 $("#go-mess").onclick=()=>{if(EMBED)parent.postMessage({type:"cutouts:mess"},location.origin);else location.href="./"};
 $("#skip-cut").onclick=()=>{scraps=[];show("send")};
 $("#skip-sq").onclick=()=>{quad=[[0,0],[srcImg.width,0],[srcImg.width,srcImg.height],[0,srcImg.height]];$("#trim").value=0;flatten();VZ["w-cut"]=1;show("cut")};
-$("#desc").oninput=e=>$("#desc-n").textContent=e.target.value.length+"/280";
-$("#title").addEventListener("input",e=>$("#pub-title").textContent=e.target.value.trim());
+$("#desc").addEventListener("input",e=>{e.target.style.height="auto";e.target.style.height=e.target.scrollHeight+"px"});
+$("#signed").addEventListener("input",e=>$("#signed2").value=e.target.value);$("#signed2").addEventListener("input",e=>$("#signed").value=e.target.value);
 
 // ---------- owner ----------
 async function initAuth(){
-  $("#signed").value=localStorage.getItem("recortes-signed")||"";
+  $("#signed").value=$("#signed2").value=localStorage.getItem("recortes-signed")||"";
   if(DEMO){$("#owner-line").hidden=true;return}
   if(!sb)return;
   const {data:{session}}=await sb.auth.getSession();applySession(session);
@@ -622,7 +649,7 @@ function bindCorner(h){
   });
   h.addEventListener("keydown",e=>{const i=+h.dataset.i,d=e.shiftKey?10:2;const m={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[e.key];if(!m)return;e.preventDefault();quad[i]=[quad[i][0]+m[0],quad[i][1]+m[1]];placeCorners();clearTimeout(h._t);h._t=setTimeout(flatten,200)});
 }
-addEventListener("resize",()=>{if(!$("#v-sheet").hidden){sizeView("w-sheet");placeCorners()}if(!$("#v-cut").hidden)drawCut()});
+addEventListener("resize",()=>{if(step==="square"){sizeView("w-sheet");placeCorners()}if(step==="cut")drawCut()});
 // homography: maps unit square (u,v) -> quad
 function homography(q){
   const [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=q;
@@ -860,14 +887,12 @@ function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===
 function renderPublish(){
   const col=PATH==="collage";
   $("#w-send").classList.toggle("only",!col||!scraps.length);
-  $("#send-col").hidden=!col;$("#send-pile").hidden=!scraps.length;
+  $("#send-col").hidden=!col;$("#send-pile").hidden=!scraps.length;$("#signed2").hidden=col||OWNER;
   if(col)$("#pub-preview").src=trimmed.toDataURL("image/webp",.85);
-  $("#pub-title").textContent=$("#title").value.trim();
   $("#pub-list").innerHTML=scraps.map(s=>`<figure style="transform:rotate(${(s.id*37%9)-4}deg)"><img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}">${s.name?`<figcaption>${esc(s.name)}</figcaption>`:""}</figure>`).join("");
   $("#pile-n").textContent=`${scraps.length} to the pile`;
-  $("#send-note").textContent=OWNER?(col?"Goes straight on the table.":"Goes straight into the pile."):
-    (col?"It shows up once it's had a look.":`${scraps.length} scrap${scraps.length>1?"s":""} ready. Sign them so you get the credit.`);
-  $("#publish").textContent=OWNER?(col?"Pin it":"Pile it"):"Send it";
+  $("#send-note").textContent=col?"Name it and tell its story, right under the collage.":(OWNER?"Straight into the pile.":"Sign them so you get the credit.");
+  $("#publish").textContent=col?"Pin it":"Pile it";
   if(col)setTimeout(()=>$("#title").focus(),30);
 }
 const slug=t=>(t||"collage").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,32)||"collage";
