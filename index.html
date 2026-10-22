@@ -610,17 +610,17 @@ function layout(){
   const noteW=small?Math.min(W-pad-16,320):270;note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad}px)`;
   const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad-gap,x1:pad+noteW+gap,y1:pad+nh+gap};
   const live=new Set(),place=[];
-  if(!messy){
-    const cols=Math.max(2,Math.round(Math.sqrt(N*(small?.45:1.3)))),heights=new Array(cols).fill(pad);
-    for(let c=0;c<cols;c++)if(pad+c*(cw+gap)<noteBox.x1)heights[c]=noteBox.y1;
-    ALL.forEach(({w,i})=>{const h=cw*w.h/w.w,c=heights.indexOf(Math.min(...heights));place.push({w,i,x:pad+c*(cw+gap),y:heights[c],r:0,s:1,z:1});heights[c]+=h+lbl+gap});
-  }else{
-    const cell=cw*1.08,cols=Math.max(2,Math.round(Math.sqrt(N*(small?.5:1.6)))),cells=[];
-    for(let r=0;cells.length<N;r++)for(let c=0;c<cols;c++){const x=pad+c*cell,y=pad+r*cell*1.1;if(x<noteBox.x1&&y<noteBox.y1)continue;cells.push([x,y])}
-    const order=ALL.map(o=>o.i).sort((a,b)=>hs(WORKS[a].id,1)-hs(WORKS[b].id,1));
-    order.forEach((i,k)=>{const w=WORKS[i],[x,y]=cells[k],id=w.id;
-      place.push({w,i,x:x+(hs(id,2)-.5)*cell*.6,y:y+(hs(id,3)-.5)*cell*.55,r:(hs(id,4)-.5)*32,s:.82+hs(id,5)*.38,z:1+Math.floor(hs(id,6)*50)})});
-  }
+  // same columns and sizes as the endless wall, but every collage appears once
+  const cols=Math.max(small?2:3,Math.round(Math.sqrt(N*(small?.45:1.5)))),colW=cw+gap;
+  const tops=[...Array(cols)].map((_,c)=>pad+(messy||!small?hs("col"+c,11)*cw*.45:0));
+  for(let c=0;c<cols;c++)if(pad+c*colW<noteBox.x1)tops[c]=Math.max(tops[c],noteBox.y1);
+  const order=ALL.slice().sort((a,b)=>hs(a.w.id,1)-hs(b.w.id,1));
+  order.forEach(({w,i})=>{
+    const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops)),id=w.id;
+    const p={w,i,x:pad+c*colW,y:tops[c],r:0,s:1,z:1};
+    if(messy){p.x+=(hs(id,2)-.5)*cw*.14;p.y+=(hs(id,3)-.5)*cw*.1;p.r=(hs(id,4)-.5)*9;p.z=1+Math.floor(hs(id,6)*50)}
+    place.push(p);tops[c]+=h+lbl+(messy?gap*.35:gap);
+  });
   let mx=0,my=0;
   place.forEach(p=>{const b=cardFor(p.w,p.i);live.add(b);b.style.width=cw+"px";b.style.zIndex=p.z;b.dataset.r=p.r;
     b.style.transform=`translate(${p.x}px,${p.y}px) rotate(${p.r}deg) scale(${p.s})`;
