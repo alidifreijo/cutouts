@@ -1507,28 +1507,22 @@ $("#btn-clear").onclick=()=>{if(!pieces.length)return;pieces.forEach(p=>p.el.rem
 const hist=[],fut=[];let lastSnap=null,restoring=false;
 const snap=()=>JSON.stringify({bg,pieces:pieces.map(({el,canvas,tok,nw,nh,fw,fh,...d})=>d)});
 function save(){
-  const s=snap();store.set("recortes-hoja-v2",JSON.parse(s));
+  const s=snap();store.set("recortes-hoja-v3",JSON.parse(s));
   if(!restoring&&s!==lastSnap){if(lastSnap!==null){hist.push(lastSnap);if(hist.length>80)hist.shift()}fut.length=0;lastSnap=s;updUndo()}
 }
 let saveT=0;function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,350)}
 function restore(s){
   restoring=true;pieces.forEach(p=>p.el.remove());pieces=[];enteredG=null;
   const d=JSON.parse(s);setBg(d.bg);d.pieces.forEach(x=>addPiece(x,true));select(null);
-  $("#empty").hidden=pieces.length>0;store.set("recortes-hoja-v2",d);lastSnap=s;restoring=false;updUndo();
+  $("#empty").hidden=pieces.length>0;store.set("recortes-hoja-v3",d);lastSnap=s;restoring=false;updUndo();
 }
 function undo(){if(!hist.length)return;clearTimeout(saveT);fut.push(lastSnap);restore(hist.pop())}
 function redo(){if(!fut.length)return;hist.push(lastSnap);restore(fut.pop())}
 function updUndo(){$("#btn-undo").disabled=!hist.length;$("#btn-redo").disabled=!fut.length}
 $("#btn-undo").onclick=undo;$("#btn-redo").onclick=redo;
 function load(){
-  const s=store.get("recortes-hoja-v2");
-  const data=s&&Array.isArray(s.pieces)?s:{bg:"#151515",pieces:[
-    {id:"cramps-logo",x:.5,y:.13,w:.7,r:-5},
-    {id:"4477_0",x:.3,y:.42,w:.48,r:8,fx:[{t:"trama",amt:35,c1:"#c7382c",c2:"#f2b3c6"}]},
-    {id:"car",x:.55,y:.8,w:.9,r:-4,fx:[{t:"tiras",amt:35},{t:"duo",amt:40,c1:"#151515",c2:"#bcd5e6"}]},
-    {kind:"text",x:.5,y:.6,w:.4,r:-3,t:{...TDEF,text:"make a mess",font:"Abril Fatface",upper:false,size:70,color:"#151515",bg:"#f0cd4a"}},
-    {id:"riot-girl",x:.66,y:.45,w:.62,r:4,fx:[{t:"duo",amt:55,c1:"#2747a0",c2:"#f0cd4a"},{t:"sticker",amt:30,c2:"#ffffff"}]},
-    {id:"w-solo",x:.22,y:.68,w:.3,r:-8},{id:"w-ricos",x:.28,y:.75,w:.26,r:5}]};
+  const s=store.get("recortes-hoja-v3");
+  const data=s&&Array.isArray(s.pieces)?s:{bg:"#151515",pieces:[]};
   setBg(typeof data.bg==="string"&&data.bg[0]==="#"?data.bg:"#151515");
   data.pieces.forEach(d=>{if(d.kind==="text"||SCRAPS.find(s=>s.id===d.id))addPiece(d,true)});
   $("#empty").hidden=pieces.length>0;
