@@ -283,7 +283,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       <h1>What did you bring?</h1>
       <p class="lede">Everything gets a look before it goes public.</p>
       <div class="papers">
-        <button class="paper" data-path="collage"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>A collage</b><span>Pin it to the table. Spare scraps go to the pile.</span><span class="go">Start →</span></span></span></button>
+        <button class="paper" data-path="collage"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>A collage</b><span>Glue it to the table. Spare scraps go to the pile.</span><span class="go">Start →</span></span></span></button>
         <button class="paper" data-path="scraps"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>Just scraps</b><span>A magazine, an ad, junk mail. Cut it up for everyone.</span><span class="go">Start →</span></span></span></button>
       </div>
       <p class="owner" id="owner-line">Yours? <button class="link" id="owner-in">Owner sign in</button></p>
@@ -326,9 +326,9 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
         </section>
         <section class="wstep" data-s="send">
           <button class="back" data-back>← Back</button>
-          <h2 id="send-h">Pin it</h2>
+          <h2 id="send-h">Glue it</h2>
           <p class="desc" id="send-note">Name it and tell its story, right under the collage.</p>
-          <div class="acts"><button class="btn" id="publish">Pin it</button></div>
+          <div class="acts"><button class="btn" id="publish">Glue it</button></div>
         </section>
         <section class="wstep" data-s="done">
           <h2 id="done-h">Sent.</h2>
@@ -370,10 +370,10 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
     <aside class="side" id="side">
       <section class="side-pane" id="v-cut">
         <div class="side-scroll">
-          <div class="sec" style="border-top:0;margin-top:0;padding-top:0"><p class="sec-t">Cut with</p>
+          <div class="sec" style="border-top:0;margin-top:0;padding-top:0"><p class="sec-t">Cut out bits for the pile</p>
           <div class="tools" role="group" aria-label="Scissors">
-            <button class="tool" data-tool="lasso" aria-pressed="true" aria-label="Scissors" data-tip="Scissors: freehand"><svg class="i"><use href="#i-scissors"/></svg></button>
-            <button class="tool" data-tool="rect" aria-pressed="false" aria-label="Box" data-tip="Box: straight cuts"><svg class="i"><use href="#i-square"/></svg></button>
+            <button class="tool" data-tool="lasso" aria-pressed="true" aria-label="Scissors" data-tip="Scissors"><svg class="i"><use href="#i-scissors"/></svg></button>
+            <button class="tool" data-tool="rect" aria-pressed="false" aria-label="Box" data-tip="Box"><svg class="i"><use href="#i-square"/></svg></button>
           </div>
           <p class="hint" id="tool-hint">Cut freehand. The line gets smoothed, like real scissors.</p></div>
           <div class="sec"><p class="sec-t">Your bits <span id="bits-n"></span></p><div class="scraps" id="scraps"></div></div>
@@ -451,7 +451,7 @@ function setPath(p){
   $("#snap-h").textContent=col?"Drop your mess":"Drop your page";
   $("#drop-t").textContent=col?"Drop your mess":"Drop your page";
   $("#cut-opt").hidden=!col;$("#skip-cut").hidden=!col;
-  $("#send-h").textContent=col?"Pin it":"Pile it";
+  $("#send-h").textContent=col?"Glue it":"Pile it";
 }
 // step titles shrink until the whole step (title, text, buttons) fits above the zoom bar
 function fitSteps(){
@@ -904,7 +904,7 @@ function bindLoose(el,s){
 async function cleanScrap(s){
   if(s.busy)return;
   if(s.clean){s.canvas=s.orig;s.clean=false;renderScraps();return}
-  s.busy=true;renderScraps();
+  s.busy=true;renderScraps();if(!modelReady)toast("Sharpening the scissors… first time takes a moment.");
   try{const m=await modelMask(s.orig||s.canvas);s.orig=s.orig||s.canvas;const c=mk(s.orig.width,s.orig.height),g=c.getContext("2d");g.drawImage(m,0,0,c.width,c.height);g.globalCompositeOperation="destination-in";g.drawImage(s.orig,0,0);
     const t=tightCrop(c);if(alphaCount(t)<alphaCount(s.orig)*.04)throw new Error("nothing left");s.canvas=t;s.clean=true}
   catch(err){console.error(err);toast("Couldn't find a clear shape in that one.",true)}
@@ -1005,7 +1005,7 @@ function renderPublish(){
   $("#pub-list").innerHTML=scraps.map(s=>`<figure style="transform:rotate(${(s.id*37%9)-4}deg)"><img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}">${s.name?`<figcaption>${esc(s.name)}</figcaption>`:""}</figure>`).join("");
   $("#pile-n").textContent=`${scraps.length} to the pile`;
   $("#send-note").textContent=col?"Name it and tell its story, right under the collage.":(OWNER?"Straight into the pile.":"Sign them so you get the credit.");
-  $("#publish").textContent=col?"Pin it":"Pile it";
+  $("#publish").textContent=col?"Glue it":"Pile it";
   if(col)setTimeout(()=>$("#title").focus(),30);
 }
 const slug=t=>(t||"collage").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,32)||"collage";
@@ -1047,7 +1047,7 @@ $("#publish").onclick=async()=>{
 };
 function done(){
   const col=PATH==="collage";
-  $("#done-h").textContent=OWNER?(col?"Pinned.":"Piled."):"Sent.";
+  $("#done-h").textContent=OWNER?(col?"Glued.":"Piled."):"Sent.";
   $("#done-p").textContent=OWNER?(col?"It's on the table.":"They're in the scrap pile."):"It shows up once it's had a look. Usually soon-ish.";
   show("done");tell("cutouts:published");
 }

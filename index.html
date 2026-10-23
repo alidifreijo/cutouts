@@ -432,6 +432,21 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 
 .nb-n{display:inline-grid;place-items:center;min-width:20px;height:20px;padding:0 6px;border-radius:999px;background:#e24b4a;color:#fff;font-size:12px;margin-left:4px;font-family:var(--f-mono)}
 .nb-n[hidden]{display:none}
+/* edit pane, simpler */
+.fx-item .mini.hov{opacity:0;transition:opacity .15s}
+.fx-item:hover .mini.hov,.fx-item:focus-within .mini.hov,.fx-item.off .mini.hov[data-do="eye"]{opacity:1}
+@media (hover:none){.fx-item .mini.hov{opacity:1}}
+.fx-item[draggable="true"] .fx-row{cursor:grab}
+.fx-item.dragging{opacity:.4}
+.fx-item.drop-on{box-shadow:0 -2px 0 var(--mint)}
+.ink-l{margin:6px 0 2px;font-size:12.5px;color:var(--mat-ink)}
+.fx-body .inks,.ctl .inks{flex-wrap:nowrap;gap:4px}
+.fx-body .ink,.ctl .ink{flex:1 1 0;width:auto;height:auto;aspect-ratio:1;max-width:24px;min-width:0}
+.segs [data-fs] svg.i{width:18px;height:18px;display:block}
+.pcs{font-size:13px;color:var(--mat-ink);margin-left:4px}
+.wallseg [data-tip],.segs [data-tip]{position:relative}
+.dock [data-tip]:hover::after{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)}
+
 /* the way out of make a mess: next to the scrap pile, travels with it */
 .pin-float{position:absolute;z-index:23;bottom:16px;right:16px;width:calc(var(--dock-w,320px) - 32px);justify-content:center;padding:13px 14px!important;font-size:16px!important;letter-spacing:-.02em;white-space:nowrap;box-shadow:var(--shadow-up);transition:width .25s ease,transform .15s,background .15s}
 #studio .dock-scroll{padding-bottom:84px}
@@ -530,6 +545,7 @@ body{font-size:15px}
   <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
+  <symbol id="i-glue" viewBox="0 0 24 24"><rect x="8" y="9" width="8" height="12" rx="1.5"/><path d="M9.5 9V6.5a2.5 2.5 0 0 1 5 0V9"/><path d="M8 13h8"/></symbol>
   <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14"/><path d="M5 12h14"/></symbol>
   <symbol id="i-fx" viewBox="0 0 24 24"><path d="M4 7h10"/><path d="M18 7h2"/><circle cx="16" cy="7" r="2"/><path d="M4 17h2"/><path d="M10 17h10"/><circle cx="8" cy="17" r="2"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
@@ -554,7 +570,7 @@ body{font-size:15px}
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio">make a mess</button>
     </nav>
     <div class="tools" id="tools-mesa">
-      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true">messy</button><button data-wall="strict" aria-pressed="false">strict</button></div>
+      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true" data-tip="scatter them">messy</button><button data-wall="strict" aria-pressed="false" data-tip="tidy rows">strict</button></div>
     </div>
     <button class="newbtn" id="tab-add" aria-label="feed the mess" aria-selected="false" aria-controls="addpane"><svg class="i"><use href="#i-plus"/></svg><span class="nb-t">feed the mess</span></button>
     <div class="tools" id="tools-pega" hidden>
@@ -598,14 +614,14 @@ body{font-size:15px}
         <button class="ib m-only m-done" id="m-done" aria-label="Done"><svg class="i"><use href="#i-check"/></svg></button>
       </nav>
 
-      <button class="pinbtn pin-float" id="btn-pin" hidden><svg class="i"><use href="#i-pin"/></svg>Done? Pin it</button>
+      <button class="pinbtn pin-float" id="btn-pin" hidden><svg class="i"><use href="#i-glue"/></svg>Done? Glue it</button>
 
       <nav class="mbar" id="mbar" aria-label="make a mess">
         <button class="mb-add" id="m-scraps"><svg class="i"><use href="#i-plus"/></svg>scraps</button>
         <button class="ib" id="m-text" aria-label="Add text"><svg class="i"><use href="#i-type"/></svg></button>
         <button class="ib" id="m-paper" aria-label="Paper colour"><svg class="i"><use href="#i-palette"/></svg></button>
         <button class="ib" id="m-undo" aria-label="Undo" disabled><svg class="i"><use href="#i-undo"/></svg></button>
-        <button class="mb-pin" id="m-pin"><svg class="i"><use href="#i-pin"/></svg>pin it</button>
+        <button class="mb-pin" id="m-pin"><svg class="i"><use href="#i-glue"/></svg>glue it</button>
       </nav>
       <div class="mtrash" id="mtrash" aria-hidden="true"><svg class="i"><use href="#i-trash"/></svg></div>
 
@@ -651,16 +667,16 @@ body{font-size:15px}
     <button class="ib" id="lb-next" aria-label="Next"><svg class="i"><use href="#i-right"/></svg></button>
   </div>
 </div>
-<div class="pinpop" id="pinpop" hidden role="dialog" aria-label="Pin to the table">
+<div class="pinpop" id="pinpop" hidden role="dialog" aria-label="Glue it to the table">
   <div id="pp-form">
-    <div class="pp-head"><img id="pp-thumb" alt="Your collage"><div><p class="pp-t">Pin it to the table</p><p class="pp-s">Everyone will see it once it's had a look.</p></div></div>
+    <div class="pp-head"><img id="pp-thumb" alt="Your collage"><div><p class="pp-t">Glue it to the table</p><p class="pp-s">Everyone will see it once it's had a look.</p></div></div>
     <label class="pp-l" for="pin-title">Name it</label>
     <input class="pp-in" id="pin-title" maxlength="60" placeholder="Untitled mess">
     <label class="pp-l" for="pin-desc">What's going on here? <span id="pp-count">0/280</span></label>
     <textarea class="pp-in pp-ta" id="pin-desc" maxlength="280" rows="3" placeholder="Optional. A story, a joke, a confession."></textarea>
     <label class="pp-l" for="pin-name">Sign it</label>
     <input class="pp-in" id="pin-name" maxlength="40" placeholder="Name or @handle. Optional.">
-    <div class="pp-row"><button class="pp-ghost" id="pin-cancel">Not yet</button><button class="pp-btn" id="pin-go">Pin it</button></div>
+    <div class="pp-row"><button class="pp-ghost" id="pin-cancel">Not yet</button><button class="pp-btn" id="pin-go">Glue it</button></div>
   </div>
   <div id="pp-done" hidden>
     <p class="pp-t">Sent.</p>
@@ -1580,9 +1596,10 @@ function ddMenu(kind,btnInner,items,cls=""){
 }
 let fxSecOpen=store.get("recortes-fxsec")!==false;
 const num=(key,label,val,min,max,step=1,unit="")=>`<div class="num"><span class="num-l" data-scrub="${key}" title="drag to adjust">${label}</span><input type="text" inputmode="decimal" data-num="${key}" data-min="${min}" data-max="${max}" data-step="${step}" value="${val}" aria-label="${label}">${unit?`<span class="num-u">${unit}</span>`:""}</div>`;
+let cutSecOpen=false;
 function renderEdit(){
   const el=$("#pane-fx");
-  if(!sel){el.innerHTML=`<div class="fx-empty"><div>Select something on the sheet.</div><button class="btn" data-do="addtext">Add text</button></div>`;return}
+  if(!sel){el.innerHTML=`<div class="fx-empty"><div>Pick a scrap on the sheet to edit it.</div><button class="btn" data-do="addtext">Add text</button></div>`;return}
   const p=sel,isT=p.kind==="text",s=isT?null:SCRAPS.find(x=>x.id===p.id),n=p.fx.length;
   const grp=p.g?members(p.g):null;
   const sub=grp?(selMode==="group"?`${grp.length} pieces`:`piece ${grp.indexOf(p)+1} of ${grp.length}`):"";
@@ -1604,10 +1621,10 @@ function renderEdit(){
         ${num("track","Spacing",Math.round(t.track*100),-20,80)}
         ${f.v?num("weight","Weight",weightFor(f,t.weight),f.w[0],f.w[1],10):""}
       </div>
-      <div class="row"><div class="segs"><button data-tset="upper" data-v="${!t.upper}" aria-pressed="${t.upper}" aria-label="Uppercase">AA</button>${f.i?`<button data-tset="italic" data-v="${!t.italic}" aria-pressed="${t.italic}" aria-label="Italic"><i>I</i></button>`:""}${!f.v&&f.w.length>1?`<button data-tset="weight" data-v="${weightFor(f,t.weight)>=700?400:700}" aria-pressed="${weightFor(f,t.weight)>=700}" aria-label="Bold"><b>B</b></button>`:""}</div>
+      <div class="row"><div class="segs"><button data-tset="upper" data-v="${!t.upper}" aria-pressed="${t.upper}" aria-label="Uppercase" data-tip="${t.upper?"lowercase":"UPPERCASE"}">${t.upper?"AA":"Aa"}</button>${f.i?`<button data-tset="italic" data-v="${!t.italic}" aria-pressed="${t.italic}" aria-label="Italic"><i>I</i></button>`:""}${!f.v&&f.w.length>1?`<button data-tset="weight" data-v="${weightFor(f,t.weight)>=700?400:700}" aria-pressed="${weightFor(f,t.weight)>=700}" aria-label="Bold"><b>B</b></button>`:""}</div>
         <div class="segs">${["left","center","right"].map(a=>`<button data-tset="align" data-v="${a}" aria-pressed="${t.align===a}" aria-label="Align ${a}"><svg class="i"><use href="#i-al-${a}"/></svg></button>`).join("")}</div></div>
-      <div class="ctl"><div class="ctl-h"><span>Colour</span></div>${inkRow('data-tc="color"',t.color,false)}</div>
-      <div class="ctl"><div class="ctl-h"><span>Label</span></div>${inkRow('data-tc="bg"',t.bg,true)}</div>
+      <div class="ctl"><div class="ctl-h"><span>Ink</span></div>${inkRow('data-tc="color"',t.color,false)}</div>
+      <div class="ctl"><div class="ctl-h"><span>Highlight</span></div>${inkRow('data-tc="bg"',t.bg,true)}</div>
     </div>`;
   }
   // effects (foldable)
@@ -1618,17 +1635,16 @@ function renderEdit(){
     h+=`<div class="fx-list">`;
     p.fx.forEach((f,i)=>{
       const m=FX[f.t],open=openFx===i;
-      h+=`<div class="fx-item${open?" open":""}${f.on?"":" off"}" data-i="${i}">
+      h+=`<div class="fx-item${open?" open":""}${f.on?"":" off"}" data-i="${i}" draggable="${n>1}">
         <div class="fx-row">
           <button class="fx-name" data-do="toggle" aria-expanded="${open}"><i class="sw2 mini-sw" style="background:${m.sw}"></i><span class="t">${m.n}</span><svg class="i"><use href="#i-right"/></svg></button>
-          ${n>1?`<button class="mini" data-do="up" aria-label="Move up" ${i===0?"disabled":""}><svg class="i"><use href="#i-up"/></svg></button>`:""}
-          <button class="mini" data-do="eye" aria-label="${f.on?"Hide":"Show"} effect" aria-pressed="${!f.on}"><svg class="i"><use href="#i-${f.on?"eye":"eyeoff"}"/></svg></button>
-          <button class="mini" data-do="rm" aria-label="Remove effect"><svg class="i"><use href="#i-x"/></svg></button>
+          <button class="mini hov" data-do="eye" data-tip="${f.on?"hide":"show"}" aria-label="${f.on?"Hide":"Show"} effect" aria-pressed="${!f.on}"><svg class="i"><use href="#i-${f.on?"eye":"eyeoff"}"/></svg></button>
+          <button class="mini hov" data-do="rm" data-tip="remove" aria-label="Remove effect"><svg class="i"><use href="#i-x"/></svg></button>
         </div>
         <div class="fx-body"${open?"":" hidden"}>
           <input class="range" type="range" data-do="amt" min="0" max="100" value="${f.amt}" aria-label="${m.amt}">
-          ${m.ink&&m.ink[0]?inkRow('data-do="c1"',f.c1,false):""}
-          ${m.ink&&m.ink[1]?inkRow('data-do="c2"',f.c2,false):""}
+          ${m.ink&&m.ink[0]?(m.ink[1]?'<p class="ink-l">Darks</p>':"")+inkRow('data-do="c1"',f.c1,false):""}
+          ${m.ink&&m.ink[1]?'<p class="ink-l">Lights</p>'+inkRow('data-do="c2"',f.c2,false):""}
         </div>
       </div>`;
     });
@@ -1637,10 +1653,11 @@ function renderEdit(){
   }
   h+=`</div>`;
   if(!isT&&!p.frag&&!p.g){
-    h+=`<div class="sec"><p class="sec-t">Cut up</p>
-      <div class="row"><div class="segs">${[["shapes","Arches"],["strips","Strips"],["letters","Letters"]].map(([k,l])=>`<button data-fs="${k}" aria-pressed="${fragStyle===k}">${l}</button>`).join("")}</div>
-      <div class="stepper" aria-label="number of pieces"><button class="mini" data-fn="-1" aria-label="Fewer pieces"><svg class="i"><use href="#i-minus"/></svg></button><output id="o-fn">${fragN}</output><button class="mini" data-fn="1" aria-label="More pieces"><svg class="i"><use href="#i-plus"/></svg></button></div></div>
-      <button class="btn" data-do="frag">Cut</button>
+    const FI={shapes:'<svg class="i" viewBox="0 0 24 24"><path d="M4 20V11a8 8 0 0 1 16 0v9"/><path d="M10 20v-6a2 2 0 0 1 4 0v6"/></svg>',strips:'<svg class="i" viewBox="0 0 24 24"><path d="M5 4v16M10 4v16M15 4v16M20 4v16"/></svg>',letters:'<svg class="i" viewBox="0 0 24 24"><path d="M4 19l4-14 4 14M5.5 14h5"/><path d="M15 19V8h3a2.5 2.5 0 0 1 0 5h-3M15 13h3.5a3 3 0 0 1 0 6H15"/></svg>'};
+    h+=`<div class="sec"><button class="sec-t sec-tog" data-do="cutsec" aria-expanded="${cutSecOpen}"><span class="st">Cut it into pieces</span><svg class="i"><use href="#i-down"/></svg></button>`+(cutSecOpen?`
+      <div class="row"><div class="segs">${[["shapes","Arches"],["strips","Strips"],["letters","Letters"]].map(([k,l])=>`<button data-fs="${k}" aria-pressed="${fragStyle===k}" aria-label="${l}" data-tip="${l.toLowerCase()}">${FI[k]}</button>`).join("")}</div>
+      <div class="stepper" aria-label="number of pieces"><button class="mini" data-fn="-1" aria-label="Fewer pieces"><svg class="i"><use href="#i-minus"/></svg></button><output id="o-fn">${fragN}</output><button class="mini" data-fn="1" aria-label="More pieces"><svg class="i"><use href="#i-plus"/></svg></button><span class="pcs">pieces</span></div></div>
+      <button class="btn" data-do="frag">Cut it up</button>`:"")+`
     </div>`;
   }
   el.innerHTML=h;
@@ -1688,6 +1705,7 @@ dock.addEventListener("click",e=>{
   switch(b.dataset.do){
     case "frag":fragment(p);return;
     case "fxsec":fxSecOpen=!fxSecOpen;store.set("recortes-fxsec",fxSecOpen);renderEdit();return;
+    case "cutsec":cutSecOpen=!cutSecOpen;renderEdit();return;
     case "ungroup":ungroup();return;
     case "backgroup":enteredG=null;select(p,"group");return;
   }
@@ -1702,6 +1720,12 @@ dock.addEventListener("click",e=>{
     case "c2":f.c2=b.dataset.c;fxChanged(true);break;
   }
 });
+(()=>{let from=-1;const pane=$("#pane-fx");
+  pane.addEventListener("dragstart",e=>{const it=e.target.closest&&e.target.closest(".fx-item");if(!it)return;from=+it.dataset.i;it.classList.add("dragging");e.dataTransfer.effectAllowed="move";try{e.dataTransfer.setData("text/plain","fx")}catch(_){}});
+  pane.addEventListener("dragover",e=>{const it=e.target.closest(".fx-item");if(from<0||!it)return;e.preventDefault();pane.querySelectorAll(".fx-item").forEach(x=>x.classList.toggle("drop-on",x===it&&+it.dataset.i!==from))});
+  pane.addEventListener("drop",e=>{const it=e.target.closest(".fx-item");if(from<0||!it||!sel)return;e.preventDefault();const to=+it.dataset.i;if(to!==from){const f=sel.fx.splice(from,1)[0];sel.fx.splice(to,0,f);openFx=-1;fxChanged(true)}from=-1});
+  pane.addEventListener("dragend",()=>{from=-1;pane.querySelectorAll(".fx-item").forEach(x=>x.classList.remove("dragging","drop-on"))});
+})();
 $("#pane-fx").addEventListener("input",e=>{
   if(!sel)return;const p=sel,t=e.target,T=targets();
   if(t.dataset.num){const v=parseFloat(t.value);if(!isNaN(v)&&v>=+t.dataset.min&&v<=+t.dataset.max)setNum(t.dataset.num,v);return}
@@ -1850,8 +1874,8 @@ $("#pin-go").onclick=async()=>{
     store.set("recortes-pinned-at",Date.now());$("#pin-title").value="";$("#pin-desc").value="";
     $("#pp-form").hidden=true;$("#pp-done").hidden=false;$("#pin-ok").focus();
     if(ownerSignedIn())loadPending();
-  }catch(e){console.error(e);toast("Couldn't pin it. Try again in a bit.")}
-  go.disabled=false;go.textContent="Pin it";
+  }catch(e){console.error(e);toast("Couldn't glue it. Try again in a bit.")}
+  go.disabled=false;go.textContent="Glue it";
 };
 // owner: pending collages show on the table with approve / bin
 let sbClient=null;
