@@ -887,9 +887,12 @@ function layout(){
   const colW=cw+gap,order=ALL.slice().sort((a,b)=>(b.w.pending?1:0)-(a.w.pending?1:0)||rank(a.w.id)-rank(b.w.id));
   // both looks share one column grid, so nothing leaves a hole beside the title:
   // columns that sit under the title start below it, the rest start level with "Cut"
-  const cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
+  // the wall grows sideways as much as down: aim for a board wider than the screen's own shape,
+  // so with every new collage there is more mural to wander in every direction
+  const S=order.reduce((a,{w})=>a+cw*w.h/w.w+lbl+gap,0)+noteBox.y1,A=(W/H)*(small?2.2:1.6);
+  const cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(A*S/colW)));
   const xs=[...Array(cols)].map((_,c)=>pad+c*colW);
-  const under=c=>small||xs[c]<noteBox.x1-gap*.5;
+  const under=c=>xs[c]<noteBox.x1-gap*.5;
   const tops=[...Array(cols)].map((_,c)=>under(c)?noteBox.y1+(messy?hs("col"+c,11)*cw*.3:0):pad+18+hs("col"+c,11)*cw*(messy?.35:.12));
   const rnd=(id,k)=>hs(id,k*7919+MESS_SEED);
   order.forEach(({w,i},n)=>{const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops)),id=w.id;
