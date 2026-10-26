@@ -106,6 +106,8 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .wall .card{transition:transform .7s cubic-bezier(.2,.85,.25,1),filter .5s ease}
 .wall.zoomed .card:not(.zoomed){filter:brightness(.45) saturate(.6)}
 .wall .card.zoomed{z-index:999!important}
+body.zoomin .credit{opacity:0;pointer-events:none}
+.credit{transition:opacity .3s}
 .wall.zoomed .card.zoomed .lbl{opacity:0}
 .zbar{position:absolute;z-index:60;left:50%;bottom:max(18px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 8px 6px 8px;background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
 .zbar[hidden]{display:none}
@@ -116,7 +118,8 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .zbar .zby:empty{display:none}
 .zcap{position:absolute;z-index:60;left:50%;bottom:calc(max(18px,env(safe-area-inset-bottom,0px)) + 56px);transform:translateX(-50%);width:min(520px,calc(100% - 32px));margin:0;padding:10px 14px;background:rgba(23,61,44,.92);border-radius:12px;color:var(--mint);font-size:14.5px;line-height:1.5;text-align:center;box-shadow:var(--shadow)}
 .zcap[hidden]{display:none}
-.zbar .zn{color:var(--mat-ink);font-size:13.5px;font-variant-numeric:tabular-nums}
+.zbar .zn{color:var(--mat-ink);font-size:13.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+@media (max-width:720px){.zbar{left:12px;right:12px;transform:none;justify-content:space-between}.zbar .zt{flex:1;min-width:0;max-width:none}.zbar .zby{display:none}}
 .wall .rulers::before,.wall .rulers::after{content:"";position:absolute;background:var(--mat)}
 .wall .rulers::before{left:0;right:0;top:0;height:24px;box-shadow:0 1px 0 var(--mat-line-strong)}
 .wall .rulers::after{left:0;top:0;bottom:0;width:24px;box-shadow:1px 0 0 var(--mat-line-strong)}
@@ -363,7 +366,13 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:6px}
 .num{display:flex;align-items:center;gap:6px;height:32px;padding:0 9px;background:var(--mat);border:1px solid var(--mat-line-strong);border-radius:10px}
 .num:focus-within{border-color:var(--mint)}
-.num-l{font-size:12.5px;color:var(--mat-ink);cursor:ew-resize;user-select:none;-webkit-user-select:none;touch-action:none;padding:6px 0}
+.num{cursor:ew-resize;touch-action:none;user-select:none;-webkit-user-select:none;position:relative;overflow:hidden}
+.num:focus-within{cursor:auto}
+.num-l{font-size:12.5px;color:var(--mat-ink);padding:6px 0;white-space:nowrap;position:relative}
+.num input{cursor:inherit;position:relative}.num:focus-within input{cursor:text}
+.num.fill::before{content:"";position:absolute;inset:0;width:var(--f,0%);background:rgba(214,238,222,.14);pointer-events:none;transition:width .05s}
+.num.fill:hover::before,.num.scrub::before{background:rgba(214,238,222,.22)}
+body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 .num-l:hover{color:var(--mint)}
 .num input{flex:1;min-width:0;width:100%;background:none;border:0;padding:0;color:var(--mint);font:inherit;font-size:14.5px;text-align:right;outline:none;font-variant-numeric:tabular-nums}
 .num-u{font-size:13px;color:var(--mat-ink)}
@@ -933,12 +942,13 @@ zbar.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(!b)ret
 function zoomTo(el,instant){
   const p=el._p;if(!p)return;cancelAnimationFrame(inertia);velX=velY=0;
   const W=mesa.clientWidth,H=mesa.clientHeight,small=W<720,barH=small?96:84;
-  const s=Math.min((W-(small?32:140))/p.cw,(H-barH-(small?60:70))/p.ch,6);
+  const top=small?44:60; // ruler + room for the tape
+  const s=Math.min((W-(small?32:180))/p.cw,(H-barH-top-(small?24:40))/p.ch,small?4:3);
   if(!Z)Z={camX,camY};
   if(Z.el)Z.el.classList.remove("zoomed");
   Z.el=el;el.classList.add("zoomed");mesa.classList.add("zoomed");document.body.classList.add("zoomin");
   board.classList.toggle("zooming",!instant&&!reduce);
-  boardT(W/2,(H-barH)/2+12,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
+  boardT(W/2,top+(H-barH-top)/2,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
   const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zby").textContent=w&&w.by?"by "+w.by:"";
   zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
   zbar.hidden=false;
@@ -1775,7 +1785,7 @@ function ddMenu(kind,btnInner,items,cls=""){
   return `<div class="dd" data-dd="${kind}"><button class="dd-btn ${cls}" aria-haspopup="listbox" aria-expanded="false">${btnInner}<svg class="i chev"><use href="#i-down"/></svg></button><ul class="menu" role="listbox" tabindex="-1" hidden>${items}</ul></div>`;
 }
 let fxSecOpen=store.get("recortes-fxsec")!==false;
-const num=(key,label,val,min,max,step=1,unit="")=>`<div class="num"><span class="num-l" data-scrub="${key}" title="drag to adjust">${label}</span><input type="text" inputmode="decimal" data-num="${key}" data-min="${min}" data-max="${max}" data-step="${step}" value="${val}" aria-label="${label}">${unit?`<span class="num-u">${unit}</span>`:""}</div>`;
+const num=(key,label,val,min,max,step=1,unit="",fill=false)=>`<div class="num${fill?" fill":""}"${fill?` style="--f:${(val-min)/(max-min)*100}%"`:""}><span class="num-l" data-scrub="${key}">${label}</span><input type="text" inputmode="decimal" data-num="${key}" data-min="${min}" data-max="${max}" data-step="${step}" value="${val}" aria-label="${label}">${unit?`<span class="num-u">${unit}</span>`:""}</div>`;
 let cutSecOpen=false;
 function renderEdit(){
   const el=$("#pane-fx");
@@ -1788,7 +1798,7 @@ function renderEdit(){
   // appearance first
   const bl=BLENDS.find(b=>b[0]===(p.blend||"normal"))||BLENDS[0];
   h+=`<div class="sec"><p class="sec-t">Appearance</p><div class="nums">
-    ${num("op","Opacity",Math.round((p.op??1)*100),10,100,1,"%")}
+    ${num("op","Opacity",Math.round((p.op??1)*100),10,100,1,"%",true)}
     ${ddMenu("blend",`<span>${bl[1]}</span>`,BLENDS.map(([k,l],i)=>`<li role="option" id="opt-blend-${i}" data-v="${k}" aria-selected="${k===bl[0]}"><b>${l}</b></li>`).join(""),"solid sm")}
   </div></div>`;
   if(isT){
@@ -1822,7 +1832,7 @@ function renderEdit(){
           <button class="mini hov" data-do="rm" data-tip="remove" aria-label="Remove effect"><svg class="i"><use href="#i-x"/></svg></button>
         </div>
         <div class="fx-body"${open?"":" hidden"}>
-          <input class="range" type="range" data-do="amt" min="0" max="100" value="${f.amt}" aria-label="${m.amt}">
+          ${num("fxamt",m.amt.charAt(0).toUpperCase()+m.amt.slice(1),f.amt,0,100,1,"",true)}
           ${m.ink&&m.ink[0]?(m.ink[1]?'<p class="ink-l">Darks</p>':"")+inkRow('data-do="c1"',f.c1,false):""}
           ${m.ink&&m.ink[1]?'<p class="ink-l">Lights</p>'+inkRow('data-do="c2"',f.c2,false):""}
         </div>
@@ -1843,15 +1853,17 @@ function renderEdit(){
   el.innerHTML=h;
 }
 // figma-style number fields: type, arrow keys, or drag the label
-function setNum(key,v){
+function setNum(key,v,inp){
   const p=sel;if(!p)return;
+  const box=inp&&inp.closest(".num.fill");if(box)box.style.setProperty("--f",(v-+inp.dataset.min)/(+inp.dataset.max-+inp.dataset.min)*100+"%");
+  if(key==="fxamt"){const i=+inp.closest(".fx-item").dataset.i;p.fx[i].amt=v;refreshSoon(syncFx());saveSoon();return}
   if(key==="op"){targets().forEach(x=>{x.op=v/100;renderPiece(x)});saveSoon();return}
   if(!p.t)return;
   p.t[key]=key==="track"?v/100:v;refreshSoon([p]);
 }
 function numInput(inp,v,commit){
   const min=+inp.dataset.min,max=+inp.dataset.max,step=+inp.dataset.step||1;
-  v=Math.max(min,Math.min(max,Math.round(v/step)*step));inp.value=v;setNum(inp.dataset.num,v);
+  v=Math.max(min,Math.min(max,Math.round(v/step)*step));inp.value=v;setNum(inp.dataset.num,v,inp);
 }
 $("#pane-fx").addEventListener("keydown",e=>{
   const inp=e.target.closest("[data-num]");if(!inp)return;
@@ -1861,12 +1873,18 @@ $("#pane-fx").addEventListener("keydown",e=>{
 });
 $("#pane-fx").addEventListener("focusout",e=>{const inp=e.target.closest&&e.target.closest("[data-num]");if(inp)numInput(inp,parseFloat(inp.value)||+inp.dataset.min)});
 $("#pane-fx").addEventListener("pointerdown",e=>{
-  const l=e.target.closest("[data-scrub]");if(!l)return;
-  e.preventDefault();const inp=l.parentElement.querySelector("[data-num]"),x0=e.clientX,v0=parseFloat(inp.value)||0,step=+inp.dataset.step||1;
-  l.setPointerCapture(e.pointerId);document.body.classList.add("scrubbing");
-  const mv=ev=>numInput(inp,v0+Math.round((ev.clientX-x0)/3)*step*(ev.shiftKey?10:1));
-  const up=()=>{l.removeEventListener("pointermove",mv);l.removeEventListener("pointerup",up);l.removeEventListener("pointercancel",up);document.body.classList.remove("scrubbing");save()};
-  l.addEventListener("pointermove",mv);l.addEventListener("pointerup",up);l.addEventListener("pointercancel",up);
+  const box=e.target.closest(".num");if(!box||e.button>0)return;const inp=box.querySelector("[data-num]");
+  if(document.activeElement===inp&&e.target===inp)return; // already typing: let the caret move
+  e.preventDefault();const x0=e.clientX,v0=parseFloat(inp.value)||0,step=+inp.dataset.step||1;
+  const ppu=Math.max(1,Math.min(4,240/((+inp.dataset.max-+inp.dataset.min)/step))); // ~240px covers the whole range
+  let scrub=false;box.setPointerCapture(e.pointerId);
+  const mv=ev=>{const dx=ev.clientX-x0;if(!scrub&&Math.abs(dx)<3)return;
+    if(!scrub){scrub=true;document.body.classList.add("scrubbing");box.classList.add("scrub")}
+    numInput(inp,v0+Math.round(dx/ppu)*step*(ev.shiftKey?10:1))};
+  const up=()=>{box.removeEventListener("pointermove",mv);box.removeEventListener("pointerup",up);box.removeEventListener("pointercancel",up);
+    document.body.classList.remove("scrubbing");box.classList.remove("scrub");
+    if(scrub)save();else{inp.focus();inp.select()}};
+  box.addEventListener("pointermove",mv);box.addEventListener("pointerup",up);box.addEventListener("pointercancel",up);
 });
 function syncFx(){const T=targets();T.forEach(t=>{if(t!==sel)t.fx=sel.fx.map(f=>({...f}))});return T}
 function fxChanged(full){const T=syncFx();T.forEach(refresh);save();updateBadge();if(full)renderEdit()}
@@ -1908,7 +1926,7 @@ dock.addEventListener("click",e=>{
 })();
 $("#pane-fx").addEventListener("input",e=>{
   if(!sel)return;const p=sel,t=e.target,T=targets();
-  if(t.dataset.num){const v=parseFloat(t.value);if(!isNaN(v)&&v>=+t.dataset.min&&v<=+t.dataset.max)setNum(t.dataset.num,v);return}
+  if(t.dataset.num){const v=parseFloat(t.value);if(!isNaN(v)&&v>=+t.dataset.min&&v<=+t.dataset.max)setNum(t.dataset.num,v,t);return}
   if(t.id==="t-text"){p.t.text=t.value;refreshSoon([p]);return}
   if(t.dataset.t){const k=t.dataset.t,v=+t.value;p.t[k]=k==="track"?v/100:v;const o=$("#o-"+k);if(o)o.textContent=t.value;refreshSoon([p]);return}
   if(t.id==="l-op"){T.forEach(x=>{x.op=+t.value/100;renderPiece(x)});$("#o-op").textContent=t.value+"%";saveSoon();return}
