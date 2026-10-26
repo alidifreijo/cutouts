@@ -38,7 +38,7 @@
   --shadow:0 1px 1px rgba(0,0,0,.25),0 8px 18px -6px rgba(0,0,0,.45);
   --shadow-up:0 2px 2px rgba(0,0,0,.2),0 22px 36px -10px rgba(0,0,0,.55);
   --f-ui:"DM Mono",ui-monospace,Menlo,monospace;
-  --f-head:"Rock Salt",cursive;
+  --f-head:"Mynerve",cursive;
   --f-mono:"DM Mono",ui-monospace,Menlo,monospace;
   --cm:38px;
   --rail-w:52px;
@@ -489,17 +489,16 @@ body:has(#studio.finale) #tools-pega{visibility:hidden}
   filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35));
   clip-path:polygon(0 1%,8% 0,22% 1%,40% 0,58% 1%,76% 0,92% 1%,100% 0,99% 30%,100% 62%,99% 100%,80% 99%,60% 100%,40% 99%,20% 100%,0 99%,1% 66%,0 34%)}
 .tag-tape{position:absolute;top:4px;left:50%;width:84px;height:20px;background:var(--tape);transform:translateX(-50%) rotate(-3deg)}
-.tag-l{font-family:"Mynerve",cursive;font-size:14px;color:#2a2a26;margin-top:8px}
+.tag-l{font-size:12.5px;color:#2a2a26;margin-top:8px}
 .tag input,.tag textarea{background:transparent;border:0;border-bottom:1px dashed rgba(42,42,38,.35);color:#1d1d1a;outline:none;padding:3px 1px;resize:none;width:100%;font:inherit;font-size:15px}
 .tag input:focus,.tag textarea:focus{border-bottom-color:#2c6a4e}
 .tag ::placeholder{color:rgba(42,42,38,.42);opacity:1}
-.tag,.tag input,.tag textarea{font-family:"Mynerve",cursive}
-.tag #pin-title{font-family:"Mynerve",cursive;font-size:24px;color:#1d1d1a;line-height:1.5}
-.tag #pin-desc{font-size:17px;line-height:28px;padding:0 1px;overflow:hidden;border-bottom:0;min-height:84px;background:repeating-linear-gradient(transparent 0 27px,rgba(42,42,38,.28) 27px 28px)}
-.tag #pin-name{font-size:17px}
-.tag .pp-sw b{font-family:"Mynerve",cursive;font-size:17px}
+.tag,.tag input,.tag textarea{font-family:var(--f-ui)}
+.tag #pin-title{font-family:var(--f-head);font-size:26px;color:#1d1d1a;line-height:1.5}
+.tag #pin-desc{font-size:14.5px;line-height:28px;padding:0 1px;overflow:hidden;border-bottom:0;min-height:84px;background:repeating-linear-gradient(transparent 0 27px,rgba(42,42,38,.28) 27px 28px)}
+.tag #pin-name{font-size:14.5px}
 .tag .pp-sw{flex-direction:row;align-items:center;gap:10px;margin-top:18px}
-.tag .pp-sw b{color:#1d1d1a;font-size:17px;font-weight:400}
+.tag .pp-sw b{color:#1d1d1a;font-size:14px;font-weight:400}
 .tag .pp-sw .tg{background:rgba(42,42,38,.2)}.tag .pp-sw .tg::after{background:#fff}
 .tag .pp-sw.on .tg{background:#2c6a4e}.tag .pp-sw.on .tg::after{background:#fff}
 .fin.sent .tag :placeholder-shown{display:none}.fin.sent .tag input,.fin.sent .tag textarea{border-bottom-color:transparent;pointer-events:none}.fin.sent .tag .pp-sw{display:none}
@@ -586,10 +585,10 @@ body:has(#studio.finale) #tools-pega{visibility:hidden}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 
-/* type: Rock Salt for titles, Mynerve for everything else, mono only for the mat's numbers */
+/* type: Mynerve for titles, DM Mono for everything else, mono only for the mat's numbers */
 body{font-size:15px}
 .logo,.note h2,.pp-t,.empty-msg{font-family:var(--f-head);font-weight:400}
-.logo{font-size:19px;letter-spacing:0}
+.logo{font-size:26px;letter-spacing:0;font-weight:400}
 .note h2{font-size:clamp(84px,10.5vw,176px);line-height:1.12;letter-spacing:0;white-space:nowrap;margin:0 0 34px;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .pp-t{font-size:17px;line-height:1.5}
 .zbar .zt{font-size:16px;font-family:var(--f-head);line-height:1.6}
