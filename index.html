@@ -1725,7 +1725,7 @@ tbox.innerHTML=["nw","ne","se","sw"].map(c=>`<span class="tr" data-r="${c}"></sp
 canvasEl.appendChild(tbox);
 function tGeom(){
   const T=targets();if(!T.length)return null;const W=sheet.clientWidth,H=sheet.clientHeight;
-  if(T.length===1){const p=T[0];return {cx:p.x*W,cy:p.y*H,w:p.el.offsetWidth,h:p.el.offsetHeight,r:p.r}}
+  if(T.length===1){const p=T[0],kx=p.nw&&p.fw?p.nw/p.fw:1,ky=p.nh&&p.fh?p.nh/p.fh:1;return {cx:p.x*W,cy:p.y*H,w:p.el.offsetWidth*kx,h:p.el.offsetHeight*ky,r:p.r}}
   const sr=sheet.getBoundingClientRect();let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
   T.forEach(m=>{const r=m.el.getBoundingClientRect();x0=Math.min(x0,r.left);y0=Math.min(y0,r.top);x1=Math.max(x1,r.right);y1=Math.max(y1,r.bottom)});
   return {cx:((x0+x1)/2-sr.left)/zoom,cy:((y0+y1)/2-sr.top)/zoom,w:(x1-x0)/zoom,h:(y1-y0)/zoom,r:0};
@@ -1949,7 +1949,9 @@ function toggleMenu(dd,force){
 function pick(kind,v){
   if(kind==="filter"){chip=v;store.set("recortes-chip",chip);renderFilter();$("#pane-scraps").scrollTop=0;return}
   const p=sel;if(!p)return;
-  if(kind==="fx"){p.fx.push(newFx(v));openFx=p.fx.length-1;fxSecOpen=true;fxChanged(true)}
+  if(kind==="fx"){const nf=newFx(v);
+    if(v==="shadow"){const [r,g,b]=hex(bg.length===7?bg:"#151515");if(r*.3+g*.59+b*.11<90)nf.c1="#f6f3ec"} // a black shadow vanishes on dark paper
+    p.fx.push(nf);openFx=p.fx.length-1;fxSecOpen=true;fxChanged(true)}
   if(kind==="blend"){targets().forEach(x=>{x.blend=v;renderPiece(x)});save();renderEdit()}
   if(kind==="font"){p.t.font=v;p.t.weight=weightFor(fontOf(v),p.t.weight);if(!fontOf(v).i)p.t.italic=false;refresh(p);save();renderEdit()}
 }
