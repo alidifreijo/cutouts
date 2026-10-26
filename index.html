@@ -447,6 +447,23 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 .wallseg [data-tip],.segs [data-tip]{position:relative}
 .dock [data-tip]:hover::after{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)}
 
+/* make it move */
+.pp-stage{display:grid;grid-template-columns:118px 1fr;gap:16px;align-items:center;padding:16px 0 14px}
+.pp-card{position:relative;margin:0;width:118px;transform:rotate(-1.5deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
+.pp-card>img{display:block;width:100%;height:auto;box-shadow:none!important;border-radius:0!important}
+.pp-tape{position:absolute;top:-9px;left:50%;width:32%;height:18px;background:var(--tape);transform:translateX(-50%) rotate(2deg);z-index:3;
+  clip-path:polygon(0 8%,6% 0,12% 10%,18% 0,24% 8%,30% 0,70% 0,76% 9%,82% 0,88% 8%,94% 0,100% 10%,100% 92%,94% 100%,88% 90%,82% 100%,76% 92%,70% 100%,30% 100%,24% 91%,18% 100%,12% 92%,6% 100%,0 90%)}
+.mv{position:absolute;inset:0;overflow:hidden;z-index:2}
+.mv img{position:absolute;inset:0;width:100%;height:100%;will-change:transform}
+.mv-replay{position:absolute;right:6px;bottom:6px;z-index:4;border:0;background:rgba(23,61,44,.85);color:var(--mint);border-radius:999px;width:26px;height:26px;padding:0;font-size:14px}
+.pp-sw{display:flex;flex-direction:column;align-items:flex-start;gap:6px;cursor:pointer}
+.pp-sw b{font-weight:400;font-size:14px;color:#fff;display:block}.pp-sw small{display:block;font-size:12px;color:var(--mat-ink);line-height:1.4}
+.pp-sw .tg{width:38px;height:22px;border-radius:11px;background:rgba(214,238,222,.25);position:relative;transition:background .2s;flex:0 0 auto}
+.pp-sw .tg::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:var(--mint);transition:transform .2s}
+.pp-sw.on .tg{background:var(--mint)}.pp-sw.on .tg::after{transform:translateX(16px);background:var(--mat-dark)}
+.card .mv{z-index:1}
+.zbar .mv-again{display:none}
+
 /* the way out of make a mess: next to the scrap pile, travels with it */
 .pin-float{position:absolute;z-index:23;bottom:16px;right:16px;width:calc(var(--dock-w,320px) - 32px);justify-content:center;padding:13px 14px!important;font-size:16px!important;letter-spacing:-.02em;white-space:nowrap;box-shadow:var(--shadow-up);transition:width .25s ease,transform .15s,background .15s}
 #studio .dock-scroll{padding-bottom:84px}
@@ -669,7 +686,9 @@ body{font-size:15px}
 </div>
 <div class="pinpop" id="pinpop" hidden role="dialog" aria-label="Glue it to the table">
   <div id="pp-form">
-    <div class="pp-head"><img id="pp-thumb" alt="Your collage"><div><p class="pp-t">Glue it to the table</p><p class="pp-s">Everyone will see it once it's had a look.</p></div></div>
+    <p class="pp-t">Glue it to the table</p><p class="pp-s">Everyone will see it once it's had a look.</p>
+    <div class="pp-stage"><figure class="pp-card" id="pp-card"><span class="pp-tape"></span><img id="pp-thumb" alt="Your collage"><div class="mv" id="pp-mv" hidden></div><button class="mv-replay" id="pp-replay" hidden>↻</button></figure>
+    <div class="pp-sw" id="pp-sw" role="switch" aria-checked="false" tabindex="0"><span class="tg"></span><b>Make it move</b><small>Pieces drop in, then sway. Hover for depth.</small></div></div>
     <label class="pp-l" for="pin-title">Name it</label>
     <input class="pp-in" id="pin-title" maxlength="60" placeholder="Untitled mess">
     <label class="pp-l" for="pin-desc">What's going on here? <span id="pp-count">0/280</span></label>
@@ -842,9 +861,19 @@ function zoomTo(el,instant){
   const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zby").textContent=w&&w.by?"by "+w.by:"";
   zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
   zbar.hidden=false;
+  playCardMotion(el,w,instant?0:700);
+}
+// zoomed into a collage made with "make it move": the layers take over the card
+let cardMotion=null;
+function stopCardMotion(){if(cardMotion){cardMotion.p.stop();cardMotion.box.remove();cardMotion=null}}
+function playCardMotion(el,w,delay){
+  stopCardMotion();if(!w||!w.motion||!w.motion.files)return;
+  const box=document.createElement("div");box.className="mv";el.appendChild(box);
+  const p=motionPlayer(box,w.motion.files.map(f=>PUB("community",f)),w.motion.centers||w.motion.files.map(()=>[.5,.5]));
+  cardMotion={p,box,el};setTimeout(()=>{if(cardMotion&&cardMotion.box===box)p.play()},delay);
 }
 function unzoom(instant){
-  if(!Z)return;const z=Z;Z=null;
+  if(!Z)return;const z=Z;Z=null;stopCardMotion();
   if(z.el)z.el.classList.remove("zoomed");mesa.classList.remove("zoomed");document.body.classList.remove("zoomin");zbar.hidden=true;zcap.hidden=true;
   board.classList.toggle("zooming",!instant&&!reduce);
   setCam(z.camX,z.camY,true);
@@ -1838,20 +1867,62 @@ $("#btn-dl").onclick=async()=>{
 // ---------- boot ----------
 // ---------- visitors pin their collage to the table ----------
 const PUB=(b,path)=>SB_URL+"/storage/v1/object/public/"+b+"/"+path;
+
+// ---------- make it move: layered stop-motion player ----------
+function motionPlayer(box,srcs,centers){
+  box.innerHTML="";const L=srcs.map((src,i)=>{const im=document.createElement("img");im.src=src;im.alt="";im.style.opacity=0;im.style.transformOrigin=`${centers[i][0]*100}% ${centers[i][1]*100}%`;box.appendChild(im);return {im,i,d:.15+.85*i/Math.max(1,srcs.length-1),r:(i%2?1:-1)*(2+i%4)}});
+  let t0=0,raf=0,mx=0,my=0,tx=0,ty=0;const STEP=125,host=box.parentNode;
+  const mv=e=>{const r=box.getBoundingClientRect();mx=Math.max(-1,Math.min(1,(e.clientX-r.left)/r.width*2-1));my=Math.max(-1,Math.min(1,(e.clientY-r.top)/r.height*2-1))};
+  const lv=()=>{mx=my=0};
+  const frame=now=>{const q=Math.floor((now-t0)/STEP)*STEP;tx+=(mx-tx)*.12;ty+=(my-ty)*.12;const W=box.clientWidth;
+    L.forEach(p=>{const st=p.i*220,k=Math.min(1,Math.max(0,(q-st)/500)),e=1-Math.pow(1-k,3),done=k>=1;
+      const sway=done?Math.sin((q-st)/900+p.i)*p.r*.35:0,bob=done?Math.sin((q-st)/1300+p.i*2)*W*.006:0;
+      p.im.style.opacity=k>0?1:0;
+      p.im.style.transform=`translate(${tx*p.d*W*.035}px,${(1-e)*-W*.25+bob+ty*p.d*W*.035}px) rotate(${(1-e)*p.r*4+sway}deg) scale(${1+(1-e)*.12})`});
+    raf=requestAnimationFrame(frame)};
+  const api={play(){cancelAnimationFrame(raf);if(reduce){L.forEach(p=>{p.im.style.opacity=1;p.im.style.transform="none"});return}t0=performance.now();raf=requestAnimationFrame(frame)},
+    stop(){cancelAnimationFrame(raf);host.removeEventListener("pointermove",mv);host.removeEventListener("pointerleave",lv)}};
+  host.addEventListener("pointermove",mv);host.addEventListener("pointerleave",lv);return api;
+}
+// one transparent layer per piece (the rest folded into the last), plus the paper underneath
+async function renderLayers(){
+  select(null);const W=620,H=877,out=[],centers=[];
+  const base=mkCanvas(W,H),bg0=base.getContext("2d");bg0.fillStyle=bg;bg0.fillRect(0,0,W,H);out.push(base);centers.push([.5,.5]);
+  const groups=pieces.length>12?[...pieces.slice(0,11).map(p=>[p]),pieces.slice(11)]:pieces.map(p=>[p]);
+  for(const grp of groups){const c=mkCanvas(W,H),g=c.getContext("2d");let cx=0,cy=0;
+    for(const p of grp){const src=p.canvas||await loadSrc(p.id);if(!src)continue;
+      const n=natural(p),nw=p.nw||n.w,nh=p.nh||n.h,fw=p.fw||nw,fh=p.fh||nh,dw=p.w*W*(fw/nw),dh=dw*fh/fw;
+      g.save();g.translate(p.x*W,p.y*H);g.rotate(p.r*Math.PI/180);if(p.flip)g.scale(-1,1);g.globalAlpha=p.op??1;
+      if(p.blend&&p.blend!=="normal")g.globalCompositeOperation=p.blend;else{g.shadowColor="rgba(0,0,0,.3)";g.shadowBlur=7;g.shadowOffsetY=3}
+      g.drawImage(src,-dw/2,-dh/2,dw,dh);g.restore();cx+=p.x;cy+=p.y}
+    out.push(c);centers.push([cx/grp.length,cy/grp.length])}
+  return {layers:out,centers};
+}
+let ppMotion=null,ppLayers=null,moveOn=false;
+async function setMove(on){
+  moveOn=on;const sw=$("#pp-sw");sw.classList.toggle("on",on);sw.setAttribute("aria-checked",on);
+  $("#pp-mv").hidden=!on;$("#pp-replay").hidden=!on;if(ppMotion){ppMotion.stop();ppMotion=null}
+  if(!on)return;
+  if(!ppLayers)ppLayers=await renderLayers();
+  ppMotion=motionPlayer($("#pp-mv"),ppLayers.layers.map(c=>c.toDataURL("image/png")),ppLayers.centers);ppMotion.play();
+}
+$("#pp-sw").onclick=()=>setMove(!moveOn);$("#pp-sw").onkeydown=e=>{if(e.key===" "||e.key==="Enter"){e.preventDefault();setMove(!moveOn)}};
+$("#pp-replay").onclick=()=>ppMotion&&ppMotion.play();
 const pinBtn=$("#btn-pin"),pinPop=$("#pinpop");
 if(!inArtifact)pinBtn.hidden=false;
 pinBtn.onclick=async()=>{
   if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
   if(!pinPop.hidden){pinPop.hidden=true;return}
   $("#pp-form").hidden=false;$("#pp-done").hidden=true;pinPop.hidden=false;
-  if(!mobile()){const r=pinBtn.getBoundingClientRect();pinPop.style.right=(innerWidth-r.right)+"px";pinPop.style.top="auto";pinPop.style.bottom=(innerHeight-r.top+10)+"px"}else{pinPop.style.right="";pinPop.style.top="";pinPop.style.bottom=""}
+  if(!mobile()){const r=pinBtn.getBoundingClientRect(),bt=innerHeight-r.top+10;pinPop.style.right=(innerWidth-r.right)+"px";pinPop.style.top="auto";pinPop.style.bottom=bt+"px";pinPop.style.maxHeight=(innerHeight-bt-16)+"px"}else{pinPop.style.right="";pinPop.style.top="";pinPop.style.bottom=""}
   $("#pin-name").value=store.get("recortes-signed")||"";$("#pp-count").textContent=$("#pin-desc").value.length+"/280";
   $("#pin-title").focus();
-  try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.6)}catch(e){}
+  ppLayers=null;setMove(false);
+  try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.7)}catch(e){}
 };
 $("#pin-desc").addEventListener("input",e=>$("#pp-count").textContent=e.target.value.length+"/280");
 $("#pin-ok").onclick=()=>pinPop.hidden=true;
-$("#pin-cancel").onclick=()=>pinPop.hidden=true;
+$("#pin-cancel").onclick=()=>{pinPop.hidden=true;setMove(false)};
 document.addEventListener("pointerdown",e=>{if(!pinPop.hidden&&!e.target.closest("#pinpop,#btn-pin"))pinPop.hidden=true});
 pinPop.addEventListener("keydown",e=>{if(e.key==="Escape")pinPop.hidden=true;if(e.key==="Enter"&&e.target.tagName==="INPUT")$("#pin-go").click()});
 $("#pin-go").onclick=async()=>{
@@ -1867,11 +1938,18 @@ $("#pin-go").onclick=async()=>{
     const signed=$("#pin-name").value.trim().slice(0,40)||null;store.set("recortes-signed",signed||"");
     const title=$("#pin-title").value.trim().slice(0,60)||null,description=$("#pin-desc").value.trim().slice(0,280)||null;
     const send=body=>fetch(SB_URL+"/rest/v1/community",{method:"POST",headers:{...h,"Content-Type":"application/json",Prefer:"return=minimal"},body:JSON.stringify(body)});
+    let motion=null;
+    if(moveOn){const L=ppLayers||await renderLayers(),files=[];
+      for(const [k,lc] of L.layers.entries()){const f=`${id}-m${k}.webp`,b=await new Promise(res=>lc.toBlob(res,"image/webp",.8));
+        const u=await fetch(SB_URL+"/storage/v1/object/community/"+f,{method:"POST",headers:{...h,"Content-Type":"image/webp","x-upsert":"false"},body:b});
+        if(!u.ok)throw new Error("layer "+u.status+" "+await u.text());files.push(f)}
+      motion={files,centers:L.centers}}
     const base={id,image_path:path,signed,w:c.width,h:c.height};
-    r=await send({...base,title,description});
+    r=await send(motion?{...base,title,description,motion}:{...base,title,description});
+    if(!r.ok&&r.status===400&&motion){const t=await r.text();if(/motion/i.test(t))r=await send({...base,title,description});else throw new Error("save 400 "+t)}
     if(!r.ok&&r.status===400){const t=await r.text();if(/column/i.test(t))r=await send(base);else throw new Error("save 400 "+t)}
     if(!r.ok)throw new Error("save "+r.status+" "+await r.text());
-    store.set("recortes-pinned-at",Date.now());$("#pin-title").value="";$("#pin-desc").value="";
+    store.set("recortes-pinned-at",Date.now());$("#pin-title").value="";$("#pin-desc").value="";setMove(false);
     $("#pp-form").hidden=true;$("#pp-done").hidden=false;$("#pin-ok").focus();
     if(ownerSignedIn())loadPending();
   }catch(e){console.error(e);toast("Couldn't glue it. Try again in a bit.")}
@@ -1924,7 +2002,7 @@ async function loadRemote(){
     const vs=await get("community?select=*&approved=eq.true&order=created_at.desc&limit=60");
     vs.forEach(r=>seen.add("c-"+r.id));
     let gone=false;if(cs.length||vs.length||ss.length)WORKS.forEach(w=>{if((w.remote||String(w.id).startsWith("c-"))&&!w.pending&&!seen.has(w.id)&&!w.gone){w.gone=true;gone=true}});if(gone&&mode==="mesa")layout();
-    vs.forEach(r=>{const id="c-"+r.id;if(WORKS.some(w=>w.id===id))return;REMOTE["a/"+id+".webp"]=PUB("community",r.image_path);addWork({id,t:r.title||(r.signed?"by "+r.signed:"a visitor's mess"),by:r.title&&r.signed?r.signed:null,desc:r.description,w:r.w,h:r.h})});
+    vs.forEach(r=>{const id="c-"+r.id;if(WORKS.some(w=>w.id===id))return;REMOTE["a/"+id+".webp"]=PUB("community",r.image_path);addWork({id,t:r.title||(r.signed?"by "+r.signed:"a visitor's mess"),by:r.title&&r.signed?r.signed:null,desc:r.description,w:r.w,h:r.h,motion:r.motion||null})});
     if(ownerSignedIn())loadPending();
     if((cs.length||vs.length)&&mode==="mesa")layout();
   }catch(e){}

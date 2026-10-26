@@ -637,7 +637,7 @@ async function builtIns(){
 }
 async function loadLive(){
   const [b,a,c,sp,hd]=await Promise.all([builtIns(),sb.from("collages").select("id,title,image_path,created_at"),
-    sb.from("community").select("id,title,signed,image_path,created_at").eq("approved",true),
+    sb.from("community").select("*").eq("approved",true),
     sb.from("scraps").select("id,title,cluster,image_path,signed,created_at").eq("published",true),sb.from("hidden").select("id")]);
   const H=new Set((hd.data||[]).map(r=>r.id)),remote=new Set((sp.data||[]).map(r=>r.id)),old="2000-01-01";
   const cols=[...(a.data||[]).map(r=>({kind:"collages",r,img:pub("collages",r.image_path),t:r.title||"Untitled",who:"yours"})),
@@ -656,7 +656,7 @@ $("#onboard").addEventListener("click",async e=>{
   b.disabled=true;
   try{
     if(x.kind.startsWith("builtin")){const r=await sb.from("hidden").insert({id:(x.kind==="builtin-scrap"?"scrap:":"collage:")+x.r.id});if(r.error)throw r.error}
-    else{const r=await sb.from(x.kind).delete().eq("id",x.r.id);if(r.error)throw r.error;await sb.storage.from(x.kind).remove([x.r.image_path])}
+    else{const r=await sb.from(x.kind).delete().eq("id",x.r.id);if(r.error)throw r.error;await sb.storage.from(x.kind).remove([x.r.image_path,...((x.r.motion&&x.r.motion.files)||[])])}
     b.closest(".ibx").remove();toast("Gone.");tell("cutouts:published");loadLive()}
   catch(err){toast("Couldn't take it down: "+err.message,true);b.disabled=false}
 });
@@ -669,7 +669,7 @@ async function decide(b,keep,btn){
       if(b.scraps.length){const r=await sb.from("scraps").update({published:true}).in("id",b.scraps.map(s=>s.id));if(r.error)throw r.error}
       toast(b.col?"On the table.":"On the pile.");
     }else{
-      if(b.col){const r=await sb.from("community").delete().eq("id",b.col.id);if(r.error)throw r.error;await sb.storage.from("community").remove([b.col.image_path])}
+      if(b.col){const r=await sb.from("community").delete().eq("id",b.col.id);if(r.error)throw r.error;await sb.storage.from("community").remove([b.col.image_path,...((b.col.motion&&b.col.motion.files)||[])])}
       if(b.scraps.length){const r=await sb.from("scraps").delete().in("id",b.scraps.map(s=>s.id));if(r.error)throw r.error;await sb.storage.from("scraps").remove(b.scraps.map(s=>s.image_path))}
       toast("Binned.");
     }
