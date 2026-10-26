@@ -208,6 +208,9 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .menu.up{top:auto;bottom:calc(100% + 6px)}
 .menu li{padding:7px 10px;border-radius:8px;cursor:pointer;font-size:14px;color:var(--mint)}
 .menu li[aria-selected="true"],.menu li:hover{background:var(--mat-light)}
+.arch-tabs{display:flex;gap:2px;background:rgba(0,0,0,.14);padding:3px;border-radius:999px;margin:0 0 12px}
+.arch-tabs button{flex:1;border:0;background:transparent;color:var(--mat-ink);border-radius:999px;padding:7px 10px;font-size:14px}
+.arch-tabs button[aria-selected="true"]{background:var(--mat-light);color:var(--mint)}
 .bgx{align-self:flex-start;border:1px dashed var(--mat-line-strong);background:transparent;color:var(--mint);border-radius:999px;padding:4px 10px;font-size:12.5px}
 .bgx:hover{border-color:var(--mint)}
 .bgx.on{border-style:solid;background:rgba(212,236,220,.14)}
@@ -315,8 +318,9 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
         <h2>Waiting for a look<span class="badge" id="inbox-n" hidden></span></h2>
         <p class="muted" id="inbox-note">Checking…</p>
         <div class="inbox" id="inbox"></div>
-        <h2 style="margin-top:28px">On the table<span class="badge" id="live-n" style="background:var(--mat-light)" hidden></span></h2>
+        <h2 style="margin-top:28px">Everything out there<span class="badge" id="live-n" style="background:var(--mat-light)" hidden></span></h2>
         <p class="muted" style="margin-bottom:12px">Changed your mind? Take it down.</p>
+        <div class="arch-tabs" role="tablist"><button data-arch="collages" aria-selected="true">Collages</button><button data-arch="scraps" aria-selected="false">Scraps</button></div>
         <div class="inbox" id="onboard"></div>
       </div>
       <div class="side-foot"><span class="muted" style="margin:0;font-size:13px" id="who-email"></span><button class="link" id="signout">Sign out</button></div>
@@ -620,23 +624,40 @@ function openBig(i){
 }
 $("#bigview").addEventListener("click",e=>{if(e.target.id==="bigview")$("#bigview").hidden=true});
 addEventListener("keydown",e=>{if(e.key==="Escape"){$("#bigview").hidden=true;$("#login").hidden=true}});
-// owner: everything already on the table, removable
-let LIVE=[];
-async function loadLive(){
-  const [a,b]=await Promise.all([sb.from("collages").select("id,title,image_path,created_at").order("created_at",{ascending:false}),
-    sb.from("community").select("id,title,signed,image_path,created_at").eq("approved",true).order("created_at",{ascending:false})]);
-  LIVE=[...(a.data||[]).map(r=>({kind:"collages",r,img:pub("collages",r.image_path),t:r.title||"Untitled",who:"yours"})),
-        ...(b.data||[]).map(r=>({kind:"community",r,img:pub("community",r.image_path),t:r.title||"Untitled mess",who:r.signed?"by "+r.signed:"anonymous"}))]
-    .sort((x,y)=>y.r.created_at.localeCompare(x.r.created_at));
-  $("#live-n").hidden=!LIVE.length;$("#live-n").textContent=LIVE.length;
-  $("#onboard").innerHTML=LIVE.map((x,i)=>`<div class="ibx" style="cursor:default"><span class="th"><img src="${x.img}" alt="" loading="lazy"></span><span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="flex:1;min-width:0"><b>${esc(x.t)}</b><small>${esc(x.who)} · ${ago(x.r.created_at)}</small></span><button class="ghost" data-down="${i}" style="padding:5px 12px;font-size:13px">Take down</button></span></div>`).join("")||'<p class="muted">Nothing yet.</p>';
+// owner: archive of everything on the site (built-in + uploaded), removable
+let LIVE=[],ARCH="collages",BUILT=null;
+async function builtIns(){
+  if(BUILT)return BUILT;
+  try{const h=await (await fetch("./index.html?b="+Date.now())).text();
+    const i0=h.indexOf("const SCRAPS=")+13,sc=JSON.parse(h.slice(i0,h.indexOf("];",i0)+1));
+    const w0=h.indexOf("const WORKS=["),wb=h.slice(w0,h.indexOf("];",w0));
+    const ws=[...wb.matchAll(/\{id:"([^"]+)",t:"([^"]*)"/g)].map(m=>({id:m[1],t:m[2]}));
+    BUILT={scraps:sc,works:ws}}catch(e){BUILT={scraps:[],works:[]}}
+  return BUILT;
 }
+async function loadLive(){
+  const [b,a,c,sp,hd]=await Promise.all([builtIns(),sb.from("collages").select("id,title,image_path,created_at"),
+    sb.from("community").select("id,title,signed,image_path,created_at").eq("approved",true),
+    sb.from("scraps").select("id,title,cluster,image_path,signed,created_at").eq("published",true),sb.from("hidden").select("id")]);
+  const H=new Set((hd.data||[]).map(r=>r.id)),remote=new Set((sp.data||[]).map(r=>r.id)),old="2000-01-01";
+  const cols=[...(a.data||[]).map(r=>({kind:"collages",r,img:pub("collages",r.image_path),t:r.title||"Untitled",who:"yours"})),
+    ...(c.data||[]).map(r=>({kind:"community",r,img:pub("community",r.image_path),t:r.title||"Untitled mess",who:r.signed?"by "+r.signed:"anonymous"})),
+    ...b.works.filter(w=>!H.has("collage:"+w.id)).map(w=>({kind:"builtin-collage",r:{id:w.id,created_at:old},img:"a/"+w.id+".webp",t:w.t,who:"original"}))];
+  const scr=[...(sp.data||[]).map(r=>({kind:"scraps",r,img:pub("scraps",r.image_path),t:r.title,who:(r.signed?"by "+r.signed:"yours")+(r.cluster?" · "+r.cluster:"")})),
+    ...b.scraps.filter(x=>!H.has("scrap:"+x.id)&&!remote.has(x.id)).map(x=>({kind:"builtin-scrap",r:{id:x.id,created_at:old},img:"s/"+x.id+".webp",t:x.t,who:"original"}))];
+  LIVE=(ARCH==="collages"?cols:scr).sort((x,y)=>y.r.created_at.localeCompare(x.r.created_at));
+  $("#live-n").hidden=false;$("#live-n").textContent=cols.length+scr.length;
+  $$(".arch-tabs button").forEach(t=>{const c2=t.dataset.arch==="collages";t.setAttribute("aria-selected",t.dataset.arch===ARCH);t.textContent=(c2?"Collages ":"Scraps ")+(c2?cols.length:scr.length)});
+  $("#onboard").innerHTML=LIVE.map((x,i)=>`<div class="ibx" style="cursor:default"><span class="th"><img src="${x.img}" alt="" loading="lazy"></span><span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="flex:1;min-width:0"><b>${esc(x.t)}</b><small>${esc(x.who)}</small></span><button class="ghost" data-down="${i}" style="padding:5px 12px;font-size:13px">Take down</button></span></div>`).join("")||'<p class="muted">Nothing here.</p>';
+}
+$$(".arch-tabs button").forEach(t=>t.onclick=()=>{ARCH=t.dataset.arch;loadLive()});
 $("#onboard").addEventListener("click",async e=>{
   const b=e.target.closest("[data-down]");if(!b)return;const x=LIVE[+b.dataset.down];
-  if(b.dataset.sure!=="1"){b.dataset.sure="1";b.textContent="Sure?";b.style.borderColor="#e5584d";setTimeout(()=>{if(b.isConnected){b.dataset.sure="";b.textContent="Take down";b.style.borderColor=""}},3000);return}
   b.disabled=true;
-  try{const r=await sb.from(x.kind).delete().eq("id",x.r.id);if(r.error)throw r.error;
-    await sb.storage.from(x.kind).remove([x.r.image_path]);toast("Off the table.");tell("cutouts:published");loadLive()}
+  try{
+    if(x.kind.startsWith("builtin")){const r=await sb.from("hidden").insert({id:(x.kind==="builtin-scrap"?"scrap:":"collage:")+x.r.id});if(r.error)throw r.error}
+    else{const r=await sb.from(x.kind).delete().eq("id",x.r.id);if(r.error)throw r.error;await sb.storage.from(x.kind).remove([x.r.image_path])}
+    b.closest(".ibx").remove();toast("Gone.");tell("cutouts:published");loadLive()}
   catch(err){toast("Couldn't take it down: "+err.message,true);b.disabled=false}
 });
 

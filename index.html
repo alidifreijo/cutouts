@@ -747,7 +747,7 @@ function cardFor(w,i,key=w.id){
   if(!b){b=document.createElement("button");b.className="card"+(w.pending?" pending":"");b.setAttribute("aria-label","View "+w.t);
     b.innerHTML=`<img src="${w.src||SRC("a/"+w.id+".webp")}" alt="${esc(w.t)}" width="${w.w}" height="${w.h}" draggable="false"><span class="tape" style="--tr:${((hs(w.id,9)-.5)*18).toFixed(1)}deg"></span><span class="lbl">${esc(w.t)}</span>`+(w.pending?`<span class="mod"><span>pending</span><i data-mod="ok" title="Approve">✓</i><i data-mod="bin" title="Bin it">✕</i></span>`:"");
     board.appendChild(b);cardsById.set(key,b)}
-  b.dataset.i=i;return b;
+  b.dataset.i=i;b.dataset.wid=w.id;return b;
 }
 function layout(){
   const W=mesa.clientWidth,H=mesa.clientHeight;if(!W)return;
@@ -1279,7 +1279,7 @@ function renderFilter(){
 }
 function overDock(x,y){if(isDockClosed())return false;const r=dock.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom}
 function scrapButton(s){
-  const b=document.createElement("button");b.className="scrap";b.setAttribute("aria-label","Paste "+s.t);b.title=s.t;
+  const b=document.createElement("button");b.className="scrap";b.dataset.sid=s.id;b.setAttribute("aria-label","Paste "+s.t);b.title=s.t;
   b.innerHTML=`<img src="${SRC("s/"+s.id+".webp")}" alt="" loading="lazy">`;
   let st=null,ghost=null,dragging=false,justDragged=false,vx=0,tilt=0,lastX=0,raf=0,pos={x:0,y:0};
   const paint=()=>{tilt+=(Math.max(-14,Math.min(14,vx*.9))-tilt)*.2;vx*=.85;
@@ -1901,12 +1901,19 @@ board.addEventListener("click",async e=>{
   }catch(err){console.error(err);toast("Couldn't do that. Sign in again from studio.")}
 });
 // collages and scraps added from the studio live in Supabase
+function applyHidden(H){if(!H.size)return;let lay=false;
+  for(let k=SCRAPS.length-1;k>=0;k--)if(H.has("scrap:"+SCRAPS[k].id)){document.querySelectorAll(`.scrap[data-sid="${SCRAPS[k].id}"]`).forEach(b=>b.remove());SCRAPS.splice(k,1)}
+  WORKS.forEach(w=>{if(H.has("collage:"+w.id)&&!w.gone){w.gone=true;lay=true}});
+  document.querySelectorAll("#lib .cluster").forEach(sec=>{const n=sec.querySelectorAll(".scrap").length;const c=sec.querySelector(".lib-t span");if(c)c.textContent=n});
+  if(typeof renderFilter==="function")renderFilter();if(lay&&mode==="mesa")layout();
+  window.HIDDEN=H}
 async function loadRemote(){
   try{
     const h={apikey:SB_KEY,Authorization:"Bearer "+SB_KEY},ctl=new AbortController(),t=setTimeout(()=>ctl.abort(),4000);
     const get=q=>fetch(SB_URL+"/rest/v1/"+q,{headers:h,signal:ctl.signal}).then(r=>r.ok?r.json():[]).catch(()=>[]);
     const [cs,ss]=await Promise.all([get("collages?select=*&published=eq.true&order=sort.asc,created_at.asc"),get("scraps?select=*&published=eq.true&order=sort.asc,created_at.asc")]);
     clearTimeout(t);
+    const hid=await get("hidden?select=id");applyHidden(new Set(hid.map(r=>r.id)));
     const pub=(b,path)=>SB_URL+"/storage/v1/object/public/"+b+"/"+path;
     const seen=new Set([...cs.map(r=>r.id)]);
     cs.forEach(r=>{if(WORKS.some(w=>w.id===r.id))return;REMOTE["a/"+r.id+".webp"]=pub("collages",r.image_path);LAYERS[r.id]=r.layers||[];addWork({id:r.id,t:r.title,desc:r.description,w:r.w,h:r.h,remote:1})});
