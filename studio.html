@@ -88,7 +88,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .wstep.on{opacity:1;transform:none;transition-delay:.12s}
 .wstep .back{position:relative;z-index:2;align-self:flex-start;margin:0 0 4px -10px;border:0;border-radius:999px;background:transparent;color:var(--mint);padding:6px 10px;font-size:16px}
 .wstep .back:hover{background:rgba(214,238,222,.12);color:#fff}
-.wstep h2{font-size:clamp(40px,min(calc(10.5vw - 10px),15vh),166px);line-height:1.12;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.wstep h2{font-size:clamp(40px,min(calc(10.5vw - 10px),15vh),166px);line-height:1.12;padding-bottom:.12em;margin:0;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
 .wstep .desc{color:var(--mint);font-size:17px;line-height:1.6;margin:0;max-width:30ch}
 .wstep .opt{margin:-4px 0 0;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink)}
 .wstep .acts{display:flex;gap:10px;margin-top:14px}
@@ -143,8 +143,8 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .send{display:grid;place-items:center;padding:56px 20px 28px;overflow:auto}
 .send .table{display:flex;align-items:center;justify-content:center;gap:56px;max-width:100%;max-height:100%;flex-wrap:wrap}
 .pinned{position:relative;margin:0;transform:rotate(-1.5deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
-.pinned img{display:block;max-height:calc(100dvh - 250px);max-width:min(56vw,900px);min-height:min(64vh,620px);object-fit:contain}
-.tape{position:absolute;top:-11px;left:50%;width:30%;height:22px;background:rgba(244,232,196,.78);transform:translateX(-50%) rotate(2deg);z-index:1;
+.pinned img{display:block}
+.tape{position:absolute;top:-11px;left:50%;width:min(30%,150px);height:24px;background:rgba(244,232,196,.78);transform:translateX(-50%) rotate(2deg);z-index:1;
   clip-path:polygon(0 8%,6% 0,12% 10%,18% 0,24% 8%,30% 0,70% 0,76% 9%,82% 0,88% 8%,94% 0,100% 10%,100% 92%,94% 100%,88% 90%,82% 100%,76% 92%,70% 100%,30% 100%,24% 91%,18% 100%,12% 92%,6% 100%,0 90%)}
 .pinwrap{display:flex;flex-direction:column;align-items:flex-start;gap:18px}
 .label-in{display:flex;flex-direction:column;gap:8px;width:100%}
@@ -1052,7 +1052,7 @@ function renderPublish(){
   const col=PATH==="collage";
   $("#w-send").classList.toggle("only",!col||!scraps.length);
   $("#send-col").hidden=!col;$("#send-pile").hidden=!scraps.length;$("#signed2").hidden=col||OWNER;
-  if(col)$("#pub-preview").src=trimmed.toDataURL("image/webp",.85);
+  if(col){const im=$("#pub-preview");im.src=trimmed.toDataURL("image/webp",.85);const fr=$("#frame"),bw=Math.min(fr.clientWidth*.62,900),bh=Math.max(240,fr.clientHeight-230),k=Math.min(bw/trimmed.width,bh/trimmed.height);im.style.width=Math.round(trimmed.width*k)+"px";im.style.height=Math.round(trimmed.height*k)+"px";$(".label-in").style.width=im.style.width}
   $("#pub-list").innerHTML=scraps.map(s=>`<figure style="transform:rotate(${(s.id*37%9)-4}deg)"><img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}">${s.name?`<figcaption>${esc(s.name)}</figcaption>`:""}</figure>`).join("");
   $("#pile-n").textContent=`${scraps.length} to the pile`;
   $("#send-note").textContent=col?"Name it and tell its story, right under the collage.":(OWNER?"Straight into the pile.":"Sign them so you get the credit.");

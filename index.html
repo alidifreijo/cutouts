@@ -464,6 +464,39 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 .card .mv{z-index:1}
 .zbar .mv-again{display:none}
 
+/* glue it: full-screen final look */
+.fin{position:absolute;inset:0;z-index:45;display:grid;grid-template-columns:clamp(320px,36vw,640px) minmax(0,1fr);animation:finIn .55s cubic-bezier(.2,.8,.2,1) both}
+.fin[hidden]{display:none}
+@keyframes finIn{from{opacity:0}}
+#studio .desk,#studio .rail,#studio .zoom,#studio .dock,#studio .pin-float{transition:transform .5s cubic-bezier(.65,0,.25,1),opacity .4s}
+#studio.finale .desk{transform:scale(.55);opacity:0;pointer-events:none}
+#studio.finale .rail,#studio.finale .zoom,#studio.finale .pin-float{opacity:0;pointer-events:none}
+#studio.finale .dock{transform:translateX(105%)}
+body:has(#studio.finale) #tools-pega{visibility:hidden}
+#studio.finale .mbar,#studio.finale .mtrash{display:none!important}
+.fin-l{padding:min(64px,6vh) 20px 24px 64px;display:flex;flex-direction:column;gap:14px;min-height:0;overflow:auto}
+.fin-back{align-self:flex-start;margin:0 0 4px -10px;border:0;border-radius:999px;background:transparent;color:var(--mint);padding:6px 10px;font-size:16px}
+.fin-back:hover{background:rgba(214,238,222,.12);color:#fff}
+.fin-h{font-family:var(--f-head);font-weight:400;font-size:clamp(48px,min(calc(10.5vw - 10px),15vh),166px);line-height:1.12;padding-bottom:.12em;margin:0;color:#fff;text-shadow:3px 3px 0 rgba(0,0,0,.18)}
+.fin-d{color:var(--mint);font-size:17px;line-height:1.6;margin:0 0 6px;max-width:32ch}
+.fin .pp-sw{flex-direction:row;align-items:flex-start;gap:12px;margin:4px 0}
+.fin .pp-sw b{font-size:16px}.fin .pp-sw small{font-size:13.5px}
+.fin-acts{display:flex;gap:10px;margin-top:10px}
+.fin-acts .pp-btn{font-size:17px;padding:11px 26px}
+.fin-r{display:grid;place-items:center;padding:48px 32px 32px;min-height:0;overflow:auto}
+.fin-wrap{display:flex;flex-direction:column;align-items:flex-start;gap:22px}
+.fin .pp-card{width:auto}
+.fin-in{display:flex;flex-direction:column;gap:8px;width:100%}
+.fin-in input,.fin-in textarea{background:transparent;border:0;border-bottom:1px dashed var(--mat-line-strong);color:var(--mint);outline:none;padding:4px 2px;resize:none;width:100%;font:inherit}
+.fin-in input:focus,.fin-in textarea:focus{border-bottom-color:var(--mint)}
+.fin-in ::placeholder{color:rgba(214,238,222,.72);opacity:1}
+#pin-title{font-family:var(--f-head);font-size:26px;color:#fff;line-height:1.5}
+#pin-desc{font-size:16px;line-height:1.55;overflow:hidden}
+#pin-name{font-size:15px}
+.fin.sent .fin-in :placeholder-shown{display:none}
+.fin.sent .fin-in input,.fin.sent .fin-in textarea{border-bottom-color:transparent;pointer-events:none}
+@media (max-width:720px){.fin{grid-template-columns:1fr;grid-template-rows:auto auto;overflow:auto}.fin-l{padding:16px}.fin-h{font-size:56px}.fin-r{padding:16px 16px 100px}}
+
 /* the way out of make a mess: next to the scrap pile, travels with it */
 .pin-float{position:absolute;z-index:23;bottom:16px;right:16px;width:calc(var(--dock-w,320px) - 32px);justify-content:center;padding:13px 14px!important;font-size:16px!important;letter-spacing:-.02em;white-space:nowrap;box-shadow:var(--shadow-up);transition:width .25s ease,transform .15s,background .15s}
 #studio .dock-scroll{padding-bottom:84px}
@@ -684,24 +717,30 @@ body{font-size:15px}
     <button class="ib" id="lb-next" aria-label="Next"><svg class="i"><use href="#i-right"/></svg></button>
   </div>
 </div>
-<div class="pinpop" id="pinpop" hidden role="dialog" aria-label="Glue it to the table">
-  <div id="pp-form">
-    <p class="pp-t">Glue it to the table</p><p class="pp-s">Everyone will see it once it's had a look.</p>
-    <div class="pp-stage"><figure class="pp-card" id="pp-card"><span class="pp-tape"></span><img id="pp-thumb" alt="Your collage"><div class="mv" id="pp-mv" hidden></div><button class="mv-replay" id="pp-replay" hidden>↻</button></figure>
-    <div class="pp-sw" id="pp-sw" role="switch" aria-checked="false" tabindex="0"><span class="tg"></span><b>Make it move</b><small>Pieces drop in, then sway. Hover for depth.</small></div></div>
-    <label class="pp-l" for="pin-title">Name it</label>
-    <input class="pp-in" id="pin-title" maxlength="60" placeholder="Untitled mess">
-    <label class="pp-l" for="pin-desc">What's going on here? <span id="pp-count">0/280</span></label>
-    <textarea class="pp-in pp-ta" id="pin-desc" maxlength="280" rows="3" placeholder="Optional. A story, a joke, a confession."></textarea>
-    <label class="pp-l" for="pin-name">Sign it</label>
-    <input class="pp-in" id="pin-name" maxlength="40" placeholder="Name or @handle. Optional.">
-    <div class="pp-row"><button class="pp-ghost" id="pin-cancel">Not yet</button><button class="pp-btn" id="pin-go">Glue it</button></div>
-  </div>
-  <div id="pp-done" hidden>
-    <p class="pp-t">Sent.</p>
-    <p class="pp-s">It shows up on the table once it's been approved. Usually soon-ish.</p>
-    <div class="pp-row"><button class="pp-btn" id="pin-ok">Keep messing</button></div>
-  </div>
+<div class="fin" id="pinpop" hidden role="dialog" aria-label="Glue it to the table">
+  <aside class="fin-l">
+    <button class="fin-back" id="pin-cancel">← Back</button>
+    <div id="pp-form">
+      <h2 class="fin-h">Glue it</h2>
+      <p class="fin-d">Name it and tell its story, right under the collage. Everyone sees it once it's had a look.</p>
+      <div class="pp-sw" id="pp-sw" role="switch" aria-checked="false" tabindex="0"><span class="tg"></span><span><b>Make it move</b><small>Pieces drop in, then sway. Hover for depth.</small></span></div>
+      <div class="fin-acts"><button class="pp-btn" id="pin-go">Glue it</button></div>
+    </div>
+    <div id="pp-done" hidden>
+      <h2 class="fin-h">Sent.</h2>
+      <p class="fin-d">It shows up on the table once it's been approved. Usually soon-ish.</p>
+      <div class="fin-acts"><button class="pp-btn" id="pin-ok">Keep messing</button></div>
+    </div>
+  </aside>
+  <div class="fin-r"><div class="fin-wrap">
+    <figure class="pp-card" id="pp-card"><span class="pp-tape"></span><img id="pp-thumb" alt="Your collage"><div class="mv" id="pp-mv" hidden></div><button class="mv-replay" id="pp-replay" hidden aria-label="Replay">↻</button></figure>
+    <div class="fin-in" id="fin-in">
+      <input id="pin-title" maxlength="60" placeholder="Name it" aria-label="Name it" autocomplete="off">
+      <textarea id="pin-desc" maxlength="280" rows="2" placeholder="What's going on here? Optional." aria-label="What's going on here?"></textarea>
+      <input id="pin-name" maxlength="40" placeholder="Sign it · name or @handle" aria-label="Sign it" autocomplete="off">
+      <span id="pp-count" hidden></span>
+    </div>
+  </div></div>
 </div>
 <div class="toast" id="toast" hidden></div>
 
@@ -1910,21 +1949,25 @@ $("#pp-sw").onclick=()=>setMove(!moveOn);$("#pp-sw").onkeydown=e=>{if(e.key===" 
 $("#pp-replay").onclick=()=>ppMotion&&ppMotion.play();
 const pinBtn=$("#btn-pin"),pinPop=$("#pinpop");
 if(!inArtifact)pinBtn.hidden=false;
-pinBtn.onclick=async()=>{
+studio.appendChild(pinPop);
+let finDock=true;
+function sizeFin(){const r=$(".fin-r"),W=r.clientWidth-64,H=r.clientHeight-80-150,k=Math.min(W/1240,H/1754);const w=Math.max(160,Math.round(1240*k));$("#pp-card").style.width=w+"px";$("#fin-in").style.width=w+"px"}
+async function openFin(){
   if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
-  if(!pinPop.hidden){pinPop.hidden=true;return}
-  $("#pp-form").hidden=false;$("#pp-done").hidden=true;pinPop.hidden=false;
-  if(!mobile()){const r=pinBtn.getBoundingClientRect(),bt=innerHeight-r.top+10;pinPop.style.right=(innerWidth-r.right)+"px";pinPop.style.top="auto";pinPop.style.bottom=bt+"px";pinPop.style.maxHeight=(innerHeight-bt-16)+"px"}else{pinPop.style.right="";pinPop.style.top="";pinPop.style.bottom=""}
-  $("#pin-name").value=store.get("recortes-signed")||"";$("#pp-count").textContent=$("#pin-desc").value.length+"/280";
-  $("#pin-title").focus();
-  ppLayers=null;setMove(false);
-  try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.7)}catch(e){}
-};
-$("#pin-desc").addEventListener("input",e=>$("#pp-count").textContent=e.target.value.length+"/280");
-$("#pin-ok").onclick=()=>pinPop.hidden=true;
-$("#pin-cancel").onclick=()=>{pinPop.hidden=true;setMove(false)};
-document.addEventListener("pointerdown",e=>{if(!pinPop.hidden&&!e.target.closest("#pinpop,#btn-pin"))pinPop.hidden=true});
-pinPop.addEventListener("keydown",e=>{if(e.key==="Escape")pinPop.hidden=true;if(e.key==="Enter"&&e.target.tagName==="INPUT")$("#pin-go").click()});
+  finDock=!isDockClosed();studio.classList.add("finale");pinPop.hidden=false;pinPop.classList.remove("sent");
+  $("#pp-form").hidden=false;$("#pp-done").hidden=true;
+  $("#pin-name").value=store.get("recortes-signed")||"";ppLayers=null;setMove(false);
+  requestAnimationFrame(sizeFin);
+  try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.8)}catch(e){}
+  setTimeout(()=>$("#pin-title").focus(),400);
+}
+function closeFin(){if(pinPop.classList.contains("sent")){$("#pin-title").value="";$("#pin-desc").value=""}pinPop.hidden=true;studio.classList.remove("finale");setMove(false)}
+pinBtn.onclick=openFin;
+addEventListener("resize",()=>{if(!pinPop.hidden)sizeFin()});
+$("#pin-desc").addEventListener("input",e=>{e.target.style.height="auto";e.target.style.height=e.target.scrollHeight+"px"});
+$("#pin-ok").onclick=closeFin;
+$("#pin-cancel").onclick=closeFin;
+pinPop.addEventListener("keydown",e=>{if(e.key==="Escape")closeFin();if(e.key==="Enter"&&e.target.tagName==="INPUT")$("#pin-go").click()});
 $("#pin-go").onclick=async()=>{
   const last=store.get("recortes-pinned-at")||0;
   if(Date.now()-last<60000){toast("Easy. One a minute.");return}
@@ -1949,8 +1992,8 @@ $("#pin-go").onclick=async()=>{
     if(!r.ok&&r.status===400&&motion){const t=await r.text();if(/motion/i.test(t))r=await send({...base,title,description});else throw new Error("save 400 "+t)}
     if(!r.ok&&r.status===400){const t=await r.text();if(/column/i.test(t))r=await send(base);else throw new Error("save 400 "+t)}
     if(!r.ok)throw new Error("save "+r.status+" "+await r.text());
-    store.set("recortes-pinned-at",Date.now());$("#pin-title").value="";$("#pin-desc").value="";setMove(false);
-    $("#pp-form").hidden=true;$("#pp-done").hidden=false;$("#pin-ok").focus();
+    store.set("recortes-pinned-at",Date.now());
+    $("#pp-form").hidden=true;$("#pp-done").hidden=false;pinPop.classList.add("sent");$("#pin-ok").focus();
     if(ownerSignedIn())loadPending();
   }catch(e){console.error(e);toast("Couldn't glue it. Try again in a bit.")}
   go.disabled=false;go.textContent="Glue it";
