@@ -478,7 +478,7 @@ function show(v){
   $(".wstep[data-s=snap] .back").hidden=false;
   const panes={snap:"#drop",square:"#w-sheet",cut:"#w-cut",send:"#w-send",done:"#w-send"};
   ["#drop","#w-sheet","#w-cut","#w-send"].forEach(id=>{const el=$(id),on=panes[v]===id;if(on&&el.hidden){el.hidden=false;el.classList.remove("in-up","in-down");void el.offsetWidth;el.classList.add(dir>0?"in-up":"in-down")}else if(!on)el.hidden=true});
-  $("#zoom").hidden=!(v==="square"||v==="cut");$("#loose").hidden=v!=="cut";
+  $("#zoom").hidden=!(v==="square"||v==="cut");$("#loose").hidden=true;
   $("#v-wiz").classList.toggle("with-side",v==="cut");
   $("#w-send").classList.toggle("sent",v==="done");
   matchDock();requestAnimationFrame(fitSteps);
@@ -827,7 +827,7 @@ const VZ={"w-sheet":1,"w-cut":1};
 function viewDims(w){return w==="w-sheet"?[srcImg.width,srcImg.height,$("#src-cv")]:[trimmed.width,trimmed.height,$("#cut-cv")]}
 function sizeView(w){
   const el=$("#"+w);if(!el||!el.clientWidth)return;const [iw,ih,cv]=viewDims(w);if(!iw)return;
-  const pile=w==="w-cut"&&typeof scraps!=="undefined"?Math.max(0,...scraps.filter(s=>!s.moved).map(s=>s.canvas.width)):0;
+  const pile=0; // bits live in the side list only; the page keeps all the room
   let base=Math.min((el.clientWidth-80)/iw,(el.clientHeight-80)/ih,8),k=base*VZ[w],side="";
   if(pile){ // bits stack to the right of the page; page and pile are centred together and never touch the step text
     // the pile gets up to a third of the room at real size; past that the bits shrink, then the page gives a little
@@ -946,7 +946,7 @@ function syncLoose(){
 }
 // unmoved bits stack in a column beside the page, at the page's scale
 let PILESIDE="",PK=1;function layoutPile(anim){
-  const L=$("#loose");if(!L||step!=="cut")return;
+  const L=$("#loose");if(!L||step!=="cut"||L.hidden)return;
   const W=$("#v-wiz").getBoundingClientRect(),cv=$("#cut-cv").getBoundingClientRect(),k=Math.min(cvScale(),PK);
   const pile=scraps.filter(s=>!s.moved),pw=Math.max(0,...pile.map(s=>s.canvas.width*k)),x=PILESIDE==="left"?cv.left-W.left-40-pw:cv.right-W.left+40;let y=cv.top-W.top;
   const total=pile.reduce((a,s)=>a+s.canvas.height*k,0),step2=pile.length>1?Math.min(1,(cv.height-(pile.length?pile[pile.length-1].canvas.height*k:0))/Math.max(1,total-(pile[pile.length-1]||{canvas:{height:0}}).canvas.height*k)):1;
