@@ -127,10 +127,14 @@ body.zoomin .credit{opacity:0;pointer-events:none}
 .cin{display:block;position:relative;transition:transform .55s cubic-bezier(.2,.85,.25,1)}
 .wall .rulers .rx{transform:translateX(var(--ox,0))}
 .wall .rulers .ry{transform:translateY(var(--oy,0))}
-.wallseg{display:flex;gap:2px;background:var(--mat-dark);padding:3px;border-radius:999px}
-.wallseg button{border:0;background:transparent;padding:5px 12px;font-size:14.5px;border-radius:999px;color:var(--mat-ink)}
-.wallseg button:hover{color:var(--mint)}
-.wallseg button[aria-pressed="true"]{background:var(--mat-light);color:var(--mint)}
+.wallseg{display:flex;gap:6px}
+.wallseg button{width:38px;height:38px;padding:0!important;display:grid;place-items:center;border:1px solid var(--mat-line-strong);background:transparent;border-radius:50%;color:var(--mat-ink);transition:transform .25s cubic-bezier(.3,1.6,.5,1),background .2s,color .2s}
+.wallseg svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round;overflow:visible}
+.wallseg svg rect{transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.wallseg .tp{stroke-width:3;stroke-linecap:round;opacity:.55}
+.wallseg button:hover{color:var(--mint);transform:rotate(-8deg) scale(1.06)}
+.wallseg button[data-wall=strict]:hover{transform:scale(1.06)}
+.wallseg button[aria-pressed="true"]{background:var(--mint);color:var(--mat-dark);border-color:var(--mint)}
 .card{position:absolute;left:0;top:0;padding:0;border:0;background:transparent;touch-action:none;user-select:none;-webkit-user-select:none;
   transition:filter .2s;filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35))}
 .card img{display:block;width:100%;height:auto;pointer-events:none;-webkit-user-drag:none}
@@ -421,6 +425,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
   .tab{padding:5px 10px}
   #tools-mesa{position:fixed;z-index:40;left:50%;transform:translateX(-50%);bottom:max(16px,env(safe-area-inset-bottom,0px));margin:0;box-shadow:var(--shadow);border-radius:999px}
   #tools-mesa[hidden],body.zoomin #tools-mesa{display:none}
+  #tools-mesa .wallseg{background:var(--mat-dark);padding:5px;border-radius:999px}#tools-mesa .wallseg button{border-color:transparent}
   .credit{display:none}
   .note h2{font-size:18px;margin-bottom:4px}
   .note p:not(.hint):not(.fine){display:none}
@@ -609,8 +614,8 @@ body{font-size:15px}
 .rn,.zoom-v,.zbar .zn,.seg .badge,.chip .c,.menu li .cnt,.num input,.ctl-h output,.stepper output{font-family:var(--f-mono)}
 .tab,.wallseg button,.newbtn,.pinbtn,.seg button,.chip,.dd-btn,.btn,.txt-btn,.pp-btn,.pp-ghost{font-size:16px;letter-spacing:-.01em}
 .note-s,.credit,.empty-msg{letter-spacing:-.01em}
-.tab,.wallseg button{padding:6px 20px}.pinbtn{padding:7px 20px 7px 16px}.newbtn{padding:6px 18px 6px 14px}.btn{padding:8px 24px}.seg button{padding:7px 16px}
-@media (max-width:520px){.tab,.wallseg button,.newbtn,.pinbtn{font-size:14px;letter-spacing:-.03em}.tab{padding:5px 10px}.newbtn{padding:7px 9px}.newbtn .nb-t{display:none}}
+.tab{padding:6px 20px}.pinbtn{padding:7px 20px 7px 16px}.newbtn{padding:6px 18px 6px 14px}.btn{padding:8px 24px}.seg button{padding:7px 16px}
+@media (max-width:520px){.tab,.newbtn,.pinbtn{font-size:14px;letter-spacing:-.03em}.tab{padding:5px 10px}.newbtn{padding:7px 9px}.newbtn .nb-t{display:none}}
 .note p{font-size:18px;line-height:1.55;max-width:34em}.note .hint{font-size:15px}
 .card .lbl{font-size:15px;font-family:var(--f-head);line-height:1.6}
 .credit{font-size:14px}
@@ -667,7 +672,7 @@ body{font-size:15px}
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio">make a mess</button>
     </nav>
     <div class="tools" id="tools-mesa">
-      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true" data-tip="scatter them">messy</button><button data-wall="strict" aria-pressed="false" data-tip="tidy rows">strict</button></div>
+      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true" aria-label="Messy" data-tip="messy"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3.5" y="6" width="9" height="12" rx="1" transform="rotate(-14 8 12)"/><rect x="14" y="3.5" width="9.5" height="11" rx="1" transform="rotate(10 18.7 9)"/><rect x="9" y="13.5" width="10" height="11" rx="1" transform="rotate(-4 14 19)"/><path class="tp" d="M11.2 12.6l5 .6M16.6 2.6l3.6 1.4"/></svg></button><button data-wall="strict" aria-pressed="false" aria-label="Strict" data-tip="strict"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="4" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="4" width="8.5" height="8.5" rx="1"/><rect x="4" y="15.5" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="15.5" width="8.5" height="8.5" rx="1"/></svg></button></div>
     </div>
     <button class="newbtn" id="tab-add" aria-label="feed the mess" aria-selected="false" aria-controls="addpane"><svg class="i"><use href="#i-plus"/></svg><span class="nb-t">feed the mess</span></button>
     <div class="tools" id="tools-pega" hidden>
@@ -872,33 +877,20 @@ function layout(){
   // golden-ratio offsets, so repeats (if any) never sit side by side.
   const rank=id=>messyOrder&&messyOrder.has(id)?messyOrder.get(id):1e6+hs(id,MESS_SEED);
   const colW=cw+gap,order=ALL.slice().sort((a,b)=>(b.w.pending?1:0)-(a.w.pending?1:0)||rank(a.w.id)-rank(b.w.id));
-  if(!messy){
-    // strict: each collage once, in columns; at least a screen wide, growing as collages are added
-    const cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
-    // columns under the title share its width evenly; the rest start right beside it, level with "Cut"
-    const span=noteBox.x1-pad;let k=small?cols:Math.ceil(span/colW);if(!small&&span/k<cw+gap*.5)k=Math.max(1,k-1);
-    const xs=[...Array(cols)].map((_,c)=>small||c<k?pad+c*(small?colW:span/k):noteBox.x1+(c-k)*colW);
-    const tops=[...Array(cols)].map((_,c)=>{let y=pad+hs("col"+c,11)*cw*.45;if(small||c<k)y=Math.max(y,noteBox.y1);else y=pad+18+hs("col"+c,11)*cw*.12;return y});
-    order.forEach(({w,i})=>{const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops));place.push({w,i,key:w.id,x:xs[c],y:tops[c],r:0,s:1,z:1});tops[c]+=h+lbl+gap});
-  }else{
-    // messy: scattered at random (new shuffle every visit), trying hard not to pile up
-    const area=ALL.reduce((a,o)=>a+(cw+gap)*(cw*o.w.h/o.w.w+lbl+gap),0)*1.25+(noteBox.x1*noteBox.y1);
-    const bw=Math.max(W-pad,Math.sqrt(area*(W/H))),bh=Math.max(H-pad,area/bw);
-    const boxes=[noteBox],rnd=(id,k)=>hs(id,k*7919+MESS_SEED);
-    order.forEach(({w,i},n)=>{
-      const h=cw*w.h/w.w,id=w.id;let best=null,bestO=Infinity;
-      for(let t=0;t<40;t++){
-        const x=w.pending&&t===0?noteBox.x1:pad+rnd(id,t*2)*Math.max(1,bw-cw),y=w.pending&&t===0?pad:pad+rnd(id,t*2+1)*Math.max(1,bh-h);
-        const b={x0:x-gap*.4,y0:y-gap*.4,x1:x+cw+gap*.4,y1:y+h+lbl+gap*.4};
-        let o=0;for(const q of boxes){const ix=Math.min(b.x1,q.x1)-Math.max(b.x0,q.x0),iy=Math.min(b.y1,q.y1)-Math.max(b.y0,q.y0);if(ix>0&&iy>0)o+=ix*iy}
-        if(o<bestO){bestO=o;best={x,y,b}}if(o===0)break;
-      }
-      boxes.push(best.b);
-      place.push({w,i,key:id,x:best.x,y:best.y,r:(rnd(id,99)-.5)*10,s:1,z:1+n});
-    });
-    // remember this scatter, read top-to-bottom, so strict can tidy it in the same order
-    messyOrder=new Map(place.slice().sort((a,b)=>(a.y+a.x*.15)-(b.y+b.x*.15)).map((p,k)=>[p.key,k]));
-  }
+  // both looks share one column grid, so nothing leaves a hole beside the title:
+  // columns that sit under the title start below it, the rest start level with "Cut"
+  const cols=Math.max(small?2:3,Math.ceil((W-pad)/colW),Math.round(Math.sqrt(N*(small?.5:1.4))));
+  const xs=[...Array(cols)].map((_,c)=>pad+c*colW);
+  const under=c=>small||xs[c]<noteBox.x1-gap*.5;
+  const tops=[...Array(cols)].map((_,c)=>under(c)?noteBox.y1+(messy?hs("col"+c,11)*cw*.3:0):pad+18+hs("col"+c,11)*cw*(messy?.35:.12));
+  const rnd=(id,k)=>hs(id,k*7919+MESS_SEED);
+  order.forEach(({w,i},n)=>{const h=cw*w.h/w.w,c=tops.indexOf(Math.min(...tops)),id=w.id;
+    if(!messy){place.push({w,i,key:id,x:xs[c],y:tops[c],r:0,s:1,z:1})}
+    else{ // messy: same grid, then knocked about — nudged, tilted, a few overlapping
+      const jx=(rnd(id,1)-.5)*gap*1.6,jy=(rnd(id,2)-.5)*gap*1.2;
+      place.push({w,i,key:id,x:Math.max(pad*.5,xs[c]+jx),y:Math.max(under(c)?noteBox.y1-gap*.3:pad*.5,tops[c]+jy),r:(rnd(id,99)-.5)*10,s:1,z:1+n})}
+    tops[c]+=h+lbl+gap*(messy?.75:1)});
+  if(messy)messyOrder=new Map(place.slice().sort((a,b)=>(a.y+a.x*.15)-(b.y+b.x*.15)).map((p,k)=>[p.key,k]));
   let mx=0,my=0;
   place.forEach(p=>{const b=cardFor(p.w,p.i,p.key);live.add(b);b.style.width=cw+"px";b.style.zIndex=p.z;b.dataset.r=p.r;
     b.style.transform=`translate(${p.x}px,${p.y}px) rotate(${p.r}deg) scale(${p.s})`;
