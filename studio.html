@@ -427,7 +427,7 @@ const Q=new URLSearchParams(location.search),DEMO=Q.has("demo"),EMBED=Q.has("emb
 if(EMBED)document.documentElement.classList.add("embed");
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const esc=t=>String(t||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const CLUSTERS=[["people","People"],["faces","Faces"],["bodies","Bodies"],["nature","Creatures"],["plants","Plants"],["food","Food"],["things","Things"],["vehicles","Vehicles"],["places","Places"],["heads","Headlines"],["words","Words"],["textures","Textures"]];
+const CLUSTERS=[["people","People"],["nature","Creatures"],["plants","Plants"],["food","Food"],["things","Things"],["vehicles","Vehicles"],["places","Places"],["heads","Headlines"],["words","Words"],["textures","Textures"]];
 const CL=Object.fromEntries(CLUSTERS);
 let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3400)}
 const mk=(w,h)=>{const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
@@ -611,7 +611,7 @@ function openBig(i){
    <div class="info"><h2>${esc(b.col?(b.col.title||"Untitled mess"):"Scraps for the pile")}</h2>
     <p class="muted" style="margin:0 0 8px">${who?"by "+esc(who):"anonymous"} · ${ago(b.at)}</p>
     ${b.col&&b.col.description?`<p style="line-height:1.6;margin:0 0 10px">${esc(b.col.description)}</p>`:""}
-    ${b.scraps.length?`<p class="muted" style="margin:10px 0 0">${b.scraps.length} scrap${b.scraps.length>1?"s":""} for the pile</p><div class="pile">${b.scraps.map(s=>`<figure><img src="${pub("scraps",s.image_path)}" alt=""><figcaption>${esc(s.title)}<br>${esc(CL[s.cluster]||s.cluster)}</figcaption></figure>`).join("")}</div>`:""}
+    ${b.scraps.length?`<p class="muted" style="margin:10px 0 0">${b.scraps.length} scrap${b.scraps.length>1?"s":""} for the pile</p><div class="pile">${b.scraps.map(s=>`<figure><img src="${pub("scraps",s.image_path)}" alt=""><figcaption>${esc(s.title)}<br>${esc(CL[{faces:"people",bodies:"people"}[s.cluster]||s.cluster]||s.cluster)}</figcaption></figure>`).join("")}</div>`:""}
     <div style="display:flex;gap:10px;justify-content:flex-end"><button class="ghost" data-bin>Bin it</button><button class="btn" data-keep>Keep it</button></div></div>`;
   $("#bigview").hidden=false;
   $("#big [data-bx]").onclick=()=>$("#bigview").hidden=true;
