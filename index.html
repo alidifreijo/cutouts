@@ -545,6 +545,11 @@ body:has(#studio.finale) #tools-pega{visibility:hidden}
 .tbox .tr[data-r="sw"]{left:0;bottom:0;transform:translate(-85%,85%)}
 .piece.sel{outline:none}
 .piece .handle,.gbox .handle{display:none!important}
+.tbox.locked{pointer-events:none;border-style:dashed;border-color:rgba(214,238,222,.7)}
+.tbox.locked .th,.tbox.locked .tr{display:none}
+.tbox.locked::after{content:"";position:absolute;right:calc(-11px*var(--iz,1));top:calc(-11px*var(--iz,1));width:calc(22px*var(--iz,1));height:calc(22px*var(--iz,1));border-radius:50%;background:var(--mat-dark) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d6eede' stroke-width='2'%3E%3Crect x='5' y='11' width='14' height='10' rx='2'/%3E%3Cpath d='M8 11V7.5a4 4 0 0 1 8 0V11'/%3E%3C/svg%3E") center/62% no-repeat}
+.piece.locked{cursor:default}
+.lockb{margin-left:auto;flex:0 0 auto}.lockb[aria-pressed="true"]{color:var(--mint);background:var(--mat-light)}
 @media (hover:none){.tbox .th{width:calc(18px*var(--iz,1));height:calc(18px*var(--iz,1));border-radius:50%}}
 
 /* the way out of make a mess: next to the scrap pile, travels with it */
@@ -644,6 +649,8 @@ body{font-size:15px}
   <symbol id="i-zout" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></symbol>
   <symbol id="i-fit" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/></symbol>
   <symbol id="i-left" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></symbol>
+  <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 7.6-1.7"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
   <symbol id="i-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
   <symbol id="i-up" viewBox="0 0 24 24"><path d="m18 15-6-6-6 6"/></symbol>
@@ -711,6 +718,7 @@ body{font-size:15px}
         <button class="ib sel-only" data-a="dup" aria-label="Duplicate" data-tip="duplicate"><svg class="i"><use href="#i-copy"/></svg></button>
         <button class="ib sel-only" data-a="rot" aria-label="Rotate 90°" data-tip="rotate 90°"><svg class="i"><use href="#i-rotate"/></svg></button>
         <button class="ib sel-only" data-a="flip" aria-label="Mirror" data-tip="mirror"><svg class="i"><use href="#i-flip"/></svg></button>
+        <button class="ib sel-only" data-a="lock" id="rail-lock" aria-label="Lock" data-tip="lock · ⇧⌘L" aria-pressed="false"><svg class="i"><use href="#i-unlock"/></svg></button>
         <button class="ib sel-only" data-a="del" aria-label="Remove" data-tip="remove"><svg class="i"><use href="#i-trash"/></svg></button>
         <button class="ib sel-only m-only" id="m-fx" aria-label="Effects"><svg class="i"><use href="#i-fx"/></svg></button>
         <button class="ib m-only m-done" id="m-done" aria-label="Done"><svg class="i"><use href="#i-check"/></svg></button>
@@ -1086,6 +1094,7 @@ document.addEventListener("keydown",e=>{
   if(mod&&(e.key==="z"||e.key==="Z")){if(e.target.tagName==="TEXTAREA")return;e.preventDefault();e.shiftKey?redo():undo();return}
   if(mod&&(e.key==="y"||e.key==="Y")){e.preventDefault();redo();return}
   if(typing)return;
+  if(mod&&e.shiftKey&&(e.key==="l"||e.key==="L")&&sel){e.preventDefault();act("lock");return}
   if(mod&&(e.key==="d"||e.key==="D")&&sel){e.preventDefault();act("dup");return}
   if(sel&&!mod&&(e.key==="]"||e.key==="[")){act(e.key==="]"?"up":"down");return}
   if(sel&&(e.key==="Delete"||e.key==="Backspace")){e.preventDefault();act("del");return}
@@ -1097,6 +1106,7 @@ document.addEventListener("keydown",e=>{
   if(e.key==="0")fitZoom();
   if(e.key==="l"||e.key==="L")setDock(isDockClosed());
   if(e.key==="t"||e.key==="T"){e.preventDefault();addText()}
+  if(sel&&e.key.startsWith("Arrow")&&isLocked())return;
   if(sel&&e.key.startsWith("Arrow")){
     e.preventDefault();const d=e.shiftKey?.02:.004;
     targets().forEach(p=>{if(e.key==="ArrowLeft")p.x-=d;if(e.key==="ArrowRight")p.x+=d;if(e.key==="ArrowUp")p.y-=d;if(e.key==="ArrowDown")p.y+=d;renderPiece(p)});
@@ -1545,6 +1555,7 @@ function addPiece(d,silent){
   sheet.insertBefore(el,gbox);
   const p={kind:"img",flip:false,op:1,blend:"normal",...d,fx:normFx(d.fx),el};
   if(p.kind==="text")p.t={...TDEF,...(d.t||{})};
+  if(p.lock)el.classList.add("locked");
   delete p.nw;delete p.nh;delete p.fw;delete p.fh;delete p.canvas;delete p.tok;
   pieces.push(p);renderPiece(p);bindPiece(p);refresh(p);
   if(!silent)select(p);
@@ -1567,7 +1578,7 @@ function select(p,m="single",fromSheet){
   sel=p;selMode=p?m:"single";if(!p)enteredG=null;
   if(p&&selMode==="single")p.el.classList.add("sel");
   document.querySelectorAll("#rail .sel-only").forEach(b=>b.disabled=!p);studio.classList.toggle("has-sel",!!p);studio.classList.toggle("has-pieces",pieces.length>0);
-  updateGbox();updateTbox();
+  updateGbox();updateTbox();syncLock();
   if(fromSheet&&p&&!isDockClosed()&&pane!=="fx")setPane("fx");else if(pane==="fx")renderEdit();
   updateBadge();
 }
@@ -1604,8 +1615,12 @@ function updateGbox(){
 })();
 function updateBadge(){const n=sel?sel.fx.length:0;const b=$("#fx-badge");b.hidden=!n;b.textContent=n}
 function centerOf(T){return {x:T.reduce((a,t)=>a+t.x,0)/T.length,y:T.reduce((a,t)=>a+t.y,0)/T.length}}
+const isLocked=()=>targets().some(t=>t.lock);
+function syncLock(){const L=!!sel&&isLocked(),b=$("#rail-lock");if(b){b.setAttribute("aria-pressed",L);b.setAttribute("aria-label",L?"Unlock":"Lock");b.dataset.tip=(L?"unlock":"lock")+" · ⇧⌘L";b.querySelector("use").setAttribute("href",L?"#i-lock":"#i-unlock")}}
 function act(a){
   if(!sel)return;const T=targets();
+  if(a==="lock"){const on=!isLocked();T.forEach(t=>{if(on)t.lock=true;else delete t.lock;t.el.classList.toggle("locked",on)});syncLock();updateTbox();save();if(pane==="fx")renderEdit();toast(on?"Locked. It stays put.":"Unlocked.");return}
+  if(isLocked()&&(a==="rot"||a==="flip"))return;
   if(a==="up")T.forEach(t=>{pieces.splice(pieces.indexOf(t),1);pieces.push(t);sheet.insertBefore(t.el,gbox)});
   if(a==="down")[...T].reverse().forEach(t=>{pieces.splice(pieces.indexOf(t),1);pieces.unshift(t);sheet.insertBefore(t.el,sheet.querySelector(".piece"))});
   if(a==="dup"){
@@ -1630,6 +1645,7 @@ function bindPiece(p){
     e.stopPropagation();openPop(null);closeMenus();
     if(!(sel&&targets().includes(p)))selectPiece(p,true);
     id=e.pointerId;p.el.setPointerCapture(id);
+    if(isLocked()){m=null;return}
     if(e.target.classList.contains("handle")&&selMode==="single"){
       m="rs";const rc=sheet.getBoundingClientRect();c0={x:rc.left+p.x*rc.width,y:rc.top+p.y*rc.height};
       a0=Math.atan2(e.clientY-c0.y,e.clientX-c0.x);d0=Math.hypot(e.clientY-c0.y,e.clientX-c0.x);w0=p.w;r0=p.r;
@@ -1679,7 +1695,7 @@ studio.addEventListener("pointerdown",e=>{
   touches.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(touches.size===2){
     e.stopPropagation();
-    if(!sel)return;
+    if(!sel||isLocked())return;
     const [a,b]=[...touches.values()],rc=sheet.getBoundingClientRect(),ts=targets();
     const cx=ts.reduce((s,t)=>s+t.x,0)/ts.length,cy=ts.reduce((s,t)=>s+t.y,0)/ts.length;
     pinchP={d:Math.hypot(a.x-b.x,a.y-b.y),a:Math.atan2(b.y-a.y,b.x-a.x),rc,cx,cy,start:ts.map(t=>({t,x:t.x,y:t.y,w:t.w,r:t.r,size:t.t&&t.t.size}))};
@@ -1725,7 +1741,7 @@ function tGeom(){
 function updateTbox(){
   const g=sel&&!(sel.g&&selMode==="single"&&enteredG!==sel.g)?tGeom():null;
   if(!g||mode!=="pega"){tbox.hidden=true;return}
-  tbox.hidden=false;tbox.style.setProperty("--iz",1/zoom);
+  tbox.hidden=false;tbox.style.setProperty("--iz",1/zoom);tbox.classList.toggle("locked",isLocked());
   tbox.style.width=g.w+"px";tbox.style.height=g.h+"px";
   tbox.style.transform=`translate(${g.cx-g.w/2}px,${g.cy-g.h/2}px) rotate(${g.r}deg)`;
 }
@@ -1786,7 +1802,7 @@ function renderEdit(){
   const grp=p.g?members(p.g):null;
   const sub=grp?(selMode==="group"?`${grp.length} pieces`:`piece ${grp.indexOf(p)+1} of ${grp.length}`):"";
   const gact=grp?(selMode==="group"?`<button class="txt-btn" data-do="ungroup">Ungroup</button>`:`<button class="txt-btn" data-do="backgroup">Back to group</button>`):"";
-  let h=`<div class="fx-sel"><div class="fx-thumb">${isT?`<span style="font-family:'${p.t.font}'">Aa</span>`:`<img src="${SRC("s/"+p.id+".webp")}" alt="">`}</div><div class="fx-sel-t"><b>${isT?"Text":esc(s.t)}</b>${grp?`<span class="gchip${selMode==="single"?" in":""}">${selMode==="group"?"group":"in group"}</span>`:""}${sub?`<span>${sub}</span>`:""}</div>${gact}</div>`;
+  let h=`<div class="fx-sel"><div class="fx-thumb">${isT?`<span style="font-family:'${p.t.font}'">Aa</span>`:`<img src="${SRC("s/"+p.id+".webp")}" alt="">`}</div><div class="fx-sel-t"><b>${isT?"Text":esc(s.t)}</b>${grp?`<span class="gchip${selMode==="single"?" in":""}">${selMode==="group"?"group":"in group"}</span>`:""}${sub?`<span>${sub}</span>`:""}</div>${gact}<button class="mini lockb" data-do="lock" aria-pressed="${isLocked()}" aria-label="${isLocked()?"Unlock":"Lock"} layer" title="${isLocked()?"unlock":"lock"}"><svg class="i"><use href="#i-${isLocked()?"lock":"unlock"}"/></svg></button></div>`;
   // appearance first
   const bl=BLENDS.find(b=>b[0]===(p.blend||"normal"))||BLENDS[0];
   h+=`<div class="sec"><p class="sec-t">Appearance</p><div class="nums">
@@ -1886,6 +1902,7 @@ dock.addEventListener("click",e=>{
   if(b.matches("li[role=option]")){pick(b.closest(".dd").dataset.dd,b.dataset.v);return}
   if(!b.closest("#pane-fx"))return;
   if(b.dataset.do==="addtext"){addText();return}
+  if(b.dataset.do==="lock"){act("lock");return}
   if(!sel)return;
   const p=sel,T=targets();
   if(b.dataset.fs){fragStyle=b.dataset.fs;renderEdit();return}
