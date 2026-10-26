@@ -130,6 +130,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .view>.stage{margin:auto;flex:0 0 auto;position:relative;touch-action:none;user-select:none}
 .view.space,.view.panning{cursor:grab}.view.panning{cursor:grabbing}
 .stage canvas{display:block}
+#cut-cv{outline:1px solid rgba(214,238,222,.18);outline-offset:0}
 .stage svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
 .stage.cut{cursor:var(--cutter)}
 .view.space .stage.cut{cursor:inherit}
@@ -252,7 +253,13 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 @media (max-width:820px){
   .embed .app{padding:0}
   .wiz-wrap,.wiz-wrap.with-side{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) auto}
-  .rail{padding:16px 16px 8px 40px;min-height:150px}.rail .dots{left:16px;top:24px}.wstep h2{font-size:24px}.area{padding:8px 12px}
+  .rail{padding:14px 72px 10px 40px;min-height:0}.rail .dots{left:16px;top:22px}.area{padding:8px 12px}
+  .wstep{gap:6px}.wstep h2{font-size:30px;line-height:1.15;padding-bottom:0}.wstep .back{font-size:14px;padding:4px 10px;margin-bottom:0}
+  .wstep .desc{font-size:14px;line-height:1.5;max-width:none}.wstep .opt{display:none}
+  .wstep .acts{margin-top:6px}.wstep .acts .btn,.wstep .acts .ghost{font-size:15px;padding:9px 20px}
+  .rail .track{transition:height .4s cubic-bezier(.65,0,.25,1)}
+  .quit{top:12px!important;right:12px!important}
+  #tool-hint,.side .sec-t{display:none}.side{max-height:34dvh!important}.wstep[data-s=cut] .desc{display:none}
   .wiz-wrap:not(.with-side) .side{display:none}
   .side{border-left:0;border-top:1px solid var(--mat-line-strong);max-height:46dvh}
   .side.blank{display:none}
@@ -491,6 +498,9 @@ function setPath(p){
 // step titles shrink until the whole step (title, text, buttons) fits above the zoom bar
 function fitSteps(){
   const rail=$("#rail");if(!rail||!rail.clientHeight)return;
+  if(innerWidth<=820){ // phones: the rail is as tall as the step that's showing, nothing gets clipped
+    const on=$(".wstep.on");$$(".wstep h2").forEach(h=>h.style.fontSize="");$("#rail .track").style.height=on?on.offsetHeight+"px":"";return}
+  $("#rail .track").style.height="";
   $$(".wstep").forEach(w=>{const h=w.querySelector("h2");if(!h)return;h.style.fontSize="";
     if(!w.classList.contains("on"))return;
     const room=rail.clientHeight-parseFloat(getComputedStyle(rail).paddingTop)-84;
@@ -819,14 +829,13 @@ function sizeView(w){
   const el=$("#"+w);if(!el||!el.clientWidth)return;const [iw,ih,cv]=viewDims(w);if(!iw)return;
   const pile=w==="w-cut"&&typeof scraps!=="undefined"?Math.max(0,...scraps.filter(s=>!s.moved).map(s=>s.canvas.width)):0;
   let base=Math.min((el.clientWidth-80)/iw,(el.clientHeight-80)/ih,8),k=base*VZ[w],side="";
-  if(pile){ // first try the free mat left of the page (under the big step text it's empty)
-    const on=$(".wstep.on"),txt=on?Math.max(0,...[...on.children].filter(c=>c.offsetParent).map(c=>{const r=document.createRange();r.selectNodeContents(c);return r.getBoundingClientRect().right})):0;
-    const room=el.getBoundingClientRect().left-txt+(el.clientWidth-iw*k)/2;
-    side="left"; // bits may tuck under the step text; only nudge the page smaller a little
-    if(pile*k+50>room){const nb=Math.max(base*.8,Math.min(base,(el.clientWidth-80-60)/(iw+pile)));base=nb;k=base*VZ[w]}
-  }
+  if(pile){ // bits stack to the right of the page; page and pile are centred together and never touch the step text
+    // the pile gets up to a third of the room at real size; past that the bits shrink, then the page gives a little
+    side="right";const avail=el.clientWidth-80-60,pw=Math.min(pile*base,avail*.26);
+    base=Math.min(base,(avail-pw)/iw);k=base*VZ[w];PK=Math.min(k,pw/pile);
+  }else PK=k;
   cv.style.width=iw*k+"px";cv.style.height=ih*k+"px";
-  if(w==="w-cut"){const st=el.querySelector(".stage");st.style.transform=side==="right"?`translateX(${-(pile*k+60)/2}px)`:"";PILESIDE=side}
+  if(w==="w-cut"){const st=el.querySelector(".stage");st.style.transform=side==="right"?`translateX(${-(pile*PK+60)/2}px)`:"";PILESIDE=side}
   const zv=$("#zoom .zv");if(zv)zv.textContent=Math.round(VZ[w]*100)+"%";
 }
 const afterZoom=w=>{if(w==="w-sheet")placeCorners();else{drawCut();layoutPile(false)}};
@@ -903,7 +912,7 @@ function addScrap(s){
 function renderScraps(){
   syncLoose();
   const el=$("#scraps");$("#bits-n").textContent=scraps.length||"";
-  if(!scraps.length){el.innerHTML=`<div class="empty">${PATH==="collage"?"Optional. Cut out bits for the pile,<br>or skip and send the collage.":"Draw around something.<br>Roughly is fine."}</div>`;return}
+  if(!scraps.length){el.innerHTML=`<div class="empty">${PATH==="collage"?"Draw around something you love.<br>It lands here.":"Draw around something.<br>Roughly is fine."}</div>`;return}
   el.innerHTML=scraps.map(s=>`<div class="scrap" data-id="${s.id}">
     <div class="th"><img src="${s.canvas.toDataURL()}" alt=""></div>
     <div class="meta">
@@ -936,9 +945,9 @@ function syncLoose(){
   if(fresh.length){requestAnimationFrame(()=>{drawCut();layoutPile(true)})}else layoutPile(false);
 }
 // unmoved bits stack in a column beside the page, at the page's scale
-let PILESIDE="";function layoutPile(anim){
+let PILESIDE="",PK=1;function layoutPile(anim){
   const L=$("#loose");if(!L||step!=="cut")return;
-  const W=$("#v-wiz").getBoundingClientRect(),cv=$("#cut-cv").getBoundingClientRect(),k=cvScale();
+  const W=$("#v-wiz").getBoundingClientRect(),cv=$("#cut-cv").getBoundingClientRect(),k=Math.min(cvScale(),PK);
   const pile=scraps.filter(s=>!s.moved),pw=Math.max(0,...pile.map(s=>s.canvas.width*k)),x=PILESIDE==="left"?cv.left-W.left-40-pw:cv.right-W.left+40;let y=cv.top-W.top;
   const total=pile.reduce((a,s)=>a+s.canvas.height*k,0),step2=pile.length>1?Math.min(1,(cv.height-(pile.length?pile[pile.length-1].canvas.height*k:0))/Math.max(1,total-(pile[pile.length-1]||{canvas:{height:0}}).canvas.height*k)):1;
   scraps.forEach(s=>{const el=L.querySelector(`[data-id="${s.id}"]`);if(!el)return;el.style.width=s.canvas.width*k+"px";if(s.moved)return;
@@ -1057,16 +1066,22 @@ function confirmNoScraps(){toast("No scraps. Just the collage, then.");return tr
 function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===1)return c;const o=mk(c.width*k,c.height*k);const g=o.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,o.width,o.height);return o}
 
 // ---------- 4 send ----------
+function sizePub(){ // the collage takes what the frame gives once the side panel has gone
+  if(!trimmed||PATH!=="collage"||$("#w-send").hidden)return;const im=$("#pub-preview"),fr=$("#frame"),mob=innerWidth<=820;
+  const bw=Math.min(mob?fr.clientWidth-60:fr.clientWidth-270-44-100,900),bh=Math.max(220,fr.clientHeight-150-(scraps.length&&!mob?230:0));
+  const k=Math.min(bw/trimmed.width,bh/trimmed.height);im.style.width=Math.round(trimmed.width*k)+"px";im.style.height=Math.round(trimmed.height*k)+"px";
+}
+addEventListener("resize",()=>sizePub());
 function renderPublish(){
   const col=PATH==="collage";
   $("#w-send").classList.toggle("only",!col||!scraps.length);
   $("#send-col").hidden=!col;$("#send-pile").hidden=!scraps.length;$("#signed2").hidden=col||OWNER;
-  if(col){const im=$("#pub-preview");im.src=trimmed.toDataURL("image/webp",.85);const fr=$("#frame"),bw=Math.min(fr.clientWidth-270-44-80,900),bh=Math.max(240,fr.clientHeight-230),k=Math.min(bw/trimmed.width,bh/trimmed.height);im.style.width=Math.round(trimmed.width*k)+"px";im.style.height=Math.round(trimmed.height*k)+"px"}
+  if(col){$("#pub-preview").src=trimmed.toDataURL("image/webp",.85);sizePub();requestAnimationFrame(sizePub);setTimeout(sizePub,420)}
   $("#pub-list").innerHTML=scraps.map(s=>`<figure style="transform:rotate(${(s.id*37%9)-4}deg)"><img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}">${s.name?`<figcaption>${esc(s.name)}</figcaption>`:""}</figure>`).join("");
   $("#pile-n").textContent=`${scraps.length} to the pile`;
   $("#send-note").textContent=col?"Name it and tell its story on the little card.":(OWNER?"Straight into the pile.":"Sign them so you get the credit.");
   $("#publish").textContent=col?"Glue it":"Pile it";
-  if(col)setTimeout(()=>$("#title").focus(),30);
+  if(col&&innerWidth>820)setTimeout(()=>$("#title").focus({preventScroll:true}),30);
 }
 const slug=t=>(t||"collage").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,32)||"collage";
 const webp=(c,q=.82)=>new Promise(r=>c.toBlob(r,"image/webp",q));
