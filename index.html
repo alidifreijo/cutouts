@@ -372,7 +372,7 @@ body.scrubbing,body.scrubbing *{cursor:ew-resize!important}
 .sec-tog:hover{color:var(--mint)}
 .sec-tog .st{text-transform:uppercase;letter-spacing:.06em}
 .sec-tog em{font-style:normal;display:inline-grid;place-items:center;min-width:16px;height:16px;padding:0 4px;margin-left:6px;border-radius:999px;background:var(--mat-light);color:var(--mint);font-size:12px;letter-spacing:0}
-.sec-tog svg.i{width:14px;height:14px;transition:transform .2s}
+.sec-tog svg.i{display:none}
 .sec-tog[aria-expanded="false"] svg.i{transform:rotate(-90deg)}
 .fx-sum{display:flex;flex-wrap:wrap;gap:6px}
 .fx-pill{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;color:var(--mint);background:rgba(44,106,78,.38);border:1px solid var(--mat-line);border-radius:999px;padding:3px 9px 3px 4px}
@@ -489,14 +489,17 @@ body:has(#studio.finale) #tools-pega{visibility:hidden}
   filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 10px 12px rgba(0,0,0,.35));
   clip-path:polygon(0 1%,8% 0,22% 1%,40% 0,58% 1%,76% 0,92% 1%,100% 0,99% 30%,100% 62%,99% 100%,80% 99%,60% 100%,40% 99%,20% 100%,0 99%,1% 66%,0 34%)}
 .tag-tape{position:absolute;top:4px;left:50%;width:84px;height:20px;background:var(--tape);transform:translateX(-50%) rotate(-3deg)}
-.tag-l{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:#7a7466;margin-top:8px}
+.tag-l{font-family:"Mynerve",cursive;font-size:14px;color:#2a2a26;margin-top:8px}
 .tag input,.tag textarea{background:transparent;border:0;border-bottom:1px dashed rgba(42,42,38,.35);color:#1d1d1a;outline:none;padding:3px 1px;resize:none;width:100%;font:inherit;font-size:15px}
 .tag input:focus,.tag textarea:focus{border-bottom-color:#2c6a4e}
-.tag ::placeholder{color:#a39d8e;opacity:1}
-.tag #pin-title{font-family:var(--f-head);font-size:20px;color:#1d1d1a;line-height:1.5}
-.tag #pin-desc{font-size:14px;line-height:1.55;overflow:hidden}
-.tag .pp-sw{flex-direction:row;align-items:flex-start;gap:10px;margin-top:16px;padding-top:12px;border-top:1px solid rgba(42,42,38,.15)}
-.tag .pp-sw b{color:#1d1d1a;font-size:14px}.tag .pp-sw small{color:#7a7466;font-size:12px}
+.tag ::placeholder{color:rgba(42,42,38,.42);opacity:1}
+.tag,.tag input,.tag textarea{font-family:"Mynerve",cursive}
+.tag #pin-title{font-family:"Mynerve",cursive;font-size:24px;color:#1d1d1a;line-height:1.5}
+.tag #pin-desc{font-size:17px;line-height:28px;padding:0 1px;overflow:hidden;border-bottom:0;min-height:84px;background:repeating-linear-gradient(transparent 0 27px,rgba(42,42,38,.28) 27px 28px)}
+.tag #pin-name{font-size:17px}
+.tag .pp-sw b{font-family:"Mynerve",cursive;font-size:17px}
+.tag .pp-sw{flex-direction:row;align-items:center;gap:10px;margin-top:18px}
+.tag .pp-sw b{color:#1d1d1a;font-size:17px;font-weight:400}
 .tag .pp-sw .tg{background:rgba(42,42,38,.2)}.tag .pp-sw .tg::after{background:#fff}
 .tag .pp-sw.on .tg{background:#2c6a4e}.tag .pp-sw.on .tg::after{background:#fff}
 .fin.sent .tag :placeholder-shown{display:none}.fin.sent .tag input,.fin.sent .tag textarea{border-bottom-color:transparent;pointer-events:none}.fin.sent .tag .pp-sw{display:none}
@@ -511,6 +514,24 @@ body:has(#studio.finale) #tools-pega{visibility:hidden}
 .fin.sent .fin-in :placeholder-shown{display:none}
 .fin.sent .fin-in input,.fin.sent .fin-in textarea{border-bottom-color:transparent;pointer-events:none}
 @media (max-width:720px){.fin-wrap{flex-direction:column;gap:28px}.fin{grid-template-columns:1fr;grid-template-rows:auto auto;overflow:auto}.fin-l{padding:16px}.fin-h{font-size:56px}.fin-r{padding:16px 16px 100px}}
+
+/* transform box (figma-style) */
+.tbox{position:absolute;left:0;top:0;z-index:30;transform-origin:50% 50%;border:calc(1.5px*var(--iz,1)) solid #6ec9ff;cursor:move;touch-action:none;box-sizing:border-box}
+.tbox[hidden]{display:none}
+.tbox .th{position:absolute;width:calc(10px*var(--iz,1));height:calc(10px*var(--iz,1));background:#fff;border:calc(1.5px*var(--iz,1)) solid #6ec9ff;box-sizing:border-box;z-index:2}
+.tbox .th[data-c="nw"]{left:0;top:0;transform:translate(-50%,-50%);cursor:nwse-resize}
+.tbox .th[data-c="ne"]{right:0;top:0;transform:translate(50%,-50%);cursor:nesw-resize}
+.tbox .th[data-c="se"]{right:0;bottom:0;transform:translate(50%,50%);cursor:nwse-resize}
+.tbox .th[data-c="sw"]{left:0;bottom:0;transform:translate(-50%,50%);cursor:nesw-resize}
+.tbox .tr{position:absolute;width:calc(26px*var(--iz,1));height:calc(26px*var(--iz,1));z-index:1;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Cpath d='M5 12a7 7 0 1 1 2 5' fill='none' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M5 12a7 7 0 1 1 2 5' fill='none' stroke='%23151515' stroke-width='1.8' stroke-linecap='round'/%3E%3Cpath d='M2 9l3 3 3-3' fill='none' stroke='%23151515' stroke-width='1.8'/%3E%3C/svg%3E") 12 12,crosshair}
+.tbox .tr[data-r="nw"]{left:0;top:0;transform:translate(-85%,-85%)}
+.tbox .tr[data-r="ne"]{right:0;top:0;transform:translate(85%,-85%)}
+.tbox .tr[data-r="se"]{right:0;bottom:0;transform:translate(85%,85%)}
+.tbox .tr[data-r="sw"]{left:0;bottom:0;transform:translate(-85%,85%)}
+.piece.sel{outline:none}
+.piece .handle,.gbox .handle{display:none!important}
+@media (hover:none){.tbox .th{width:calc(18px*var(--iz,1));height:calc(18px*var(--iz,1));border-radius:50%}}
 
 /* the way out of make a mess: next to the scrap pile, travels with it */
 .pin-float{position:absolute;z-index:23;bottom:16px;right:16px;width:calc(var(--dock-w,320px) - 32px);justify-content:center;padding:13px 14px!important;font-size:16px!important;letter-spacing:-.02em;white-space:nowrap;box-shadow:var(--shadow-up);transition:width .25s ease,transform .15s,background .15s}
@@ -756,7 +777,7 @@ body{font-size:15px}
       <textarea id="pin-desc" maxlength="280" rows="3" placeholder="A joke, a confession, nothing at all."></textarea>
       <label class="tag-l" for="pin-name">By</label>
       <input id="pin-name" maxlength="40" placeholder="name or @handle" autocomplete="off">
-      <div class="pp-sw" id="pp-sw" role="switch" aria-checked="false" tabindex="0"><span class="tg"></span><span><b>Make it move</b><small>Pieces drop in, then sway.</small></span></div>
+      <div class="pp-sw" id="pp-sw" role="switch" aria-checked="false" tabindex="0"><span class="tg"></span><span><b>Make it move</b></span></div>
       <span id="pp-count" hidden></span>
     </div>
   </div></div>
@@ -1443,10 +1464,11 @@ desk.addEventListener("wheel",e=>{
 },{passive:false});
 const ptrs=new Map();let panStart=null,pinch0=null,moved=false;
 desk.addEventListener("pointerdown",e=>{
-  if(e.target.closest(".piece,.gbox .handle"))return;
+  if(e.target.closest(".piece,.gbox .handle,.tbox"))return;
+  if(e.isPrimary)ptrs.clear();
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});desk.setPointerCapture(e.pointerId);moved=false;
   if(ptrs.size===1&&zoom>1.001){panStart={x:e.clientX,y:e.clientY,px:panX,py:panY}}
-  if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:zoom};panStart=null}
+  if(ptrs.size===2&&!mobile()){const [a,b]=[...ptrs.values()];pinch0={d:Math.hypot(a.x-b.x,a.y-b.y),z:zoom};panStart=null}
 });
 desk.addEventListener("pointermove",e=>{
   if(!ptrs.has(e.pointerId))return;ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -1459,7 +1481,10 @@ const ptrEnd=e=>{
   if(ptrs.size<2)pinch0=null;
   if(ptrs.size===0){if(!moved&&e.type==="pointerup"){select(null);openPop(null)}panStart=null;desk.classList.remove("panning")}
 };
-desk.addEventListener("pointerup",ptrEnd);desk.addEventListener("pointercancel",ptrEnd);
+["gesturestart","gesturechange"].forEach(t=>document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener("touchmove",e=>{if(e.touches.length>1&&!e.target.closest(".lb"))e.preventDefault()},{passive:false});
+window.addEventListener("blur",()=>{ptrs.clear();panStart=null;pinch0=null;desk.classList.remove("panning")});
+desk.addEventListener("pointerup",ptrEnd);desk.addEventListener("pointercancel",ptrEnd);desk.addEventListener("lostpointercapture",ptrEnd);
 
 function sizeSheet(){
   const r=region();if(r.w<=0||r.h<=0)return;
@@ -1481,6 +1506,7 @@ function renderPiece(p){
   p.el.style.transform=`translate(${p.x*W-dw/2}px,${p.y*H-dh/2}px) rotate(${p.r}deg) scaleX(${p.flip?-1:1})`;
   p.el.style.opacity=p.op??1;p.el.style.mixBlendMode=p.blend&&p.blend!=="normal"?p.blend:"";
   if(sel&&p.g&&sel.g===p.g)gboxSoon();
+  if(sel&&(p===sel||(p.g&&sel.g===p.g)))tboxSoon();
 }
 async function refresh(p){
   const tok=p.tok=(p.tok||0)+1;
@@ -1532,11 +1558,12 @@ function select(p,m="single",fromSheet){
   sel=p;selMode=p?m:"single";if(!p)enteredG=null;
   if(p&&selMode==="single")p.el.classList.add("sel");
   document.querySelectorAll("#rail .sel-only").forEach(b=>b.disabled=!p);studio.classList.toggle("has-sel",!!p);studio.classList.toggle("has-pieces",pieces.length>0);
-  updateGbox();
+  updateGbox();updateTbox();
   if(fromSheet&&p&&!isDockClosed()&&pane!=="fx")setPane("fx");else if(pane==="fx")renderEdit();
   updateBadge();
 }
 let rafG=0;function gboxSoon(){cancelAnimationFrame(rafG);rafG=requestAnimationFrame(updateGbox)}
+let rafT=0;function tboxSoon(){cancelAnimationFrame(rafT);rafT=requestAnimationFrame(updateTbox)}
 function updateGbox(){
   const g=sel&&sel.g&&(selMode==="group"||enteredG===sel.g)?sel.g:null;
   if(!g){gbox.hidden=true;return}
@@ -1674,6 +1701,57 @@ const tEnd=e=>{
 studio.addEventListener("pointerup",tEnd,true);studio.addEventListener("pointercancel",tEnd,true);
 addEventListener("resize",()=>{if(!mobile())studio.classList.remove("m-open")});
 
+// ---------- figma-style transform box: lives outside the sheet so it never gets clipped ----------
+const tbox=document.createElement("div");tbox.className="tbox";tbox.hidden=true;
+tbox.innerHTML=["nw","ne","se","sw"].map(c=>`<span class="tr" data-r="${c}"></span>`).join("")+["nw","ne","se","sw"].map(c=>`<span class="th" data-c="${c}"></span>`).join("");
+canvasEl.appendChild(tbox);
+function tGeom(){
+  const T=targets();if(!T.length)return null;const W=sheet.clientWidth,H=sheet.clientHeight;
+  if(T.length===1){const p=T[0];return {cx:p.x*W,cy:p.y*H,w:p.el.offsetWidth,h:p.el.offsetHeight,r:p.r}}
+  const sr=sheet.getBoundingClientRect();let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  T.forEach(m=>{const r=m.el.getBoundingClientRect();x0=Math.min(x0,r.left);y0=Math.min(y0,r.top);x1=Math.max(x1,r.right);y1=Math.max(y1,r.bottom)});
+  return {cx:((x0+x1)/2-sr.left)/zoom,cy:((y0+y1)/2-sr.top)/zoom,w:(x1-x0)/zoom,h:(y1-y0)/zoom,r:0};
+}
+function updateTbox(){
+  const g=sel&&!(sel.g&&selMode==="single"&&enteredG!==sel.g)?tGeom():null;
+  if(!g||mode!=="pega"){tbox.hidden=true;return}
+  tbox.hidden=false;tbox.style.setProperty("--iz",1/zoom);
+  tbox.style.width=g.w+"px";tbox.style.height=g.h+"px";
+  tbox.style.transform=`translate(${g.cx-g.w/2}px,${g.cy-g.h/2}px) rotate(${g.r}deg)`;
+}
+(()=>{let st=null;
+  const begin=(e,kind)=>{
+    e.stopPropagation();e.preventDefault();if(!sel)return;tbox.setPointerCapture(e.pointerId);
+    const g=tGeom(),cr=canvasEl.getBoundingClientRect(),W=sheet.clientWidth,H=sheet.clientHeight;
+    const c={x:cr.left+g.cx*zoom,y:cr.top+g.cy*zoom};
+    st={kind,id:e.pointerId,c,W,H,sx:e.clientX,sy:e.clientY,d0:Math.hypot(e.clientX-c.x,e.clientY-c.y)||1,a0:Math.atan2(e.clientY-c.y,e.clientX-c.x),g,
+      T:targets().map(t=>({t,x:t.x,y:t.y,w:t.w,r:t.r,size:t.t&&t.t.size}))};
+    tbox.classList.add("busy");
+  };
+  tbox.addEventListener("pointerdown",e=>{
+    const h=e.target.closest(".th"),r=e.target.closest(".tr");
+    if(h)begin(e,"scale");else if(r)begin(e,"rotate");else begin(e,"move");
+  });
+  tbox.addEventListener("pointermove",e=>{
+    if(!st||e.pointerId!==st.id)return;const {W,H,g}=st;
+    if(st.kind==="move"){const dx=(e.clientX-st.sx)/zoom/W,dy=(e.clientY-st.sy)/zoom/H;st.T.forEach(o=>{o.t.x=o.x+dx;o.t.y=o.y+dy;renderPiece(o.t)});
+      dock.classList.toggle("trash",overDock(e.clientX,e.clientY))}
+    else if(st.kind==="scale"){const k=Math.max(.05,Math.hypot(e.clientX-st.c.x,e.clientY-st.c.y)/st.d0),gx=g.cx/W,gy=g.cy/H;
+      st.T.forEach(o=>{o.t.w=Math.max(.02,Math.min(3,o.w*k));if(st.T.length>1){o.t.x=gx+(o.x-gx)*k;o.t.y=gy+(o.y-gy)*k}renderPiece(o.t)})}
+    else{let da=Math.atan2(e.clientY-st.c.y,e.clientX-st.c.x)-st.a0;if(e.shiftKey)da=Math.round(da/(Math.PI/12))*(Math.PI/12);
+      const co=Math.cos(da),si=Math.sin(da),gx=g.cx,gy=g.cy;
+      st.T.forEach(o=>{o.t.r=o.r+da*180/Math.PI;if(st.T.length>1){const px=o.x*W-gx,py=o.y*H-gy;o.t.x=(gx+px*co-py*si)/W;o.t.y=(gy+px*si+py*co)/H}renderPiece(o.t)})}
+    updateTbox();gboxSoon();
+  });
+  const end=e=>{if(!st||e.pointerId!==st.id)return;const was=st;st=null;tbox.classList.remove("busy");
+    if(was.kind==="move"&&dock.classList.contains("trash")){dock.classList.remove("trash");act("del");toast("Binned.");return}
+    if(was.kind==="move"&&Math.hypot(e.clientX-was.sx,e.clientY-was.sy)<3&&e.type==="pointerup"){/* plain click: let a second click open text / enter group */}
+    if(was.kind==="scale")was.T.forEach(o=>{if(o.t.kind==="text"&&o.size){o.t.t.size=Math.round(Math.max(8,Math.min(400,o.size*o.t.w/o.w)));refresh(o.t)}});
+    save();if(pane==="fx")renderEdit()};
+  tbox.addEventListener("pointerup",end);tbox.addEventListener("pointercancel",end);tbox.addEventListener("lostpointercapture",end);
+  tbox.addEventListener("dblclick",e=>{if(sel)sel.el.dispatchEvent(new MouseEvent("dblclick",{bubbles:true}))});
+})();
+
 // ---------- edit pane ----------
 let openFx=-1;
 const BLENDS=[["normal","Normal"],["multiply","Multiply"],["screen","Screen"],["overlay","Overlay"],["difference","Difference"]];
@@ -1724,7 +1802,7 @@ function renderEdit(){
       const m=FX[f.t],open=openFx===i;
       h+=`<div class="fx-item${open?" open":""}${f.on?"":" off"}" data-i="${i}" draggable="${n>1}">
         <div class="fx-row">
-          <button class="fx-name" data-do="toggle" aria-expanded="${open}"><i class="sw2 mini-sw" style="background:${m.sw}"></i><span class="t">${m.n}</span><svg class="i"><use href="#i-right"/></svg></button>
+          <button class="fx-name" data-do="toggle" aria-expanded="${open}"><i class="sw2 mini-sw" style="background:${m.sw}"></i><span class="t">${m.n}</span></button>
           <button class="mini hov" data-do="eye" data-tip="${f.on?"hide":"show"}" aria-label="${f.on?"Hide":"Show"} effect" aria-pressed="${!f.on}"><svg class="i"><use href="#i-${f.on?"eye":"eyeoff"}"/></svg></button>
           <button class="mini hov" data-do="rm" data-tip="remove" aria-label="Remove effect"><svg class="i"><use href="#i-x"/></svg></button>
         </div>
