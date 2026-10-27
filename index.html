@@ -348,6 +348,7 @@ body.zoomin .credit{opacity:0;pointer-events:none}
 .dd-btn .chev{margin-left:auto;transition:transform .2s}
 .dd-btn[aria-expanded="true"] .chev{transform:rotate(180deg)}
 .menu{position:absolute;left:0;right:0;top:calc(100% + 6px);z-index:7;background:var(--mat-deep);border:1px solid var(--mat-line-strong);border-radius:12px;padding:4px;margin:0;list-style:none;box-shadow:var(--shadow-up);max-height:360px;overflow:auto;scrollbar-width:thin}
+.menu.up{top:auto;bottom:calc(100% + 6px)}
 .menu[hidden]{display:none}
 .menu li[role="option"]{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
 .menu li.grp{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink);padding:10px 10px 4px}
@@ -1983,10 +1984,19 @@ $("#pane-fx").addEventListener("input",e=>{
 $("#pane-fx").addEventListener("change",e=>{if(e.target.type==="color"&&sel)renderEdit();save()});
 // custom dropdowns
 function closeMenus(except){document.querySelectorAll(".dd").forEach(d=>{if(d!==except){const m=d.querySelector(".menu");if(m&&!m.hidden){m.hidden=true;d.querySelector(".dd-btn").setAttribute("aria-expanded",false)}}})}
+// a menu never runs under the "Glue it" button or off the screen: it shrinks, or opens upwards when there's more room above
+function fitMenu(dd,m){
+  m.classList.remove("up");m.style.maxHeight="";
+  const br=dd.querySelector(".dd-btn").getBoundingClientRect(),pin=$("#btn-pin"),inDock=!!dd.closest(".dock");
+  let floor=innerHeight-12;if(inDock&&pin&&!pin.hidden&&pin.offsetParent){floor=Math.min(floor,pin.getBoundingClientRect().top-10)}
+  const ceil=inDock?dock.getBoundingClientRect().top+12:12,below=floor-br.bottom-6,above=br.top-ceil-6,want=Math.min(360,m.scrollHeight||360);
+  if(below<Math.min(want,220)&&above>below){m.classList.add("up");m.style.maxHeight=Math.max(120,Math.min(360,above))+"px"}
+  else m.style.maxHeight=Math.max(120,Math.min(360,below))+"px";
+}
 function toggleMenu(dd,force){
   const m=dd.querySelector(".menu"),b=dd.querySelector(".dd-btn"),open=force??m.hidden;closeMenus(dd);
   m.hidden=!open;b.setAttribute("aria-expanded",open);
-  if(open){const opts=[...m.querySelectorAll("li[role=option]")];let cur=opts.find(li=>li.getAttribute("aria-selected")==="true")||opts[0];
+  if(open){fitMenu(dd,m);const opts=[...m.querySelectorAll("li[role=option]")];let cur=opts.find(li=>li.getAttribute("aria-selected")==="true")||opts[0];
     opts.forEach(li=>li.setAttribute("aria-selected",li===cur));m.setAttribute("aria-activedescendant",cur.id);m.focus({preventScroll:true});
     cur.scrollIntoView({block:"nearest"});m.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})}
 }
