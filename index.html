@@ -962,7 +962,7 @@ function showZtag(w,cx,cy,cardW){
   const d=w.desc||"";ztag.querySelector(".zt-d").textContent=d;ztag.querySelector(".zt-d").hidden=ztag.querySelector(".zt-dl").hidden=!d;
   const by=w.by||"";ztag.querySelector(".zt-b").textContent=by;ztag.querySelector(".zt-b").hidden=ztag.querySelector(".zt-bl").hidden=!by;
   ztag.hidden=false;ztag.classList.remove("in");
-  const h=ztag.offsetHeight;ztag.style.left=Math.round(cx+cardW/2+TAGGAP)+"px";ztag.style.top=Math.round(Math.max(40,cy-h/2-20))+"px";
+  const h=ztag.offsetHeight;ztag.style.left=Math.round(Math.min(cx+cardW/2+TAGGAP,mesa.clientWidth-TAGW-28))+"px";ztag.style.top=Math.round(Math.max(40,cy-h/2-20))+"px";
   requestAnimationFrame(()=>requestAnimationFrame(()=>ztag.classList.add("in")));
 }
 zbar.addEventListener("pointerdown",e=>e.stopPropagation());
@@ -971,7 +971,7 @@ function zoomTo(el,instant){
   const p=el._p;if(!p)return;cancelAnimationFrame(inertia);velX=velY=0;
   const W=mesa.clientWidth,H=mesa.clientHeight,small=W<720,barH=small?96:84;
   const top=small?44:60; // ruler + room for the tape
-  const wide=wideZoom(),side=wide?TAGW+TAGGAP:0;
+  const wide=wideZoom(),side=0; // collage keeps its size and stays centred; the label sits beside it
   const s=Math.min((W-(small?32:180)-side)/p.cw,(H-barH-top-(small?24:40))/p.ch,small?4:3);
   if(!Z)Z={camX,camY};
   if(Z.el)Z.el.classList.remove("zoomed");
