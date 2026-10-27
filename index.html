@@ -1418,13 +1418,14 @@ function scrapButton(s){
     ghost.style.transform=`translate(${pos.x}px,${pos.y}px) translate(-50%,-50%) rotate(${tilt-3}deg)`;raf=requestAnimationFrame(paint)};
   b.addEventListener("pointerdown",e=>{if(e.button!==0)return;st={x:e.clientX,y:e.clientY,id:e.pointerId,type:e.pointerType};dragging=false;
     if(e.pointerType==="mouse")b.setPointerCapture(e.pointerId)});
-  b.addEventListener("pointermove",e=>{
+  const onMove=e=>{
     if(!st||e.pointerId!==st.id)return;
     const dx=e.clientX-st.x,dy=e.clientY-st.y;
     if(!dragging){
       if(Math.hypot(dx,dy)<(st.type==="mouse"?4:8))return;
       if(st.type!=="mouse"){if(Math.abs(dy)>Math.abs(dx)){st=null;return}b.setPointerCapture(st.id)}
       dragging=true;b.classList.add("lifted");
+      addEventListener("pointerup",end,true);addEventListener("pointercancel",end,true);addEventListener("pointermove",winMove,true); // a release anywhere ends the drag
       const sr=sheet.getBoundingClientRect();
       ghost=document.createElement("img");ghost.className="ghost";ghost.src=b.querySelector("img").src;ghost.style.width=defaultW(s)*sr.width+"px";
       document.body.appendChild(ghost);desk.classList.add("dropping");lastX=e.clientX;pos={x:e.clientX,y:e.clientY};paint();
@@ -1433,9 +1434,13 @@ function scrapButton(s){
     vx+=e.clientX-lastX;lastX=e.clientX;pos={x:e.clientX,y:e.clientY};
     const sr=sheet.getBoundingClientRect(),inSheet=e.clientX>sr.left&&e.clientX<sr.right&&e.clientY>sr.top&&e.clientY<sr.bottom;
     desk.classList.toggle("over",inSheet);ghost.classList.toggle("out",overDock(e.clientX,e.clientY));
-  });
+  };
+  const winMove=e=>{if(dragging&&!b.hasPointerCapture(e.pointerId))onMove(e)};
+  b.addEventListener("pointermove",onMove);
   const end=e=>{
     if(!st||e.pointerId!==st.id)return;
+    removeEventListener("pointerup",end,true);removeEventListener("pointercancel",end,true);removeEventListener("pointermove",winMove,true);
+    if(e.type==="lostpointercapture")e={type:"pointerup",pointerId:e.pointerId,clientX:pos.x,clientY:pos.y};
     if(dragging){
       cancelAnimationFrame(raf);b.classList.remove("lifted");desk.classList.remove("dropping","over");
       const dr=desk.getBoundingClientRect(),sr=sheet.getBoundingClientRect(),g=ghost;ghost=null;
@@ -1446,7 +1451,7 @@ function scrapButton(s){
     }
     st=null;dragging=false;
   };
-  b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);
+  b.addEventListener("pointerup",end);b.addEventListener("pointercancel",end);b.addEventListener("lostpointercapture",end);
   b.addEventListener("click",()=>{if(justDragged)return;const p=addPiece({id:s.id,x:rnd(.4,.6),y:rnd(.4,.6),w:defaultW(s),r:rnd(-8,8)});p.el.classList.add("settle");save();if(mobile())mSheet(null)});
   return b;
 }
@@ -2100,6 +2105,7 @@ let finDock=true;
 function sizeFin(){const r=$(".fin-r"),mob=innerWidth<=720,W=r.clientWidth-64-(mob?0:314),H=r.clientHeight-(mob?40:110),k=Math.min(W/1240,H/1754);const w=Math.max(160,Math.round(1240*k));$("#pp-card").style.width=w+"px"}
 async function openFin(){
   if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
+  if(pieces.length<2&&(pieces[0].kind!=="text")){toast("One scrap isn't a mess yet. Add another.");return} // a lone scrap stays in the pile, not on the table
   finDock=!isDockClosed();studio.classList.add("finale");pinPop.hidden=false;pinPop.classList.remove("sent");
   $("#pp-form").hidden=false;$("#pp-done").hidden=true;
   $("#pin-name").value=store.get("recortes-signed")||"";ppLayers=null;setMove(false);
@@ -2188,7 +2194,7 @@ async function loadRemote(){
       const sc={id:r.id,w:r.w,h:r.h,g:r.cluster==="words"||r.cluster==="heads"?"txt":"img",t:r.title};SCRAPS.push(sc);
       const sec=libEls[clusterOf(sc.id)];if(sec){sec.querySelector(".lib").appendChild(scrapButton(sc));sec.querySelector(".lib-t span").textContent=sec.querySelectorAll(".scrap").length}});
     if(ss.length)renderFilter();
-    const vs=await get("community?select=*&approved=eq.true&order=created_at.desc&limit=60");
+    const vs=await get("community?select=*&approved=eq.true&order=created_at.desc&limit=1000");
     vs.forEach(r=>seen.add("c-"+r.id));
     let gone=false;if(cs.length||vs.length||ss.length)WORKS.forEach(w=>{if((w.remote||String(w.id).startsWith("c-"))&&!w.pending&&!seen.has(w.id)&&!w.gone){w.gone=true;gone=true}});if(gone&&mode==="mesa")layout();
     vs.forEach(r=>{const id="c-"+r.id;if(WORKS.some(w=>w.id===id))return;REMOTE["a/"+id+".webp"]=PUB("community",r.image_path);addWork({id,t:r.title||(r.signed?"by "+r.signed:"a visitor's mess"),by:r.title&&r.signed?r.signed:null,desc:r.description,w:r.w,h:r.h,motion:r.motion||null})});
