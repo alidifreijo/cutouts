@@ -108,6 +108,14 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .wall .card{transition:transform .7s cubic-bezier(.2,.85,.25,1),filter .5s ease}
 .wall.zoomed .card:not(.zoomed){filter:brightness(.45) saturate(.6)}
 .wall .card.zoomed{z-index:999!important}
+.tag.ztag{position:absolute;z-index:61;width:280px;pointer-events:auto;cursor:default;opacity:0;transform:translateX(26px) rotate(5deg);transition:opacity .35s .35s,transform .5s .35s cubic-bezier(.2,1.3,.4,1)}
+.tag.ztag.in{opacity:1;transform:rotate(2deg)}
+.ztag[hidden]{display:none}
+.ztag .zt-t{font-family:var(--f-head);font-size:28px;line-height:1.35;color:#1d1d1a;padding:2px 1px 4px;border-bottom:1px dashed rgba(42,42,38,.35)}
+.ztag .zt-d{font-size:14.5px;line-height:28px;color:#1d1d1a;padding:0 1px;min-height:56px;background:repeating-linear-gradient(transparent 0 27px,rgba(42,42,38,.28) 27px 28px);white-space:pre-wrap}
+.ztag .zt-b{font-size:14.5px;color:#1d1d1a;padding:3px 1px 6px;border-bottom:1px dashed rgba(42,42,38,.35)}
+.ztag [hidden]{display:none}
+.zbar.tagged .zt,.zbar.tagged .zby{display:none}
 body.zoomin .credit{opacity:0;pointer-events:none}
 .credit{transition:opacity .3s}
 .wall.zoomed .card.zoomed .lbl{opacity:0}
@@ -942,20 +950,37 @@ const zbar=document.createElement("div");zbar.className="zbar";zbar.hidden=true;
 zbar.innerHTML=`<button class="ib" data-z="-1" aria-label="Previous"><svg class="i"><use href="#i-left"/></svg></button><span class="zt" id="zt"></span><span class="zby" id="zby"></span><span class="zn" id="zn"></span><button class="ib" data-z="1" aria-label="Next"><svg class="i"><use href="#i-right"/></svg></button><button class="ib" data-z="x" aria-label="Back to the table"><svg class="i"><use href="#i-x"/></svg></button>`;
 mesa.appendChild(zbar);
 const zcap=document.createElement("p");zcap.className="zcap";zcap.hidden=true;mesa.appendChild(zcap);
+// close-up label: the same paper card as the glue step, pinned beside the collage
+const ztag=document.createElement("div");ztag.className="tag ztag";ztag.dataset.mod="1";ztag.hidden=true;
+ztag.innerHTML=`<span class="tag-tape"></span><span class="tag-l">Title</span><div class="zt-t"></div><span class="tag-l zt-dl">The story</span><div class="zt-d"></div><span class="tag-l zt-bl">By</span><div class="zt-b"></div>`;
+mesa.appendChild(ztag);
+const TAGW=280,TAGGAP=48,wideZoom=()=>mesa.clientWidth>=900;
+function showZtag(w,cx,cy,cardW){
+  if(!wideZoom()||!w){ztag.hidden=true;ztag.classList.remove("in");return}
+  ztag.querySelector(".zt-t").textContent=w.t||"Untitled mess";
+  const d=w.desc||"";ztag.querySelector(".zt-d").textContent=d;ztag.querySelector(".zt-d").hidden=ztag.querySelector(".zt-dl").hidden=!d;
+  const by=w.by||"";ztag.querySelector(".zt-b").textContent=by;ztag.querySelector(".zt-b").hidden=ztag.querySelector(".zt-bl").hidden=!by;
+  ztag.hidden=false;ztag.classList.remove("in");
+  const h=ztag.offsetHeight;ztag.style.left=Math.round(cx+cardW/2+TAGGAP)+"px";ztag.style.top=Math.round(Math.max(40,cy-h/2-20))+"px";
+  requestAnimationFrame(()=>requestAnimationFrame(()=>ztag.classList.add("in")));
+}
 zbar.addEventListener("pointerdown",e=>e.stopPropagation());
 zbar.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(!b)return;b.dataset.z==="x"?unzoom():stepZoom(+b.dataset.z)});
 function zoomTo(el,instant){
   const p=el._p;if(!p)return;cancelAnimationFrame(inertia);velX=velY=0;
   const W=mesa.clientWidth,H=mesa.clientHeight,small=W<720,barH=small?96:84;
   const top=small?44:60; // ruler + room for the tape
-  const s=Math.min((W-(small?32:180))/p.cw,(H-barH-top-(small?24:40))/p.ch,small?4:3);
+  const wide=wideZoom(),side=wide?TAGW+TAGGAP:0;
+  const s=Math.min((W-(small?32:180)-side)/p.cw,(H-barH-top-(small?24:40))/p.ch,small?4:3);
   if(!Z)Z={camX,camY};
   if(Z.el)Z.el.classList.remove("zoomed");
   Z.el=el;el.classList.add("zoomed");mesa.classList.add("zoomed");document.body.classList.add("zoomin");
   board.classList.toggle("zooming",!instant&&!reduce);
-  boardT(W/2,top+(H-barH-top)/2,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
+  const cx=W/2-side/2,cy=top+(H-barH-top)/2;
+  boardT(cx,cy,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
   const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zby").textContent=w&&w.by?"by "+w.by:"";
-  zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
+  zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc)||wide;zbar.classList.toggle("tagged",wide);
+  showZtag(w,cx,cy,p.cw*s);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
   zbar.hidden=false;
   playCardMotion(el,w,instant?0:700);
 }
@@ -970,7 +995,7 @@ function playCardMotion(el,w,delay){
 }
 function unzoom(instant){
   if(!Z)return;const z=Z;Z=null;stopCardMotion();
-  if(z.el)z.el.classList.remove("zoomed");mesa.classList.remove("zoomed");document.body.classList.remove("zoomin");zbar.hidden=true;zcap.hidden=true;
+  if(z.el)z.el.classList.remove("zoomed");mesa.classList.remove("zoomed");document.body.classList.remove("zoomin");zbar.hidden=true;zcap.hidden=true;ztag.classList.remove("in");ztag.hidden=true;
   board.classList.toggle("zooming",!instant&&!reduce);
   setCam(z.camX,z.camY,true);
 }
