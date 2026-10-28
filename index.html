@@ -1306,11 +1306,11 @@ function pass(src,fx,seed){
     g.putImageData(out,0,0);return c;
   }
   if(fx.t==="trama"){
-    const d=g.getImageData(0,0,W,H).data, cell=Math.round(4+a*14);
+    const d=g.getImageData(0,0,W,H).data, cell=Math.max(4,Math.round(Math.max(W,H)*(.01+a*.028)));
     g.clearRect(0,0,W,H);g.fillStyle=fx.c2;g.fillRect(0,0,W,H);g.fillStyle=fx.c1;
     for(let y=0;y<H;y+=cell)for(let x=(Math.floor(y/cell)%2)*cell/2-cell;x<W;x+=cell){
       let L=0,n=0;for(let yy=y;yy<Math.min(H,y+cell);yy+=2)for(let xx=Math.max(0,Math.floor(x));xx<Math.min(W,x+cell);xx+=2){const k=(yy*W+xx)*4;if(d[k+3]>60){L+=.299*d[k]+.587*d[k+1]+.114*d[k+2];n++}}
-      if(!n)continue;const r=cell*.72*Math.sqrt(1-L/n/255);
+      if(!n)continue;const r=cell*.56*Math.pow(1-L/n/255,.6);
       if(r>.4){g.beginPath();g.arc(x+cell/2,y+cell/2,r,0,7);g.fill()}
     }
     g.globalCompositeOperation="destination-in";g.drawImage(src,0,0);g.globalCompositeOperation="source-over";return c;
