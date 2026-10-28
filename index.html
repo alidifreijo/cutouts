@@ -1233,12 +1233,14 @@ const WARP={
   swirl:(a,W,H,cx,cy,R)=>{const T=a*Math.PI*2.4,RR=R*1.15;return (x,y)=>{const dx=x-cx,dy=y-cy,r=Math.hypot(dx,dy);if(r>=RR)return [x,y];const t=(1-r/RR)**2*T,co=Math.cos(t),si=Math.sin(t);return [cx+dx*co-dy*si,cy+dx*si+dy*co]}},
   bulge:(a,W,H,cx,cy,R)=>{const e=1+a*1.4;return (x,y)=>{const dx=x-cx,dy=y-cy,r=Math.hypot(dx,dy);if(r>=R||!r)return [x,y];const k=Math.pow(r/R,e)*R/r;return [cx+dx*k,cy+dy*k]}},
   pinch:(a,W,H,cx,cy,R)=>{const e=1/(1+a*1.6);return (x,y)=>{const dx=x-cx,dy=y-cy,r=Math.hypot(dx,dy);if(r>=R||!r)return [x,y];const k=Math.pow(r/R,e)*R/r;return [cx+dx*k,cy+dy*k]}},
-  lens:(a,W,H,cx,cy)=>{const K=-a*.75,D=Math.hypot(cx,cy),ch=.06*a;return (x,y)=>{const dx=(x-cx)/D,dy=(y-cy)/D,r2=dx*dx+dy*dy,f=s_=>1+K*(1+s_)*r2;
-    const fr=f(ch),fg=f(0),fb=f(-ch);return [cx+dx*D/fr,cy+dy*D/fr,cx+dx*D/fg,cy+dy*D/fg,cx+dx*D/fb,cy+dy*D/fb]}},
+  lens:(a,W,H,cx,cy)=>{const D=Math.hypot(cx,cy),K=a*1.1,ch=.05*a; // fish-eye that keeps the corners: the centre swells, the frame stays full
+    const m=(dx,dy,k)=>{const r=Math.hypot(dx,dy)/D,f=(1+k*r*r)/(1+k);return [cx+dx*f,cy+dy*f]};
+    return (x,y)=>{const dx=x-cx,dy=y-cy;return [...m(dx,dy,K*(1+ch)),...m(dx,dy,K),...m(dx,dy,K*(1-ch))]}},
   stretch:(a,W,H)=>{const X=W*(.78-a*.55);return (x,y)=>[x>X?X+(x-X)*.02:x,y]},
   reeded:(a,W,H)=>{const w=Math.max(10,W/(14+(1-a)*10)),k=a*1.4;return (x,y)=>{const t=(x%w)/w-.5;return [x+t*w*k+Math.sin(t*3.14)*w*.1*a,y]}},
   liquify:(a,W,H,cx,cy,R,seed)=>{const r=rng(String(seed)+"lq"),A=a*Math.min(W,H)*.07,p=[0,1,2,3,4,5].map(()=>[r()*6.28,.8+r()*2.2]);const fr=Math.min(W,H);
-    return (x,y)=>{let ox=0,oy=0;p.forEach(([ph,fq],i)=>{const u=(x/fr)*fq*6.28,v=(y/fr)*fq*6.28;ox+=Math.sin(v+ph+Math.cos(u*.7))*A/(i+1.5);oy+=Math.cos(u+ph*1.3+Math.sin(v*.6))*A/(i+1.5)});return [x+ox,y+oy]}}
+    const edge=Math.min(W,H)*.14,ease=v=>{v=Math.min(1,Math.max(0,v/edge));return v*v*(3-2*v)};
+    return (x,y)=>{const e_=ease(Math.min(x,W-1-x,y,H-1-y));if(!e_)return [x,y];let ox=0,oy=0;p.forEach(([ph,fq],i)=>{const u=(x/fr)*fq*6.28,v=(y/fr)*fq*6.28;ox+=Math.sin(v+ph+Math.cos(u*.7))*A/(i+1.5);oy+=Math.cos(u+ph*1.3+Math.sin(v*.6))*A/(i+1.5)});return [x+ox*e_,y+oy*e_]}}
 };
 const FX_GROUPS=["Print","Colour","Distort","Warp","Paper"];
 const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
