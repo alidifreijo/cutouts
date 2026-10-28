@@ -1223,6 +1223,11 @@ const FX={
   stretch:{n:"Pixel stretch",g:"Warp",d:"the scanner dragged it",amt:"how much",def:{amt:40},sw:"linear-gradient(90deg,#c7382c 0 30%,#f0cd4a 30% 34%,#f2b3c6 34%)"},
   reeded:{n:"Reeded glass",g:"Warp",d:"behind a fluted window",amt:"refraction",def:{amt:50},sw:"repeating-linear-gradient(90deg,#bcd5e6 0 4px,#2747a0 4px 6px,#bcd5e6 6px 8px)"},
   liquify:{n:"Liquify",g:"Warp",d:"melting a little",amt:"melt",def:{amt:40},sw:"radial-gradient(ellipse at 30% 60%,#f2b3c6,#c7382c 40%,#2747a0 70%)"},
+  crumple:{n:"Crumpled",g:"Paper",d:"screwed up, then flattened",amt:"creases",def:{amt:50},sw:"linear-gradient(115deg,#d8d2c4 20%,#9a948a 21%,#efe9dc 34%,#b3ada1 50%,#f6f3ec 51%,#bdb7aa 70%,#f0eade 71%)"},
+  fold:{n:"Folded",g:"Paper",d:"kept in a pocket",amt:"fold depth",def:{amt:45},sw:"linear-gradient(90deg,#f6f3ec 48%,#bdb7aa 50%,#e8e2d5 52%)"},
+  torn:{n:"Torn edge",g:"Paper",d:"ripped out by hand",ink:[null,"paper"],amt:"roughness",def:{c2:"#f6f3ec",amt:45},sw:"linear-gradient(135deg,#c7382c 55%,#f6f3ec 56% 62%,transparent 63%)"},
+  aged:{n:"Aged",g:"Paper",d:"forgotten in a drawer",amt:"years",def:{amt:50},sw:"radial-gradient(circle,#efe0bb 30%,#a7834f)"},
+  tape:{n:"Tape",g:"Paper",d:"stuck on with washi",ink:[null,"tape"],amt:"length",def:{c2:"#f4e8c4",amt:45},sw:"linear-gradient(90deg,transparent 20%,#f4e8c4 20% 80%,transparent 80%)"},
   grano:{n:"Grain",g:"Paper",d:"dust and noise",amt:"amount",def:{amt:40},sw:"#9a9c97"},
   sticker:{n:"Sticker edge",g:"Paper",d:"die-cut border, very kiosk",ink:[null,"edge"],amt:"thickness",def:{c2:"#ffffff",amt:35},sw:"radial-gradient(circle,#c7382c 45%,#fff 47%)"},
   shadow:{n:"Hard shadow",g:"Paper",d:"lifted off the page",ink:["shadow",null],amt:"distance",def:{c1:"#151515",amt:35},sw:"linear-gradient(135deg,#f0cd4a 55%,#151515 55%)"}
@@ -1260,6 +1265,28 @@ function pass(src,fx,seed){
     const pad=Math.round(Math.max(W,H)*(.006+a*.03))+1,c=mkCanvas(W+pad*2,H+pad*2),g=c.getContext("2d"),s=silhouette(src,fx.c2||"#fff");
     for(let i=0;i<28;i++){const t=i/28*Math.PI*2;g.drawImage(s,pad+Math.cos(t)*pad,pad+Math.sin(t)*pad)}
     g.drawImage(s,pad,pad);g.drawImage(src,pad,pad);return c;
+  }
+  if(fx.t==="tape"){ // a strip of washi across the top edge, sticking out past it
+    const tw=Math.max(W,H)*(.18+a*.32),th=Math.max(14,Math.min(W,H)*.09),pad=Math.ceil(th),c=mkCanvas(W+pad*2,H+pad*2),g=c.getContext("2d"),r=rng(String(seed)+"tp");
+    g.drawImage(src,pad,pad);g.save();g.translate(pad+W*(.35+r()*.3),pad+th*.15);g.rotate((r()-.5)*.22);
+    const C=hex(fx.c2||"#f4e8c4");g.fillStyle=`rgba(${C[0]},${C[1]},${C[2]},.82)`;g.beginPath();
+    const n=9;g.moveTo(-tw/2,-th/2);for(let i=1;i<=n;i++)g.lineTo(-tw/2+tw*i/n,-th/2+(i%2?2:-1)*th*.04);
+    for(let i=0;i<=6;i++)g.lineTo(tw/2+(i%2?-th*.06:th*.02),-th/2+th*i/6);
+    for(let i=n;i>=0;i--)g.lineTo(-tw/2+tw*i/n,th/2+(i%2?-2:1)*th*.04);
+    for(let i=6;i>=0;i--)g.lineTo(-tw/2+(i%2?th*.06:-th*.02),-th/2+th*i/6);
+    g.closePath();g.shadowColor="rgba(0,0,0,.18)";g.shadowBlur=3;g.shadowOffsetY=1;g.fill();g.restore();return c;
+  }
+  if(fx.t==="torn"){ // jagged, fibrous rip: the paper's white core shows along the edge
+    const pad=Math.round(Math.max(W,H)*.01)+2,c=mkCanvas(W+pad*2,H+pad*2),g=c.getContext("2d"),r=rng(String(seed)+"tn"),depth=Math.max(W,H)*(.008+a*.03);
+    const inset=mkCanvas(W,H),gi=inset.getContext("2d");gi.drawImage(src,0,0);
+    const jag=(len)=>{const p=[];let v=0;for(let i=0;i<=len;i+=3){v+=(r()-.5)*depth*.9;v*=.8;p.push(Math.abs(v)+r()*depth*.35)}return p};
+    const T=jag(W),B=jag(W),L=jag(H),Rr=jag(H);
+    const mask=new Path2D();mask.moveTo(0,T[0]);T.forEach((v,i)=>mask.lineTo(i*3,v));Rr.forEach((v,i)=>mask.lineTo(W-v,i*3));B.slice().reverse().forEach((v,i)=>mask.lineTo(W-i*3,H-v));L.slice().reverse().forEach((v,i)=>mask.lineTo(v,H-i*3));mask.closePath();
+    const mask2=new Path2D();const k=.55;mask2.moveTo(0,T[0]*k);T.forEach((v,i)=>mask2.lineTo(i*3,v*k));Rr.forEach((v,i)=>mask2.lineTo(W-v*k,i*3));B.slice().reverse().forEach((v,i)=>mask2.lineTo(W-i*3,H-v*k));L.slice().reverse().forEach((v,i)=>mask2.lineTo(v*k,H-i*3));mask2.closePath();
+    g.translate(pad,pad);
+    // white fibre band = the source silhouette clipped to the outer rip
+    g.save();g.clip(mask2);g.drawImage(silhouette(src,fx.c2||"#f6f3ec"),0,0);g.restore();
+    g.save();g.clip(mask);g.drawImage(src,0,0);g.restore();return c;
   }
   if(fx.t==="shadow"){
     const d=Math.round(Math.max(W,H)*(.008+a*.05))+1,c=mkCanvas(W+d*2,H+d*2),g=c.getContext("2d");
@@ -1316,6 +1343,27 @@ function pass(src,fx,seed){
     g.globalCompositeOperation="destination-in";g.drawImage(src,0,0);g.globalCompositeOperation="source-over";return c;
   }
   const id=g.getImageData(0,0,W,H),q=id.data;
+  if(fx.t==="crumple"||fx.t==="fold"||fx.t==="aged"){
+    const r=rng(String(seed)+fx.t),S=Math.max(W,H);
+    if(fx.t==="crumple"){ // a few random creases: each a line with a lit side and a shaded side
+      const n=Math.round(4+a*14),L=[...Array(n)].map(()=>{const an=r()*Math.PI,cx=r()*W,cy=r()*H;return [Math.cos(an),Math.sin(an),-(Math.cos(an)*cx+Math.sin(an)*cy),.4+r()*.6]}),w=S*.012;
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=(y*W+x)*4;if(!q[k+3])continue;let sh=0;
+        for(const [nx,ny,c0,st] of L){const d=nx*x+ny*y+c0;sh+=Math.sign(d)*(.18*st+(Math.abs(d)<w*4?Math.exp(-Math.abs(d)/w)*st:0))} // facets + crease
+        const f=1+sh*(.12+a*.28);q[k]*=f;q[k+1]*=f;q[k+2]*=f}
+    }else if(fx.t==="fold"){ // one vertical and one horizontal fold, like a letter
+      const fx_=W*(.45+r()*.1),fy=H*(.45+r()*.1),w=S*(.01+a*.02);
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=(y*W+x)*4;if(!q[k+3])continue;
+        const dx=x-fx_,dy=y-fy,f=1+(dx>0?-1:1)*Math.exp(-Math.abs(dx)/w)*(.18+a*.3)*.8+(dy>0?-1:1)*Math.exp(-Math.abs(dy)/w)*(.18+a*.3)*.6+(dx>0?-.04:.02)*a;
+        q[k]*=f;q[k+1]*=f;q[k+2]*=f}
+    }else{ // aged: yellowed, burnt edges, a few foxing spots
+      const sp=[...Array(Math.round(3+a*10))].map(()=>[r()*W,r()*H,S*(.004+r()*.02)]);
+      for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=(y*W+x)*4;if(!q[k+3])continue;
+        const e=Math.min(x,W-x,y,H-y)/(S*.12),burn=Math.max(0,1-e)*a*.55;let spot=0;for(const [sx,sy,sr] of sp){const d=Math.hypot(x-sx,y-sy);if(d<sr)spot=Math.max(spot,(1-d/sr)*.35*a)}
+        const yel=a*.45;let R_=q[k]*(1-yel*.05)+yel*22,G_=q[k+1]*(1-yel*.12)+yel*10,B_=q[k+2]*(1-yel*.38);
+        const dk=1-burn-spot;q[k]=R_*dk+burn*40;q[k+1]=G_*dk+burn*22;q[k+2]=B_*dk}
+    }
+    g.putImageData(id,0,0);return c;
+  }
   if(fx.t==="rgb"){
     const o=Math.round(1+a*18),s0=new Uint8ClampedArray(q);
     for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=(y*W+x)*4,kl=(y*W+Math.max(0,x-o))*4,kr=(y*W+Math.min(W-1,x+o))*4;
