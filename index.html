@@ -1187,21 +1187,46 @@ const FX={
   dither:{n:"Dither",g:"Print",d:"1-bit attitude",ink:["ink","paper"],amt:"grain size",sw:"repeating-conic-gradient(#151515 0 25%,#f6f3ec 0 50%) 0 0/6px 6px"},
   copia:{n:"Photocopy",g:"Print",d:"toner running out",ink:["ink","paper"],amt:"noise",sw:"linear-gradient(135deg,#151515 45%,#f6f3ec 46%)"},
   riso:{n:"Riso",g:"Print",d:"two inks, slightly drunk",ink:["ink A","ink B"],amt:"misregistration",def:{c1:"#2747a0",c2:"#f2b3c6",amt:40},sw:"linear-gradient(90deg,#2747a0 50%,#f2b3c6 50%)"},
+  edges:{n:"Outline",g:"Print",d:"traced in ink",ink:["lines","paper"],amt:"detail",def:{amt:50},sw:"radial-gradient(circle,#f6f3ec 40%,#151515 42% 48%,#f6f3ec 50%)"},
+  hatch:{n:"Hatching",g:"Print",d:"shaded with a pen",ink:["ink","paper"],amt:"line spacing",def:{amt:35},sw:"repeating-linear-gradient(45deg,#151515 0 1.5px,#f6f3ec 1.5px 5px)"},
   scan:{n:"Scanlines",g:"Print",d:"cheap monitor energy",amt:"darkness",sw:"repeating-linear-gradient(0deg,#151515 0 2px,#9a9c97 2px 4px)"},
   duo:{n:"Duotone",g:"Colour",d:"two inks, zero chill",ink:["shadows","lights"],amt:"contrast",def:{c1:"#2747a0",c2:"#f0cd4a"},sw:"linear-gradient(90deg,#2747a0,#f0cd4a)"},
   poster:{n:"Posterize",g:"Colour",d:"fewer colours, more opinions",amt:"flatness",sw:"linear-gradient(90deg,#c7382c 0 33%,#f0cd4a 0 66%,#2747a0 0)"},
   umbral:{n:"Threshold",g:"Colour",d:"black or white, no drama",ink:["ink","paper"],amt:"cut-off",def:{amt:50},sw:"linear-gradient(90deg,#151515 50%,#f6f3ec 50%)"},
   inv:{n:"Invert",g:"Colour",d:"evil twin mode",amt:"amount",def:{amt:100},sw:"linear-gradient(90deg,#f6f3ec 50%,#151515 50%)"},
+  sepia:{n:"Sepia",g:"Colour",d:"grandma's album",amt:"amount",def:{amt:80},sw:"linear-gradient(90deg,#5b3b22,#e8cf9e)"},
+  fade:{n:"Faded",g:"Colour",d:"left in the sun for years",amt:"fade",def:{amt:50},sw:"linear-gradient(90deg,#8d8a86,#efe3cf)"},
+  noir:{n:"Noir",g:"Colour",d:"high-contrast black and white",amt:"contrast",def:{amt:55},sw:"linear-gradient(90deg,#000 0 45%,#fff 55%)"},
   tiras:{n:"Strips",g:"Distort",d:"sliced and misaligned",amt:"offset",def:{amt:35},sw:"repeating-linear-gradient(0deg,#c7382c 0 5px,#f2b3c6 5px 7px)"},
   glitch:{n:"Glitch",g:"Distort",d:"the scanner had a moment",amt:"chaos",def:{amt:40},sw:"repeating-linear-gradient(0deg,#2c6a4e 0 3px,#c7382c 3px 4px,#d4ecdc 4px 7px)"},
   pixel:{n:"Pixelate",g:"Distort",d:"low-res on purpose",amt:"pixel size",sw:"repeating-conic-gradient(#2c6a4e 0 25%,#d4ecdc 0 50%) 0 0/10px 10px"},
   rgb:{n:"RGB shift",g:"Distort",d:"misprinted on purpose",amt:"offset",def:{amt:35},sw:"linear-gradient(90deg,#e33 0 33%,#3c3 0 66%,#33e 0)"},
   blur:{n:"Blur",g:"Distort",d:"forgot your glasses",amt:"radius",def:{amt:25},sw:"radial-gradient(circle,#d4ecdc,#2c6a4e)"},
+  wave:{n:"Wave",g:"Warp",d:"seen through water",amt:"amplitude",def:{amt:40},sw:"repeating-radial-gradient(circle at 0 50%,#2747a0 0 3px,#bcd5e6 3px 6px)"},
+  swirl:{n:"Swirl",g:"Warp",d:"down the plughole",amt:"twist",def:{amt:45},sw:"conic-gradient(#c7382c,#f0cd4a,#2747a0,#c7382c)"},
+  bulge:{n:"Bulge",g:"Warp",d:"fish-eye, close up",amt:"amount",def:{amt:55},sw:"radial-gradient(circle,#f0cd4a 30%,#c7382c 70%)"},
+  pinch:{n:"Pinch",g:"Warp",d:"sucked into the middle",amt:"amount",def:{amt:50},sw:"radial-gradient(circle,#2747a0 15%,#bcd5e6 60%)"},
+  lens:{n:"Lens",g:"Warp",d:"cheap lens, colour fringes",amt:"distortion",def:{amt:45},sw:"radial-gradient(circle,#f6f3ec 30%,#e33 45%,#33e 60%,#151515 75%)"},
+  stretch:{n:"Pixel stretch",g:"Warp",d:"the scanner dragged it",amt:"how much",def:{amt:40},sw:"linear-gradient(90deg,#c7382c 0 30%,#f0cd4a 30% 34%,#f2b3c6 34%)"},
+  reeded:{n:"Reeded glass",g:"Warp",d:"behind a fluted window",amt:"refraction",def:{amt:50},sw:"repeating-linear-gradient(90deg,#bcd5e6 0 4px,#2747a0 4px 6px,#bcd5e6 6px 8px)"},
+  liquify:{n:"Liquify",g:"Warp",d:"melting a little",amt:"melt",def:{amt:40},sw:"radial-gradient(ellipse at 30% 60%,#f2b3c6,#c7382c 40%,#2747a0 70%)"},
   grano:{n:"Grain",g:"Paper",d:"dust and noise",amt:"amount",def:{amt:40},sw:"#9a9c97"},
   sticker:{n:"Sticker edge",g:"Paper",d:"die-cut border, very kiosk",ink:[null,"edge"],amt:"thickness",def:{c2:"#ffffff",amt:35},sw:"radial-gradient(circle,#c7382c 45%,#fff 47%)"},
   shadow:{n:"Hard shadow",g:"Paper",d:"lifted off the page",ink:["shadow",null],amt:"distance",def:{c1:"#151515",amt:35},sw:"linear-gradient(135deg,#f0cd4a 55%,#151515 55%)"}
 };
-const FX_GROUPS=["Print","Colour","Distort","Paper"];
+const WARP={
+  wave:(a,W,H)=>{const A=a*W*.06,P=H/(2.2+a*2);return (x,y)=>[x+Math.sin(y/P*6.283)*A,y+Math.sin(x/P*6.283)*A*.35]},
+  swirl:(a,W,H,cx,cy,R)=>{const T=a*Math.PI*2.4,RR=R*1.15;return (x,y)=>{const dx=x-cx,dy=y-cy,r=Math.hypot(dx,dy);if(r>=RR)return [x,y];const t=(1-r/RR)**2*T,co=Math.cos(t),si=Math.sin(t);return [cx+dx*co-dy*si,cy+dx*si+dy*co]}},
+  bulge:(a,W,H,cx,cy,R)=>{const e=1+a*1.4;return (x,y)=>{const dx=x-cx,dy=y-cy,r=Math.hypot(dx,dy);if(r>=R||!r)return [x,y];const k=Math.pow(r/R,e)*R/r;return [cx+dx*k,cy+dy*k]}},
+  pinch:(a,W,H,cx,cy,R)=>{const e=1/(1+a*1.6);return (x,y)=>{const dx=x-cx,dy=y-cy,r=Math.hypot(dx,dy);if(r>=R||!r)return [x,y];const k=Math.pow(r/R,e)*R/r;return [cx+dx*k,cy+dy*k]}},
+  lens:(a,W,H,cx,cy)=>{const K=-a*.75,D=Math.hypot(cx,cy),ch=.06*a;return (x,y)=>{const dx=(x-cx)/D,dy=(y-cy)/D,r2=dx*dx+dy*dy,f=s_=>1+K*(1+s_)*r2;
+    const fr=f(ch),fg=f(0),fb=f(-ch);return [cx+dx*D/fr,cy+dy*D/fr,cx+dx*D/fg,cy+dy*D/fg,cx+dx*D/fb,cy+dy*D/fb]}},
+  stretch:(a,W,H)=>{const X=W*(.78-a*.55);return (x,y)=>[x>X?X+(x-X)*.02:x,y]},
+  reeded:(a,W,H)=>{const w=Math.max(10,W/(14+(1-a)*10)),k=a*1.4;return (x,y)=>{const t=(x%w)/w-.5;return [x+t*w*k+Math.sin(t*3.14)*w*.1*a,y]}},
+  liquify:(a,W,H,cx,cy,R,seed)=>{const r=rng(String(seed)+"lq"),A=a*Math.min(W,H)*.07,p=[0,1,2,3,4,5].map(()=>[r()*6.28,.8+r()*2.2]);const fr=Math.min(W,H);
+    return (x,y)=>{let ox=0,oy=0;p.forEach(([ph,fq],i)=>{const u=(x/fr)*fq*6.28,v=(y/fr)*fq*6.28;ox+=Math.sin(v+ph+Math.cos(u*.7))*A/(i+1.5);oy+=Math.cos(u+ph*1.3+Math.sin(v*.6))*A/(i+1.5)});return [x+ox,y+oy]}}
+};
+const FX_GROUPS=["Print","Colour","Distort","Warp","Paper"];
 const BAYER=[0,8,2,10,12,4,14,6,3,11,1,9,15,7,13,5];
 const newFx=t=>{const d=FX[t].def||{};return {t,amt:d.amt??60,c1:d.c1||"#151515",c2:d.c2||"#f6f3ec",on:true}};
 const srcImgs={};
@@ -1244,6 +1269,27 @@ function pass(src,fx,seed){
   }
   if(fx.t==="blur"){g.filter=`blur(${Math.max(.5,a*Math.max(W,H)*.02)}px)`;g.drawImage(src,0,0);g.filter="none";return c}
   g.drawImage(src,0,0);
+  if(WARP[fx.t]){ // geometric warps: every output pixel samples the source somewhere else (bilinear, alpha included)
+    const d0=g.getImageData(0,0,W,H),S=d0.data,out=g.createImageData(W,H),O=out.data,cx=W/2,cy=H/2,R0=Math.min(W,H)/2,f=WARP[fx.t](a,W,H,cx,cy,R0,seed);
+    const smp=(sx,sy,k,ch)=>{if(sx<0||sy<0||sx>W-1||sy>H-1)return 0;const x0=sx|0,y0=sy|0,x1=Math.min(W-1,x0+1),y1=Math.min(H-1,y0+1),fx_=sx-x0,fy=sy-y0;
+      const i00=(y0*W+x0)*4+ch,i10=(y0*W+x1)*4+ch,i01=(y1*W+x0)*4+ch,i11=(y1*W+x1)*4+ch;return (S[i00]*(1-fx_)+S[i10]*fx_)*(1-fy)+(S[i01]*(1-fx_)+S[i11]*fx_)*fy};
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const k=(y*W+x)*4,m=f(x,y);
+      if(m.length===2){for(let ch=0;ch<4;ch++)O[k+ch]=smp(m[0],m[1],k,ch)}
+      else{O[k]=smp(m[0],m[1],k,0);O[k+1]=smp(m[2],m[3],k,1);O[k+2]=smp(m[4],m[5],k,2);O[k+3]=Math.max(smp(m[0],m[1],k,3),smp(m[2],m[3],k,3),smp(m[4],m[5],k,3))}}
+    g.putImageData(out,0,0);return c;
+  }
+  if(fx.t==="edges"||fx.t==="hatch"){
+    const d0=g.getImageData(0,0,W,H),S=d0.data,out=g.createImageData(W,H),O=out.data,C1=hex(fx.c1||"#151515"),C2=hex(fx.c2||"#f6f3ec");
+    const L=new Float32Array(W*H);for(let i=0;i<W*H;i++){const k=i*4;L[i]=S[k+3]<20?255:(.299*S[k]+.587*S[k+1]+.114*S[k+2])}
+    const sc=Math.max(1,Math.round(Math.max(W,H)/600)),sp=(4+a*10)*sc,th=(.9+a*.6)*sc;
+    for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=y*W+x,k=i*4;if(S[k+3]<10)continue;let ink=0;
+      if(fx.t==="edges"){const g_=(xx,yy)=>L[Math.min(H-1,Math.max(0,yy))*W+Math.min(W-1,Math.max(0,xx))];
+        const gx=-g_(x-1,y-1)-2*g_(x-1,y)-g_(x-1,y+1)+g_(x+1,y-1)+2*g_(x+1,y)+g_(x+1,y+1),gy=-g_(x-1,y-1)-2*g_(x,y-1)-g_(x+1,y-1)+g_(x-1,y+1)+2*g_(x,y+1)+g_(x+1,y+1);
+        ink=Math.min(1,Math.max(0,(Math.hypot(gx,gy)-(150-a*130))/70))}
+      else{const t=1-L[i]/255,d1=(x+y)%sp,d2=(x-y+H*4)%sp;ink=(d1<th*(.3+t*2.2)&&t>.12?1:0);if(t>.55&&d2<th*(t*2))ink=1;if(t>.85)ink=Math.max(ink,(x+2*y)%sp<th?1:0)}
+      for(let ch=0;ch<3;ch++)O[k+ch]=C2[ch]+(C1[ch]-C2[ch])*ink;O[k+3]=S[k+3]}
+    g.putImageData(out,0,0);return c;
+  }
   if(fx.t==="trama"){
     const d=g.getImageData(0,0,W,H).data, cell=Math.round(4+a*14);
     g.clearRect(0,0,W,H);g.fillStyle=fx.c2;g.fillRect(0,0,W,H);g.fillStyle=fx.c1;
@@ -1283,6 +1329,9 @@ function pass(src,fx,seed){
     else if(fx.t==="poster"){const st=255/(levels-1);q[i]=Math.round(r/st)*st;q[i+1]=Math.round(gg/st)*st;q[i+2]=Math.round(b/st)*st}
     else if(fx.t==="inv"){q[i]=r+(255-2*r)*a;q[i+1]=gg+(255-2*gg)*a;q[i+2]=b+(255-2*b)*a}
     else if(fx.t==="scan"){const py=((i>>2)/W)|0;if(py%(per*2)<per){const f=1-a*.75;q[i]=r*f;q[i+1]=gg*f;q[i+2]=b*f}}
+    else if(fx.t==="sepia"){const sr=.393*r+.769*gg+.189*b,sg=.349*r+.686*gg+.168*b,sb=.272*r+.534*gg+.131*b;q[i]=r+(sr-r)*a;q[i+1]=gg+(sg-gg)*a;q[i+2]=b+(sb-b)*a}
+    else if(fx.t==="fade"){const lift=a*70,k_=1-a*.38;q[i]=r*k_+lift+a*14;q[i+1]=gg*k_+lift+a*6;q[i+2]=b*k_+lift-a*4}
+    else if(fx.t==="noir"){const k_=1+a*2.2,v=(L-128)*k_+128;q[i]=q[i+1]=q[i+2]=v}
     else if(fx.t==="grano"){const n=(Math.random()-.5)*a*140;q[i]=r+n;q[i+1]=gg+n;q[i+2]=b+n}
   }
   g.putImageData(id,0,0);return c;
