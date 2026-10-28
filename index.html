@@ -1133,6 +1133,13 @@ document.addEventListener("keydown",e=>{
   if(mod&&(e.key==="z"||e.key==="Z")){if(e.target.tagName==="TEXTAREA")return;e.preventDefault();e.shiftKey?redo():undo();return}
   if(mod&&(e.key==="y"||e.key==="Y")){e.preventDefault();redo();return}
   if(typing)return;
+  if(mod&&!e.shiftKey&&(e.key==="c"||e.key==="C"||e.key==="x"||e.key==="X")&&sel){e.preventDefault();
+    const T=targets();CLIP={n:0,grp:selMode==="group",items:T.map(({el,canvas,tok,nw,nh,fw,fh,...d})=>JSON.parse(JSON.stringify(d)))};
+    if(e.key==="x"||e.key==="X"){act("del");toast("Cut. ⌘V to paste it back.")}else toast(T.length>1?`Copied ${T.length} pieces.`:"Copied.");return}
+  if(mod&&!e.shiftKey&&(e.key==="v"||e.key==="V")&&CLIP){e.preventDefault();CLIP.n++;
+    const off=.035*CLIP.n,ng=CLIP.grp?"g"+Date.now().toString(36):undefined;let first=null;
+    CLIP.items.forEach(d=>{const c=addPiece({...JSON.parse(JSON.stringify(d)),g:ng,lock:undefined,x:d.x+off,y:d.y+off},true);c.el.classList.add("settle");first=first||c});
+    select(first,ng?"group":"single");save();return}
   if(mod&&e.shiftKey&&(e.key==="l"||e.key==="L")&&sel){e.preventDefault();act("lock");return}
   if(mod&&(e.key==="d"||e.key==="D")&&sel){e.preventDefault();act("dup");return}
   if(sel&&!mod&&(e.key==="]"||e.key==="[")){act(e.key==="]"?"up":"down");return}
@@ -1887,7 +1894,7 @@ function ddMenu(kind,btnInner,items,cls=""){
 }
 let fxSecOpen=store.get("recortes-fxsec")!==false;
 const num=(key,label,val,min,max,step=1,unit="",fill=false)=>`<div class="num${fill?" fill":""}"${fill?` style="--f:${(val-min)/(max-min)*100}%"`:""}><span class="num-l" data-scrub="${key}">${label}</span><input type="text" inputmode="decimal" data-num="${key}" data-min="${min}" data-max="${max}" data-step="${step}" value="${val}" aria-label="${label}">${unit?`<span class="num-u">${unit}</span>`:""}</div>`;
-let cutSecOpen=false,fxGrp="Print";
+let CLIP=null,cutSecOpen=false,fxGrp="Print";
 function renderEdit(){
   const el=$("#pane-fx");
   if(!sel){el.innerHTML=`<div class="fx-empty"><div>Pick a scrap on the sheet to edit it.</div><button class="btn" data-do="addtext">Add text</button></div>`;return}
