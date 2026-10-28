@@ -353,6 +353,13 @@ body.zoomin .credit{opacity:0;pointer-events:none}
 .menu[hidden]{display:none}
 .menu li[role="option"]{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;cursor:pointer}
 .menu li.grp{font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--mat-ink);padding:10px 10px 4px}
+.menu li.grp[data-grp]{display:flex;align-items:center;gap:8px;cursor:pointer;padding:11px 10px;border-radius:8px;user-select:none}
+.menu li.grp[data-grp]:hover{color:var(--mint);background:rgba(214,238,222,.06)}
+.menu li.grp[data-grp] em{font-style:normal;font-size:11.5px;opacity:.6;letter-spacing:0}
+.menu li.grp[data-grp] svg.i{margin-left:auto;width:14px;height:14px;transition:transform .2s;transform:rotate(-90deg)}
+.menu li.grp[data-grp].open{color:var(--mint)}
+.menu li.grp[data-grp].open svg.i{transform:none}
+.menu li[hidden]{display:none}
 .menu li .sw2{width:26px;height:26px;border-radius:6px;flex:0 0 auto;border:1px solid var(--mat-line-strong)}
 .menu li b{display:block;font-weight:500;font-size:14.5px;color:var(--mint)}
 .menu li span{display:block;font-size:13px;color:var(--mat-ink)}
@@ -1880,7 +1887,7 @@ function ddMenu(kind,btnInner,items,cls=""){
 }
 let fxSecOpen=store.get("recortes-fxsec")!==false;
 const num=(key,label,val,min,max,step=1,unit="",fill=false)=>`<div class="num${fill?" fill":""}"${fill?` style="--f:${(val-min)/(max-min)*100}%"`:""}><span class="num-l" data-scrub="${key}">${label}</span><input type="text" inputmode="decimal" data-num="${key}" data-min="${min}" data-max="${max}" data-step="${step}" value="${val}" aria-label="${label}">${unit?`<span class="num-u">${unit}</span>`:""}</div>`;
-let cutSecOpen=false;
+let cutSecOpen=false,fxGrp="Print";
 function renderEdit(){
   const el=$("#pane-fx");
   if(!sel){el.innerHTML=`<div class="fx-empty"><div>Pick a scrap on the sheet to edit it.</div><button class="btn" data-do="addtext">Add text</button></div>`;return}
@@ -1933,7 +1940,7 @@ function renderEdit(){
       </div>`;
     });
     h+=`</div>${ddMenu("fx",`<svg class="i"><use href="#i-plus"/></svg>Add effect`,
-        FX_GROUPS.map(g=>`<li class="grp" role="presentation">${g}</li>`+Object.entries(FX).filter(([,m])=>m.g===g).map(([k,m])=>`<li role="option" id="opt-fx-${k}" data-v="${k}" aria-selected="false"><i class="sw2" style="background:${m.sw}"></i><b>${m.n}</b></li>`).join("")).join(""))}`;
+        FX_GROUPS.map(g=>`<li class="grp${g===fxGrp?" open":""}" role="presentation" data-grp="${g}"><span>${g}</span><em>${Object.values(FX).filter(m=>m.g===g).length}</em><svg class="i"><use href="#i-down"/></svg></li>`+Object.entries(FX).filter(([,m])=>m.g===g).map(([k,m])=>`<li${g===fxGrp?"":" hidden"} data-g="${g}" role="option" id="opt-fx-${k}" data-v="${k}" aria-selected="false"><i class="sw2" style="background:${m.sw}"></i><b>${m.n}</b></li>`).join("")).join(""))}`;
   }
   h+=`</div>`;
   if(!isT&&!p.frag&&!p.g){
@@ -1983,6 +1990,12 @@ $("#pane-fx").addEventListener("pointerdown",e=>{
 function syncFx(){const T=targets();T.forEach(t=>{if(t!==sel)t.fx=sel.fx.map(f=>({...f}))});return T}
 function fxChanged(full){const T=syncFx();T.forEach(refresh);save();updateBadge();if(full)renderEdit()}
 dock.addEventListener("click",e=>{
+  const gh=e.target.closest(".menu li.grp[data-grp]");
+  if(gh&&dock.contains(gh)){const m=gh.closest(".menu"),g=gh.dataset.grp,was=gh.classList.contains("open");fxGrp=was?"":g;
+    m.querySelectorAll("li.grp[data-grp]").forEach(x=>x.classList.toggle("open",x.dataset.grp===fxGrp));
+    m.querySelectorAll("li[data-g]").forEach(li=>li.hidden=li.dataset.g!==fxGrp);
+    const first=m.querySelector(`li[data-g="${fxGrp}"]`);m.querySelectorAll("li[role=option]").forEach(x=>x.setAttribute("aria-selected",x===first));
+    fitMenu(gh.closest(".dd"),m);m.scrollTop=Math.max(0,gh.offsetTop-4);return}
   const b=e.target.closest("button,li[role=option]");if(!b||!dock.contains(b))return;
   if(b.classList.contains("dd-btn")){toggleMenu(b.closest(".dd"));return}
   if(b.matches("li[role=option]")){pick(b.closest(".dd").dataset.dd,b.dataset.v);return}
@@ -2046,7 +2059,7 @@ function fitMenu(dd,m){
 function toggleMenu(dd,force){
   const m=dd.querySelector(".menu"),b=dd.querySelector(".dd-btn"),open=force??m.hidden;closeMenus(dd);
   m.hidden=!open;b.setAttribute("aria-expanded",open);
-  if(open){fitMenu(dd,m);const opts=[...m.querySelectorAll("li[role=option]")];let cur=opts.find(li=>li.getAttribute("aria-selected")==="true")||opts[0];
+  if(open){fitMenu(dd,m);const opts=[...m.querySelectorAll("li[role=option]:not([hidden])")];let cur=opts.find(li=>li.getAttribute("aria-selected")==="true")||opts[0];
     opts.forEach(li=>li.setAttribute("aria-selected",li===cur));m.setAttribute("aria-activedescendant",cur.id);m.focus({preventScroll:true});
     cur.scrollIntoView({block:"nearest"});m.scrollIntoView({block:"nearest",behavior:reduce?"auto":"smooth"})}
 }
@@ -2061,7 +2074,7 @@ function pick(kind,v){
 }
 dock.addEventListener("keydown",e=>{
   const m=e.target.closest(".menu");if(!m)return;
-  const opts=[...m.querySelectorAll("li[role=option]")];let i=opts.findIndex(li=>li.getAttribute("aria-selected")==="true");
+  const opts=[...m.querySelectorAll("li[role=option]:not([hidden])")];let i=opts.findIndex(li=>li.getAttribute("aria-selected")==="true");
   if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();i=(i+(e.key==="ArrowDown"?1:-1)+opts.length)%opts.length;
     opts.forEach((li,j)=>li.setAttribute("aria-selected",j===i));m.setAttribute("aria-activedescendant",opts[i].id);opts[i].scrollIntoView({block:"nearest"})}
   if(e.key==="Enter"||e.key===" "){e.preventDefault();pick(m.closest(".dd").dataset.dd,opts[i].dataset.v)}
