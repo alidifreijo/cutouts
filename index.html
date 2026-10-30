@@ -117,8 +117,15 @@ svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.6;stro
 .ztag .zt-b{font-size:13px;color:#1d1d1a;padding:3px 1px 6px;border-bottom:1px dashed rgba(42,42,38,.35)}
 .ztag [hidden]{display:none}
 .zbar.tagged .zt,.zbar.tagged .zby{display:none}
-body.zoomin .credit{opacity:0;pointer-events:none}
+body.zoomin .credit,body.zoomin .mesa-foot #tools-mesa{opacity:0;pointer-events:none}
 .credit{transition:opacity .3s}
+.mesa-foot{position:absolute;right:0;bottom:0;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:12px;pointer-events:none}
+.mesa-foot>*{pointer-events:auto}
+.mesa-foot #tools-mesa{margin-right:16px;transition:opacity .3s}
+.mesa-foot .wallseg{background:var(--mat-dark);padding:5px;border-radius:999px;box-shadow:var(--shadow)}
+.mesa-foot .wallseg button{border-color:transparent}
+@media (max-width:440px){.bar{gap:6px!important;padding-left:12px!important;padding-right:12px!important}.logo{font-size:21px!important}.tabs{margin-left:0}.tab{padding:5px 8px!important;font-size:13px!important}.helpb{width:28px!important;height:28px!important}}
+.mesa-foot .credit{position:static;white-space:nowrap;pointer-events:none}
 .wall.zoomed .card.zoomed .lbl{opacity:0}
 .zbar{position:absolute;z-index:60;left:50%;bottom:max(18px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 8px 6px 8px;background:var(--mat-dark);border-radius:999px;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
 .zbar[hidden]{display:none}
@@ -197,6 +204,7 @@ body.zoomin .credit{opacity:0;pointer-events:none}
 .newbtn[aria-selected="true"]{background:var(--mint);color:var(--mat-dark);border-color:var(--mint);border-style:solid}
 #tools-mesa+.newbtn,.tools:not([hidden])+.newbtn{margin-left:4px}
 .bar>.newbtn{order:5}
+.bar>.helpb{order:6}
 .bar>#tools-pega{order:4}
 .bar>.tabs{margin-right:auto}
 .bar>.tools{margin-left:0}
@@ -571,6 +579,78 @@ body:has(#studio.finale) #tools-pega{visibility:hidden}
 .lockb{margin-left:auto;flex:0 0 auto}.lockb[aria-pressed="true"]{color:var(--mint);background:var(--mat-light)}
 @media (hover:none){.tbox .th{width:calc(18px*var(--iz,1));height:calc(18px*var(--iz,1));border-radius:50%}}
 
+
+
+/* ---------- entrance: the table paints itself in, a flurry of collages flashes past, then they slam down and get taped ---------- */
+@property --pr{syntax:"<length>";inherits:false;initial-value:0px}
+body.pre .note h2,body.pre .note p,body.pre .wall .card,body.pre .bar,body.pre .mesa-foot,body.pre .wall .rulers{opacity:0}
+body.cards-wait .wall .card{opacity:0;animation:none!important}
+body.intro .wall .card{transition:none!important}
+.wall .card.in .lbl,body.cards-wait .wall .card .lbl{opacity:0}
+body.intro .wall .card .lbl{transition:opacity .6s ease-out .1s}
+body.intro .wall .card:not(.in):not(.landed){opacity:0}
+.note h2 .w{display:inline-block}
+.paint{position:absolute;inset:0;z-index:0;pointer-events:none;background:var(--mat);
+  -webkit-mask-image:radial-gradient(circle at 22% 30%,transparent var(--pr),#000 calc(var(--pr) + 90px)),radial-gradient(circle at 78% 62%,transparent calc(var(--pr)*.85),#000 calc(var(--pr)*.85 + 90px)),radial-gradient(circle at 50% 105%,transparent calc(var(--pr)*.7),#000 calc(var(--pr)*.7 + 90px));
+  -webkit-mask-composite:source-in;mask-image:radial-gradient(circle at 22% 30%,transparent var(--pr),#000 calc(var(--pr) + 90px)),radial-gradient(circle at 78% 62%,transparent calc(var(--pr)*.85),#000 calc(var(--pr)*.85 + 90px)),radial-gradient(circle at 50% 105%,transparent calc(var(--pr)*.7),#000 calc(var(--pr)*.7 + 90px));mask-composite:intersect;
+  animation:paintIn 1.3s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes paintIn{to{--pr:160vmax}}
+body.intro .wall .rulers{animation:rulerIn .9s .15s cubic-bezier(.6,0,.2,1) both}
+@keyframes rulerIn{from{clip-path:inset(0 100% 100% 0)}to{clip-path:inset(0 0 0 0)}}
+body.intro .bar{animation:fadeDown .6s ease-out both}
+.flash{position:absolute;inset:0;z-index:70;pointer-events:none;display:grid;place-items:center;overflow:hidden}
+.flash img{position:absolute;max-height:78%;max-width:70%;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);animation:flashIn .2s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes flashIn{from{scale:1.5;opacity:0}}
+body.intro .note h2,body.intro .note p{visibility:hidden}
+body.intro.write .note h2,body.intro.write .note p{visibility:visible}
+.note h2 .ch{display:inline-block;clip-path:inset(-20% 100% -30% -5%)}
+body.intro.write .note h2 .ch{animation:penIn var(--dur,.16s) linear both;animation-delay:var(--d)}
+body:not(.intro) .note h2 .ch{clip-path:none}
+@keyframes penIn{to{clip-path:inset(-20% -10% -30% -5%)}}
+.note p .tc{opacity:0}
+body:not(.intro) .note p .tc{opacity:1}
+body.intro.write .note p .tc{animation:typeIn .01s linear both;animation-delay:var(--d)}
+@keyframes typeIn{to{opacity:1}}
+
+
+
+body.intro .mesa-foot{opacity:0}
+body.thud .board{animation:thud .18s ease-out}
+@keyframes thud{40%{translate:0 3px}}
+@keyframes slapIn{from{opacity:0;translate:0 18px;rotate:var(--wr,-7deg);scale:1.15}50%{opacity:1}}
+@keyframes slamIn{0%{opacity:0;transform:translate(var(--dx),var(--dy)) var(--t) rotate(var(--rr)) scale(2.8)}12%{opacity:1}72%{transform:var(--t) scale(.95)}86%{transform:var(--t) scale(1.02)}100%{opacity:1;transform:var(--t)}}
+@keyframes tapeIn{from{opacity:0;scale:.2 1}}
+@keyframes fadeUp{from{opacity:0;translate:0 10px}}
+@keyframes fadeDown{from{opacity:0;translate:0 -10px}}
+@media (prefers-reduced-motion:reduce){body.pre .note h2,body.pre .note p,body.pre .wall .card,body.pre .bar,body.pre .mesa-foot,body.pre .wall .rulers{opacity:1}body.intro *,.paint{animation:none!important}.paint,.flash{display:none}}
+/* ---------- first-visit tour: paper notes pointing at the main bits ---------- */
+.helpb{width:34px;height:34px;margin-left:2px}.helpb svg.i{width:18px;height:18px}
+.tour{position:fixed;inset:0;z-index:300}
+.tour[hidden]{display:none}
+.tour-hole{position:fixed;border-radius:999px;box-shadow:0 0 0 200vmax rgba(12,34,24,.62);transition:all .45s cubic-bezier(.65,0,.25,1);pointer-events:none}
+.tour-hole.none{box-shadow:0 0 0 200vmax rgba(12,34,24,.62);width:0!important;height:0!important}
+.tour-hole::after{content:"";position:absolute;inset:-6px;border:2px dashed rgba(214,238,222,.8);border-radius:inherit}
+.tour-hole.none::after{display:none}
+.tour-arrow{position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;overflow:visible}
+.tour-arrow path{fill:none;stroke:#f6f3ec;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);animation:tourDraw .5s .25s ease-out forwards}
+@keyframes tourDraw{to{stroke-dashoffset:0}}
+.tag.tour-card{position:fixed;width:300px;transform:rotate(-1.5deg);padding:28px 24px 18px;transition:left .45s cubic-bezier(.65,0,.25,1),top .45s cubic-bezier(.65,0,.25,1)}
+.tour-card h3{font-family:var(--f-head);font-weight:400;font-size:30px;line-height:1.15;margin:4px 0 8px;color:#1d1d1a}
+.tour-card p{margin:0;font-size:14.5px;line-height:1.55;color:#2a2a26}
+.tour-foot{display:flex;align-items:center;gap:10px;margin-top:18px}
+#tour-n{font-size:12.5px;color:#7a7466;margin-right:auto}
+.tour-skip{border:0;background:none;color:#5a564c;font:inherit;font-size:14px;text-decoration:underline;text-underline-offset:3px;padding:6px 4px;cursor:pointer}
+.tour-next{border:0;background:#2c6a4e;color:#fff;font:inherit;font-size:14.5px;border-radius:999px;padding:8px 20px;cursor:pointer}
+.tour-next:hover{background:#235640}
+.tour-card.pop{animation:tourPop .45s cubic-bezier(.2,1.3,.4,1)}
+@keyframes tourPop{from{opacity:0;transform:rotate(4deg) translateY(10px)}}
+/* one-off hints inside make a mess */
+.hint{position:fixed;z-index:120;max-width:240px;background:#efe8d8;color:#1d1d1a;padding:12px 14px 12px 16px;font-size:13.5px;line-height:1.45;transform:rotate(-2deg);
+  filter:drop-shadow(0 1px 1px rgba(0,0,0,.3)) drop-shadow(0 8px 10px rgba(0,0,0,.35));clip-path:polygon(0 2%,10% 0,30% 2%,55% 0,80% 2%,100% 0,99% 50%,100% 100%,70% 98%,40% 100%,15% 98%,0 100%,1% 50%);animation:tourPop .45s cubic-bezier(.2,1.3,.4,1)}
+.hint b{font-family:var(--f-head);font-weight:400;font-size:20px;display:block;margin-bottom:2px}
+.hint button{border:0;background:none;font:inherit;font-size:12.5px;color:#5a564c;text-decoration:underline;padding:4px 0 0;cursor:pointer}
+@media (max-width:720px){.tag.tour-card{width:auto;left:16px!important;right:16px;bottom:auto!important;height:auto!important}.helpb{width:30px;height:30px;font-size:16px}}
+
 /* the way out of make a mess: next to the scrap pile, travels with it */
 .pin-float{position:absolute;z-index:23;bottom:16px;right:16px;width:calc(var(--dock-w,320px) - 32px);justify-content:center;padding:13px 14px!important;font-size:16px!important;letter-spacing:-.02em;white-space:nowrap;box-shadow:var(--shadow-up);transition:width .25s ease,transform .15s,background .15s}
 #studio .dock-scroll{padding-bottom:84px}
@@ -642,11 +722,11 @@ body{font-size:15px}
 @media (max-width:520px){.tab,.newbtn,.pinbtn{font-size:14px;letter-spacing:-.03em}.tab{padding:5px 10px}.newbtn{padding:7px 9px}.newbtn .nb-t{display:none}}
 .note p{font-size:18px;line-height:1.55;max-width:34em}.note .hint{font-size:15px}
 .card .lbl{font-size:15px;font-family:var(--f-head);line-height:1.6}
-.credit{font-size:14px}
+.credit{font-size:12px}
 [hidden]{display:none!important}
 </style>
 </head>
-<body>
+<body class="pre">
 
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -694,13 +774,11 @@ body{font-size:15px}
   <header class="bar">
     <h1 class="logo"><a href="./" id="home">cutouts</a></h1>
     <nav class="tabs" role="tablist" aria-label="mode">
-      <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa">our mess</button>
+      <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa">the table</button>
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio">make a mess</button>
     </nav>
-    <div class="tools" id="tools-mesa">
-      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true" aria-label="Messy" title="messy"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3.5" y="6" width="9" height="12" rx="1" transform="rotate(-14 8 12)"/><rect x="14" y="3.5" width="9.5" height="11" rx="1" transform="rotate(10 18.7 9)"/><rect x="9" y="13.5" width="10" height="11" rx="1" transform="rotate(-4 14 19)"/><path class="tp" d="M11.2 12.6l5 .6M16.6 2.6l3.6 1.4"/></svg></button><button data-wall="strict" aria-pressed="false" aria-label="Strict" title="strict"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="4" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="4" width="8.5" height="8.5" rx="1"/><rect x="4" y="15.5" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="15.5" width="8.5" height="8.5" rx="1"/></svg></button></div>
-    </div>
-    <button class="newbtn" id="tab-add" aria-label="feed the mess" aria-selected="false" aria-controls="addpane"><svg class="i"><use href="#i-plus"/></svg><span class="nb-t">feed the mess</span></button>
+        <button class="newbtn" id="tab-add" aria-label="add scraps" aria-selected="false" aria-controls="addpane"><svg class="i"><use href="#i-plus"/></svg><span class="nb-t">add scraps</span></button>
+    <button class="ib helpb" id="tour-btn" aria-label="How it works" title="how it works"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01" stroke-width="2.6" stroke-linecap="round"/></svg></button>
     <div class="tools" id="tools-pega" hidden>
       <button class="ib" id="btn-undo" aria-label="Undo" data-tip="undo · ⌘Z" disabled><svg class="i"><use href="#i-undo"/></svg></button>
       <button class="ib" id="btn-redo" aria-label="Redo" data-tip="redo · ⇧⌘Z" disabled><svg class="i"><use href="#i-redo"/></svg></button>
@@ -712,7 +790,9 @@ body{font-size:15px}
   <main class="stage">
     <section class="mat wall" id="mesa" role="tabpanel" aria-labelledby="tab-mesa" tabindex="0">
       <div class="rulers"></div>
-      <p class="credit">Collages made from found magazine imagery.<br>Personal, non-commercial project.</p>
+      <div class="mesa-foot"><div class="tools" id="tools-mesa">
+      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true" aria-label="Messy" title="messy"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3.5" y="6" width="9" height="12" rx="1" transform="rotate(-14 8 12)"/><rect x="14" y="3.5" width="9.5" height="11" rx="1" transform="rotate(10 18.7 9)"/><rect x="9" y="13.5" width="10" height="11" rx="1" transform="rotate(-4 14 19)"/><path class="tp" d="M11.2 12.6l5 .6M16.6 2.6l3.6 1.4"/></svg></button><button data-wall="strict" aria-pressed="false" aria-label="Strict" title="strict"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="4" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="4" width="8.5" height="8.5" rx="1"/><rect x="4" y="15.5" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="15.5" width="8.5" height="8.5" rx="1"/></svg></button></div>
+    </div><p class="credit">Found magazine imagery · a non-commercial project</p></div>
       <div class="board" id="board"></div>
     </section>
 
@@ -794,6 +874,15 @@ body{font-size:15px}
     <span class="lb-title" id="lb-title"></span>
     <span class="lb-n" id="lb-n"></span>
     <button class="ib" id="lb-next" aria-label="Next"><svg class="i"><use href="#i-right"/></svg></button>
+  </div>
+</div>
+<div class="tour" id="tour" hidden aria-live="polite">
+  <div class="tour-hole" id="tour-hole"></div>
+  <svg class="tour-arrow" id="tour-arrow" aria-hidden="true"><path id="tour-path"/><path id="tour-head"/></svg>
+  <div class="tag tour-card" id="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-h">
+    <span class="tag-tape"></span>
+    <h3 id="tour-h"></h3><p id="tour-p"></p>
+    <div class="tour-foot"><span id="tour-n"></span><button class="tour-skip" id="tour-skip">Skip</button><button class="tour-next" id="tour-next">Next</button></div>
   </div>
 </div>
 <div class="fin" id="pinpop" hidden role="dialog" aria-label="Glue it to the table">
@@ -878,7 +967,7 @@ const board=$("#board"), mesa=$("#mesa");
 let MESS_SEED=Math.floor(Math.random()*1e6);
 let wallStyle="strict",messyOrder=null; // always opens strict
 const note=document.createElement("div");note.className="note";
-note.innerHTML=`<h2>Cut. Glue.<br>No undo.</h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
+note.innerHTML=`<h2><span class="w">Cut.</span> <span class="w">Glue.</span><br><span class="w">No</span> <span class="w">undo.</span></h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
 board.appendChild(note);
 const cardsById=new Map();
 let camX=0,camY=0,velX=0,velY=0,inertia=0,boardW=0,boardH=0,dragging=false;
@@ -890,7 +979,9 @@ function cardFor(w,i,key=w.id){
     board.appendChild(b);cardsById.set(key,b)}
   b.dataset.i=i;b.dataset.wid=w.id;return b;
 }
+let INTRO=false,introLayout=false;
 function layout(){
+  if(INTRO){introLayout=true;return} // never reshuffle the table under the entrance
   const W=mesa.clientWidth,H=mesa.clientHeight;if(!W)return;
   const small=W<720,messy=wallStyle==="messy",ALL=WORKS.map((w,i)=>({w,i})).filter(o=>!o.w.gone),N=ALL.length;
   const cw=small?Math.round((W-40)/1.85):Math.round(Math.max(210,Math.min(390,W/4.5)));
@@ -1167,7 +1258,7 @@ function setMode(m){
   $("#tab-mesa").setAttribute("aria-selected",m==="mesa");$("#tab-pega").setAttribute("aria-selected",m==="pega");$("#tab-add").setAttribute("aria-selected",m==="add");
   $("#mesa").hidden=m!=="mesa";$("#studio").hidden=m!=="pega";$("#addpane").hidden=m!=="add";
   $("#tools-mesa").hidden=m!=="mesa";$("#tools-pega").hidden=m!=="pega";
-  if(m==="pega"){sizeSheet();drawRulers($("#studio"))}else if(m==="mesa")layout();else openAdd();
+  if(m==="pega"){sizeSheet();drawRulers($("#studio"));setTimeout(hintsTick,700)}else if(m==="mesa")layout();else openAdd();
   if(m!=="add")store.set("recortes-mode",m);
 }
 // owner-only "+ new" tab: the studio page in an iframe (same site, shares the login)
@@ -2157,6 +2248,7 @@ $("#btn-clear").onclick=()=>{if(!pieces.length)return;pieces.forEach(p=>p.el.rem
 const hist=[],fut=[];let lastSnap=null,restoring=false;
 const snap=()=>JSON.stringify({bg,pieces:pieces.map(({el,canvas,tok,nw,nh,fw,fh,...d})=>d)});
 function save(){
+  setTimeout(hintsTick,500);
   const s=snap();store.set("recortes-hoja-v3",JSON.parse(s));
   if(!restoring&&s!==lastSnap){if(lastSnap!==null){hist.push(lastSnap);if(hist.length>80)hist.shift()}fut.length=0;lastSnap=s;updUndo()}
 }
@@ -2356,22 +2448,159 @@ async function loadRemote(){
     if((cs.length||vs.length)&&mode==="mesa")layout();
   }catch(e){}
 }
+
+// ---------- first visit: a short tour, then one-off hints in make a mess ----------
+const TOUR=[
+  {el:"#tab-mesa",h:"The table",p:"Everything here was cut out of old magazines and glued down with zero respect for the original layout. Click one to stick your nose in."},
+  {el:"#tab-pega",m:"#tab-pega",h:"Make a mess",p:"Grab scraps from the pile, slap them on a blank sheet, add effects until it gets weird. Then glue it to the table for everyone to see."},
+  {el:"#tab-add",h:"Add scraps",p:"Hoarding old magazines? Snap a page, cut out the good bits and feed them to everyone's pile."},
+  {el:"#tour-btn",h:"That's the tour",p:"Lost later? Poke the little i and we'll do this all over again.",last:true}
+];
+let tourI=-1;
+const tourEl=$("#tour"),tourCard=$("#tour-card"),tourHole=$("#tour-hole");
+function tourShow(i){
+  tourI=i;const st=TOUR[i];if(!st){tourEnd();return}
+  let t=$(st.el);if(!t||!t.offsetParent)t=null;
+  if(!t&&st.m)t=$(st.m);
+  $("#tour-h").textContent=st.h;$("#tour-p").textContent=st.p;$("#tour-n").textContent=`${i+1} / ${TOUR.length}`;
+  $("#tour-next").textContent=st.last?"Got it":"Next";$("#tour-skip").hidden=!!st.last;
+  tourCard.classList.remove("pop");void tourCard.offsetWidth;tourCard.classList.add("pop");
+  const W=innerWidth,H=innerHeight,cw=Math.min(300,W-32),ch=tourCard.offsetHeight||200;
+  let cx,cy,r=null;
+  if(t){r=t.getBoundingClientRect();const pad=8;
+    Object.assign(tourHole.style,{left:r.left-pad+"px",top:r.top-pad+"px",width:r.width+pad*2+"px",height:r.height+pad*2+"px"});tourHole.classList.remove("none");
+    cx=Math.max(16,Math.min(W-cw-16,r.left+r.width/2-cw/2+(r.left>W/2?-60:60)));cy=Math.min(H-ch-16,r.bottom+86)}
+  else{tourHole.classList.add("none");cx=(W-cw)/2;cy=(H-ch)/2}
+  tourCard.style.left=cx+"px";tourCard.style.top=cy+"px";
+  // hand-drawn arrow from the card to the thing it talks about
+  const path=$("#tour-path"),head=$("#tour-head");
+  if(r){const x1=cx+cw/2+(r.left+r.width/2<cx+cw/2?-40:40),y1=cy-4,x2=r.left+r.width/2,y2=r.bottom+14,mx=(x1+x2)/2+(x2>x1?-40:40),my=(y1+y2)/2+10;
+    path.setAttribute("d",`M${x1},${y1} Q${mx},${my} ${x2},${y2}`);
+    const ang=Math.atan2(y2-my,x2-mx),a1=ang+2.6,a2=ang-2.6;head.setAttribute("d",`M${x2+12*Math.cos(a1)},${y2+12*Math.sin(a1)} L${x2},${y2} L${x2+12*Math.cos(a2)},${y2+12*Math.sin(a2)}`);
+    [path,head].forEach(p=>{const L=Math.ceil(p.getTotalLength?p.getTotalLength():400);p.style.setProperty("--len",L);p.style.animation="none";void p.getBoundingClientRect();p.style.animation=""})}
+  else{path.setAttribute("d","");head.setAttribute("d","")}
+  setTimeout(()=>$("#tour-next").focus({preventScroll:true}),60);
+}
+function tourStart(){if(mode!=="mesa")setMode("mesa");unzoom(true);tourEl.hidden=false;requestAnimationFrame(()=>tourShow(0))}
+function tourEnd(){tourEl.hidden=true;tourI=-1;store.set("cutouts-tour",1)}
+$("#tour-next").onclick=()=>tourShow(tourI+1);
+$("#tour-skip").onclick=tourEnd;
+$("#tour-btn").onclick=tourStart;
+tourEl.addEventListener("keydown",e=>{if(e.key==="Escape")tourEnd();if(e.key==="ArrowRight"||e.key==="Enter"){e.preventDefault();tourShow(tourI+1)}if(e.key==="ArrowLeft"&&tourI>0)tourShow(tourI-1)});
+addEventListener("resize",()=>{if(tourI>=0)tourShow(tourI)});
+// hints: shown once each, the first time they make sense
+const HINTS={drop:{h:"Start here",p:"Drag a scrap onto the sheet. Or just click it, we're not fussy."},glue:{h:"Looking good",p:"Happy with it? Glue it to the table before you overthink it."}};
+let hintEl=null;
+function hint(k,target,side){
+  const seen=store.get("cutouts-hints")||{};if(seen[k]||!tourEl.hidden||store.get("cutouts-tour")!==1)return;
+  const t=$(target);if(!t||!t.offsetParent)return;seen[k]=1;store.set("cutouts-hints",seen);
+  hintEl&&hintEl.remove();hintEl=document.createElement("div");hintEl.className="hint";hintEl.innerHTML=`<b>${HINTS[k].h}</b>${HINTS[k].p}<br><button>ok</button>`;
+  document.body.appendChild(hintEl);const r=t.getBoundingClientRect(),w=hintEl.offsetWidth,h=hintEl.offsetHeight;
+  let x=side==="left"?r.left-w-18:r.left+r.width/2-w/2,y=side==="left"?r.top+20:r.top-h-16;
+  hintEl.style.left=Math.max(12,Math.min(innerWidth-w-12,x))+"px";hintEl.style.top=Math.max(70,Math.min(innerHeight-h-12,y))+"px";
+  const kill=()=>{if(hintEl){hintEl.remove();hintEl=null}};hintEl.querySelector("button").onclick=kill;setTimeout(kill,9000);
+}
+function hintsTick(){if(mode!=="pega")return;
+  if(!pieces.length)hint("drop",mobile()?"#m-scraps":"#dock","left");
+  else if(pieces.length>=3)hint("glue",mobile()?"#m-pin":"#btn-pin","top");}
+
+
+// a sheet of paper settling: it drifts and sways side to side, tilting in 3D, the wobble dying out as it lands
+function paperPath(o){
+  // glide calmly from the pile to just above its spot, then flutter down onto the table like a sheet of paper
+  const N=20,f=[],io=t=>t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2,G=.55,hover=1.06,lift=-26;
+  for(let i=0;i<=N;i++){const t=i/N;let x,y,rot,sc,rx=0,ry=0;
+    if(t<=G){const p=io(t/G);x=o.dx*(1-p);y=o.dy*(1-p)+lift*p;rot=o.rr*(1-p)+o.sw*.08*p;sc=o.k+(hover-o.k)*p}
+    else{const q=(t-G)/(1-G),d=Math.pow(1-q,1.6),w=Math.sin(q*Math.PI*2.4+o.ph);
+      x=o.sw*.45*w*d;y=lift*(1-io(q));rot=o.sw*.08*d+w*6*d;sc=1+(hover-1)*d;rx=Math.cos(q*Math.PI*2.4+o.ph)*16*d;ry=w*18*d}
+    f.push({transform:`perspective(1400px) translate(${x.toFixed(1)}px,${y.toFixed(1)}px) ${o.T} rotateX(${rx.toFixed(1)}deg) rotateY(${ry.toFixed(1)}deg) rotate(${rot.toFixed(1)}deg) scale(${sc.toFixed(3)})`})}
+  f[N].transform=`perspective(1400px) ${o.T}`;return f;
+}
+async function playIntro(ready,done){
+  const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+  if(reduce||mode!=="mesa"){document.body.classList.remove("pre");await ready;done&&done();return}
+  // split the title into letters (written with a pen) and the line under it into characters (typed)
+  let td=0;note.querySelectorAll("h2 .w").forEach(w=>{const t=w.textContent;w.innerHTML=[...t].map(c=>{const dur=c==="."?.04:.055+Math.random()*.04,h=`<span class="ch" style="--d:${td.toFixed(2)}s;--dur:${dur.toFixed(2)}s">${c}</span>`;td+=dur*.8;return h}).join("");td+=.08});
+  const pe=note.querySelector("p");let pd=td+.05;if(pe&&!pe.dataset.split){pe.dataset.split=1;pe.innerHTML=[...pe.textContent].map(c=>{const h=`<span class="tc" style="--d:${pd.toFixed(3)}s">${c}</span>`;pd+=.006;return h}).join("")}
+  const writeT=(pd+.2)*1000;
+  const paint=document.createElement("div");paint.className="paint";mesa.prepend(paint);
+  document.body.classList.add("intro","cards-wait");document.body.classList.remove("pre");INTRO=true;
+  const short=store.get("cutouts-intro")===1&&location.hash!=="#full";
+  await Promise.race([ready,sleep(2500)]); // the table fills with everyone's collages before the show starts
+  if(mode!=="mesa"){INTRO=false;document.body.classList.remove("intro","cards-wait");paint.remove();done&&done();return}
+  INTRO=false;layout();INTRO=true;introLayout=false;
+  const mr=mesa.getBoundingClientRect(),cx=mr.left+mr.width*.58,cy=mr.top+mr.height*.48;
+  let vis=placed.filter(el=>{const r=el.getBoundingClientRect();return r.bottom>mr.top&&r.top<mr.bottom&&r.right>mr.left&&r.left<mr.right});
+  await Promise.race([Promise.all(vis.map(el=>{const im=el.querySelector("img");im.loading="eager";return im.decode?im.decode().catch(()=>{}):Promise.resolve()})),sleep(900)]);
+  vis=vis.filter(el=>{const im=el.querySelector("img");return im.complete&&im.naturalWidth}).sort(()=>Math.random()-.5);
+  document.body.classList.remove("cards-wait");
+  if(short){ // returning visitor: papers just drop into place, title written fast, ~1.5s
+    note.querySelectorAll(".ch,.tc").forEach(x=>{x.style.animationDelay=(parseFloat(x.style.getPropertyValue("--d"))*.45)+"s";x.style.animationDuration=".05s"});
+    vis.forEach((el,i)=>{const T=el.style.transform,ph=Math.random()*6.28,sw=(Math.random()<.5?-1:1)*(10+Math.random()*12),f=[];
+      for(let j=0;j<=10;j++){const q=j/10,d=Math.pow(1-q,1.5),w=Math.sin(q*Math.PI*2+ph);
+        f.push({opacity:Math.min(1,q*4),transform:`perspective(1400px) translate(${(sw*w*d).toFixed(1)}px,${(-60*d).toFixed(1)}px) ${T} rotateX(${(Math.cos(q*Math.PI*2+ph)*14*d).toFixed(1)}deg) rotate(${(w*5*d).toFixed(1)}deg) scale(${(1+.05*d).toFixed(3)})`})}
+      f[10].transform=`perspective(1400px) ${T}`;el.classList.add("landed");el.style.opacity="1";
+      const a=el.animate(f,{duration:950,delay:i*70,easing:"linear",fill:"backwards"});a.onfinish=()=>{el.style.opacity="";const t=el.querySelector(".tape");t&&t.animate([{opacity:0},{opacity:1}],{duration:250})}});
+    setTimeout(()=>document.body.classList.add("write"),250);
+    await sleep(Math.max(1300,vis.length*70+1000));
+    placed.forEach(el=>{el.getAnimations().forEach(a=>a.cancel());el.classList.remove("in","landed");el.style.opacity=""});
+    document.body.classList.remove("intro","thud","write");paint.remove();INTRO=false;if(introLayout){introLayout=false;layout()}done&&done();return;
+  }
+  store.set("cutouts-intro",1);
+  // one continuous move: collages pile up in the middle; once three are stacked, the bottom one flies off to its spot on the table
+  const GAP=190,stack=[];let z=2000;
+  const land=el=>{if(skipped)return;const o=el._intro;el.classList.add("landed");
+    const a=el.animate(paperPath(o),{duration:2600,easing:"linear"});(el._appear||{cancel(){}}).cancel();el._appear=null;
+    a.onfinish=()=>{el.style.zIndex=o.z;el.classList.remove("in");
+      const t=el.querySelector(".tape");t&&t.animate([{opacity:0,scale:".4 1"},{opacity:1,scale:"1 1"}],{duration:420,easing:"cubic-bezier(.33,0,.15,1)"})}};
+  let skipped=false;const skip=()=>{if(skipped)return;skipped=true;document.body.classList.add("write");
+    vis.forEach(el=>{el.getAnimations().forEach(a=>a.cancel());el.style.zIndex=(el._intro&&el._intro.z)||el.style.zIndex;el.classList.remove("in");el.classList.add("landed");el.style.opacity=""});stack.length=0;
+    note.querySelectorAll(".ch,.tc").forEach(x=>x.style.animationDuration="0s"),note.querySelectorAll(".ch,.tc").forEach(x=>x.style.animationDelay="0s")};
+  ["pointerdown","keydown","wheel","touchstart"].forEach(t=>addEventListener(t,skip,{once:true,passive:true}));
+  for(const el of vis){
+    if(mode!=="mesa"||skipped)break;
+    const r=el.getBoundingClientRect(),T=el.style.transform,dx=(cx+(Math.random()-.5)*mr.width*.12-(r.left+r.width/2)),dy=(cy+(Math.random()-.5)*mr.height*.1-(r.top+r.height/2));
+    const k=Math.min(2.8,Math.max(1.6,mr.height*.7/r.height)),rr=((Math.random()-.5)*34).toFixed(1);
+    el._intro={T,dx,dy,rr:+rr,k,z:el.style.zIndex,ph:Math.random()*6.28,sw:(Math.random()<.5?-1:1)*(18+Math.random()*26),
+      big:`perspective(1400px) translate(${dx}px,${dy}px) ${T} rotate(${rr}deg) scale(${k})`};
+    el.classList.add("in");el.style.zIndex=++z;el.style.opacity="1";
+    el._appear=el.animate([{opacity:1,transform:`perspective(1400px) translate(${dx}px,${dy-24}px) ${T} rotate(${rr*1.15}deg) scale(${k*1.05})`},{opacity:1,transform:el._intro.big}],{duration:260,easing:"cubic-bezier(.2,.8,.3,1)",fill:"forwards"}); // solid from the first frame: it covers the one below
+    stack.push(el);if(stack.length>3)land(stack.shift());
+    await sleep(GAP);
+  }
+  ["pointerdown","keydown","wheel","touchstart"].forEach(t=>removeEventListener(t,skip));
+  while(stack.length){land(stack.shift());await sleep(GAP)}
+  if(!skipped)await sleep(900);
+  document.body.classList.add("write");if(!skipped)await sleep(Math.max(writeT,1800));
+  placed.forEach(el=>{el.getAnimations().forEach(a=>a.cancel());el.classList.remove("in","landed");el.style.opacity="";
+    const t=el.style.transform;el.style.transition="none";el.style.transform="none";void el.offsetWidth;el.style.transform=t;void el.offsetWidth;el.style.transition=""});
+  void board.offsetWidth;document.body.classList.remove("intro","thud","write");paint.remove();INTRO=false;if(introLayout){introLayout=false;layout()}
+  // belt and braces: any card whose drawn size doesn't match its place gets snapped back without a transition
+  const fix=()=>placed.forEach(el=>{const m=new DOMMatrix(getComputedStyle(el).transform),sc=Math.hypot(m.a,m.b),want=(el._p&&el._p.s)||1;
+    if(Math.abs(sc-want)>.03){const t=el.style.transform;el.getAnimations().forEach(a=>a.cancel());el.style.transition="none";el.style.transform="";void el.offsetWidth;el.style.transform=t;void el.offsetWidth;requestAnimationFrame(()=>el.style.transition="")}});
+  fix();setTimeout(fix,120);setTimeout(fix,900);
+  done&&done();
+}
 async function boot(){
   const dw=store.get("recortes-dockw2");if(typeof dw==="number")setDockW(dw);
   const d=store.get("recortes-dock");if(mobile())studio.classList.add("dock-closed");else setDock(true);
   renderFilter();setPane("scraps");
-  await loadRemote();
   load();
   setWallStyle(wallStyle);
   const goAdd=initAdd();
   setMode(goAdd?"add":"mesa");
   applyView();
+  // the built-in collages animate straight away; visitors' ones join as soon as they arrive
+  const remote=loadRemote();
+  playIntro(remote,async()=>{await remote;if(!store.get("cutouts-tour")&&!new URLSearchParams(location.search).has("embed")&&mode==="mesa")tourStart()});
+  await remote;
 }
 addEventListener("resize",()=>{clearTimeout(window.__rz);window.__rz=setTimeout(()=>{
   if(mode==="mesa")layout();else{sizeSheet();drawRulers(studio)}
 },120)});
 document.fonts&&document.fonts.ready.then(()=>{if(mode==="mesa")layout();pieces.filter(p=>p.kind==="text").forEach(refresh)});
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",boot);else boot();
+setTimeout(()=>document.body.classList.remove("pre"),6000); // never leave the page hidden
 </script>
 
 </body>
