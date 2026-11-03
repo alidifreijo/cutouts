@@ -793,6 +793,23 @@ body.intro .dnav{animation:dnavUp .6s ease-out both}
 .note h2{font-size:clamp(64px,7.2vw,124px)!important;line-height:1.02;margin:0 0 26px;text-shadow:-5px 9px 14px rgba(8,28,32,.32)}
 .note p{font-size:15px;line-height:1.6;max-width:24em}
 @media (max-width:720px){.note h2{font-size:clamp(46px,14vw,64px)!important;margin-bottom:14px}}
+/* phase 1d: credit printed on the mat (under the collages), layout controls as plain text */
+#mesa>.credit{z-index:auto!important;background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:0!important;border-radius:0;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(238,218,166,.6)}
+.mesa-foot #tools-mesa{background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:0}
+.wallseg button,.mini{text-shadow:0 1px 6px rgba(8,28,32,.85)}
+.wallseg button svg,.mini svg.i{filter:drop-shadow(0 1px 4px rgba(8,28,32,.8))}
+@media (max-width:720px){.mesa-foot #tools-mesa{background:rgba(24,48,56,.42)!important;padding:3px}}
+/* phase 1e: layout + help ride next to the dock, smaller and quieter */
+.mesa-foot{position:fixed!important;left:calc(50% + 124px)!important;right:auto!important;bottom:max(36px,calc(env(safe-area-inset-bottom,0px) + 28px))!important;z-index:59}
+.mesa-foot #tools-mesa{gap:2px!important;padding:4px!important;border-radius:15px;background:rgba(24,48,56,.5)!important;-webkit-backdrop-filter:blur(12px)!important;backdrop-filter:blur(12px)!important;border:1px solid var(--glass-line)}
+.wallseg button,.mini{width:38px!important;height:38px;justify-content:center;padding:0!important;text-shadow:none;border-radius:11px}
+.wallseg button svg,.mini svg.i{width:19px;height:19px;filter:none}
+.wallseg button span,.mini span{display:none}
+.wallseg button[aria-pressed="true"]{background:rgba(244,240,230,.16)!important}
+.mf-sep{height:20px;margin:0 2px}
+.mesa-foot [data-tip]:hover::after{bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);background:var(--cream);color:var(--ink-dark);font-size:12.5px;padding:6px 11px;border-radius:9px;text-transform:none}
+body.zoomin .mesa-foot,body.pre .mesa-foot{opacity:0;pointer-events:none}
+@media (max-width:720px){.mesa-foot{left:auto!important;right:8px!important;bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 8px))!important}.wallseg button,.mini{width:34px!important;height:34px}.mf-sep{display:none}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -856,9 +873,9 @@ body.intro .dnav{animation:dnavUp .6s ease-out both}
     <section class="mat wall" id="mesa" role="tabpanel" aria-labelledby="tab-mesa" tabindex="0">
       <div class="rulers"></div>
       <div class="mesa-foot"><div class="tools" id="tools-mesa">
-      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true" aria-label="Messy"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3.5" y="6" width="9" height="12" rx="1" transform="rotate(-14 8 12)"/><rect x="14" y="3.5" width="9.5" height="11" rx="1" transform="rotate(10 18.7 9)"/><rect x="9" y="13.5" width="10" height="11" rx="1" transform="rotate(-4 14 19)"/><path class="tp" d="M11.2 12.6l5 .6M16.6 2.6l3.6 1.4"/></svg><span>messy</span></button><button data-wall="strict" aria-pressed="false" aria-label="Strict"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="4" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="4" width="8.5" height="8.5" rx="1"/><rect x="4" y="15.5" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="15.5" width="8.5" height="8.5" rx="1"/></svg><span>strict</span></button></div>
+      <div class="wallseg" role="group" aria-label="Layout"><button data-wall="messy" aria-pressed="true" aria-label="Messy" data-tip="messy"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="3.5" y="6" width="9" height="12" rx="1" transform="rotate(-14 8 12)"/><rect x="14" y="3.5" width="9.5" height="11" rx="1" transform="rotate(10 18.7 9)"/><rect x="9" y="13.5" width="10" height="11" rx="1" transform="rotate(-4 14 19)"/><path class="tp" d="M11.2 12.6l5 .6M16.6 2.6l3.6 1.4"/></svg><span>messy</span></button><button data-wall="strict" aria-pressed="false" aria-label="Strict" data-tip="strict"><svg viewBox="0 0 28 28" aria-hidden="true"><rect x="4" y="4" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="4" width="8.5" height="8.5" rx="1"/><rect x="4" y="15.5" width="8.5" height="8.5" rx="1"/><rect x="15.5" y="15.5" width="8.5" height="8.5" rx="1"/></svg><span>strict</span></button></div>
       <span class="mf-sep" aria-hidden="true"></span>
-      <button class="mini helpb" id="tour-btn" aria-label="How it works"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01" stroke-width="2.6" stroke-linecap="round"/></svg><span>how it works</span></button>
+      <button class="mini helpb" id="tour-btn" aria-label="How it works" data-tip="how it works"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01" stroke-width="2.6" stroke-linecap="round"/></svg><span>how it works</span></button>
     </div></div>
       <p class="credit">Found magazine imagery · non-commercial</p>
       <div class="board" id="board"></div>
