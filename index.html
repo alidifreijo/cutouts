@@ -1061,6 +1061,10 @@ body:has(#studio.finale) .crumb{display:none!important}
 .lamp{display:none;position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:0;will-change:transform}
 .lamp polygon{fill:rgba(18,44,58,.47)}
 body.zoomin .lamp{opacity:0;transition:opacity .4s}
+/* close-up card: an engraved, warped print of the collage, like the instruction sheets */
+.zcard .zc-eng{position:relative;width:150px;align-self:center;margin:4px 0 6px;overflow:hidden}
+.zcard .zc-eng img{display:block;width:100%;height:auto;filter:grayscale(1) contrast(1.6) brightness(1.08);mix-blend-mode:multiply;transform:perspective(420px) rotateX(9deg) rotateY(-14deg) skewX(-4deg);transform-origin:50% 60%}
+.zcard .zc-eng::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(232,227,214,.92) 0 1.2px,rgba(232,227,214,0) 1.2px 3.2px);mix-blend-mode:screen;pointer-events:none}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -1398,12 +1402,13 @@ mesa.appendChild(zbar);
 const zcap=document.createElement("p");zcap.className="zcap";zcap.hidden=true;mesa.appendChild(zcap);
 // close-up label: the same paper card as the glue step, pinned beside the collage
 const ztag=document.createElement("div");ztag.className="tag ztag";ztag.dataset.mod="1";ztag.hidden=true;
-ztag.classList.add("zcard");ztag.innerHTML=`<div class="zc-n"><b>Nº <span class="zt-no"></span></b><span>on the table</span></div><div class="zt-t"></div><span class="tag-l zt-dl" hidden></span><div class="zt-d"></div><span class="tag-l zt-bl" hidden></span><div class="zt-b"></div><div class="zc-pg"><button class="zc-b" data-z="-1" aria-label="Previous collage"><svg class="i"><use href="#i-left"/></svg></button><span class="zt-pg"></span><button class="zc-b" data-z="1" aria-label="Next collage"><svg class="i"><use href="#i-right"/></svg></button></div>`;
+ztag.classList.add("zcard");ztag.innerHTML=`<div class="zc-eng" aria-hidden="true"><img alt=""></div><div class="zc-n"><b>Nº <span class="zt-no"></span></b><span>on the table</span></div><div class="zt-t"></div><span class="tag-l zt-dl" hidden></span><div class="zt-d"></div><span class="tag-l zt-bl" hidden></span><div class="zt-b"></div><div class="zc-pg"><button class="zc-b" data-z="-1" aria-label="Previous collage"><svg class="i"><use href="#i-left"/></svg></button><span class="zt-pg"></span><button class="zc-b" data-z="1" aria-label="Next collage"><svg class="i"><use href="#i-right"/></svg></button></div>`;
 ztag.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(b)stepZoom(+b.dataset.z)});
 mesa.appendChild(ztag);
 const TAGW=264,TAGGAP=48,wideZoom=()=>mesa.clientWidth>=900;
 function showZtag(w,cx,cy,cardW){
   if(!wideZoom()||!w){ztag.hidden=true;ztag.classList.remove("in");return}
+  {const im=ztag.querySelector(".zc-eng img");if(im)im.src=w.src||SRC("a/"+w.id+".webp")}
   ztag.querySelector(".zt-t").textContent=w.t||"Untitled mess";
   const d=w.desc||"";ztag.querySelector(".zt-d").textContent=d;ztag.querySelector(".zt-d").hidden=ztag.querySelector(".zt-dl").hidden=!d;
   const by=w.by||"";ztag.querySelector(".zt-b").textContent=by?"by "+by:"";ztag.querySelector(".zt-b").hidden=ztag.querySelector(".zt-bl").hidden=!by;
