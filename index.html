@@ -1009,6 +1009,28 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 .fx-item.dragging{opacity:.45;cursor:grabbing}
 .fx-item.drop-on{box-shadow:0 -3px 0 var(--cream)}
 @media (min-width:721px){#studio .rail .ib svg.i{width:18px!important;height:18px!important;stroke-width:1.6}#studio .rail .ib{width:42px;height:42px}}
+/* phase 2i: layout pill uses the dock's on-state; close-up card as in the design */
+.wallseg button[aria-pressed="true"]{background:var(--cream)!important;color:var(--ink-dark)!important}
+.wallseg button[aria-pressed="true"] span{text-decoration:none}
+.wall.zoomed .card:not(.zoomed){filter:brightness(.6) saturate(.8)}
+.tag.ztag.zcard{width:264px;padding:18px 18px 12px;border-radius:12px;gap:8px;background:#e8e3d6;background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.04));color:#3a3832;
+  box-shadow:0 2px 0 rgba(0,0,0,.06),-14px 24px 40px -14px rgba(0,0,0,.55);clip-path:none}
+.tag.ztag.zcard.in{transform:rotate(2deg)}
+.zcard .zc-n{display:flex;align-items:baseline;gap:8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b675d}
+.zcard .zc-n b{font-size:22px;letter-spacing:-.02em;font-weight:500;color:#4a4740;text-transform:none}
+.zcard .zt-t{font-family:var(--f-head);font-size:30px;line-height:1.1;color:#2a2824;border:0;padding:0;margin:0}
+.zcard .zt-d{font-size:13px;line-height:1.55;color:#4a4740;background:none;min-height:0;padding:0}
+.zcard .zt-b{font-size:12px;color:#6b675d;border:0;padding:0}
+.zcard .zc-pg{display:flex;align-items:center;justify-content:space-between;padding-top:8px;margin-top:2px;border-top:1px solid rgba(58,56,50,.14)}
+.zcard .zc-b{width:42px;height:42px;border-radius:12px;border:0;background:rgba(40,40,36,.08);color:#5b5850;display:grid;place-items:center}
+.zcard .zc-b:hover{background:rgba(40,40,36,.14);color:#2a2824}
+.zcard .zt-pg{font-size:18px;color:#5b5850;font-variant-numeric:tabular-nums}
+@media (min-width:900px){
+  .zbar.tagged{left:auto;right:max(24px,env(safe-area-inset-right,0px));top:24px;bottom:auto;transform:none;padding:4px;border-radius:16px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--glass-line)}
+  .zbar.tagged [data-z="-1"],.zbar.tagged [data-z="1"],.zbar.tagged .zn{display:none}
+  .zbar.tagged .ib{width:44px;height:44px;border-radius:12px;color:#efe6cf}
+  body.zoomin .mesa-foot{opacity:0;pointer-events:none}
+}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -1340,14 +1362,15 @@ mesa.appendChild(zbar);
 const zcap=document.createElement("p");zcap.className="zcap";zcap.hidden=true;mesa.appendChild(zcap);
 // close-up label: the same paper card as the glue step, pinned beside the collage
 const ztag=document.createElement("div");ztag.className="tag ztag";ztag.dataset.mod="1";ztag.hidden=true;
-ztag.innerHTML=`<span class="tag-tape"></span><span class="tag-l">Title</span><div class="zt-t"></div><span class="tag-l zt-dl">The story</span><div class="zt-d"></div><span class="tag-l zt-bl">By</span><div class="zt-b"></div>`;
+ztag.classList.add("zcard");ztag.innerHTML=`<div class="zc-n"><b>Nº <span class="zt-no"></span></b><span>on the table</span></div><div class="zt-t"></div><span class="tag-l zt-dl" hidden></span><div class="zt-d"></div><span class="tag-l zt-bl" hidden></span><div class="zt-b"></div><div class="zc-pg"><button class="zc-b" data-z="-1" aria-label="Previous collage"><svg class="i"><use href="#i-left"/></svg></button><span class="zt-pg"></span><button class="zc-b" data-z="1" aria-label="Next collage"><svg class="i"><use href="#i-right"/></svg></button></div>`;
+ztag.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(b)stepZoom(+b.dataset.z)});
 mesa.appendChild(ztag);
-const TAGW=252,TAGGAP=48,wideZoom=()=>mesa.clientWidth>=900;
+const TAGW=264,TAGGAP=48,wideZoom=()=>mesa.clientWidth>=900;
 function showZtag(w,cx,cy,cardW){
   if(!wideZoom()||!w){ztag.hidden=true;ztag.classList.remove("in");return}
   ztag.querySelector(".zt-t").textContent=w.t||"Untitled mess";
   const d=w.desc||"";ztag.querySelector(".zt-d").textContent=d;ztag.querySelector(".zt-d").hidden=ztag.querySelector(".zt-dl").hidden=!d;
-  const by=w.by||"";ztag.querySelector(".zt-b").textContent=by;ztag.querySelector(".zt-b").hidden=ztag.querySelector(".zt-bl").hidden=!by;
+  const by=w.by||"";ztag.querySelector(".zt-b").textContent=by?"by "+by:"";ztag.querySelector(".zt-b").hidden=ztag.querySelector(".zt-bl").hidden=!by;
   ztag.hidden=false;ztag.classList.remove("in");
   const h=ztag.offsetHeight;ztag.style.left=Math.round(Math.min(cx+cardW/2+TAGGAP,mesa.clientWidth-TAGW-28))+"px";ztag.style.top=Math.round(Math.max(40,cy-h/2-20))+"px";
   requestAnimationFrame(()=>requestAnimationFrame(()=>ztag.classList.add("in")));
@@ -1368,7 +1391,7 @@ function zoomTo(el,instant){
   boardT(cx,cy,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
   const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zby").textContent=w&&w.by?"by "+w.by:"";
   zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc)||wide;zbar.classList.toggle("tagged",wide);
-  showZtag(w,cx,cy,p.cw*s);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;
+  showZtag(w,cx,cy,p.cw*s);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;ztag.querySelector(".zt-no").textContent=placed.indexOf(el)+1;ztag.querySelector(".zt-pg").textContent=`${placed.indexOf(el)+1} / ${placed.length}`;
   zbar.hidden=false;
   playCardMotion(el,w,instant?0:700);
 }
@@ -1395,7 +1418,7 @@ document.addEventListener("keydown",e=>{if(!Z||mode!=="mesa")return;if(e.key==="
   function glide(){velX*=.94;velY*=.94;if(Math.hypot(velX,velY)<.15){inertia=0;return}
     const b=bounds(),nx=camX+velX,ny=camY+velY;if(nx<=b.x0||nx>=b.x1)velX=0;if(ny<=b.y0||ny>=b.y1)velY=0;
     setCam(nx,ny,true);inertia=requestAnimationFrame(glide)}
-  mesa.addEventListener("pointerdown",e=>{if(e.button!==0)return;const mod=e.target.closest("[data-mod]");if(mod){e.stopPropagation();return}
+  mesa.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.target.closest(".mesa-foot"))return;const mod=e.target.closest("[data-mod]");if(mod){e.stopPropagation();return}
     cancelAnimationFrame(inertia);velX=velY=0;glide.sx=glide.sy=0;st={x:e.clientX,y:e.clientY,cx:camX,cy:camY,id:e.pointerId,card:e.target.closest(".card"),moved:false};last={x:e.clientX,y:e.clientY,t:performance.now()};hits=[];mesa.setPointerCapture(e.pointerId)});
   mesa.addEventListener("pointermove",e=>{if(!st||e.pointerId!==st.id||Z)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
     if(!st.moved&&Math.hypot(dx,dy)>5){st.moved=true;mesa.classList.add("panning")}
