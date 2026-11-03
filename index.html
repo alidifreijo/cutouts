@@ -810,6 +810,14 @@ body.intro .dnav{animation:dnavUp .6s ease-out both}
 .mesa-foot [data-tip]:hover::after{bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);background:var(--cream);color:var(--ink-dark);font-size:12.5px;padding:6px 11px;border-radius:9px;text-transform:none}
 body.zoomin .mesa-foot,body.pre .mesa-foot{opacity:0;pointer-events:none}
 @media (max-width:720px){.mesa-foot{left:auto!important;right:8px!important;bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 8px))!important}.wallseg button,.mini{width:34px!important;height:34px}.mf-sep{display:none}}
+/* phase 1f: layout + help, top right, fixed above the collages, with labels */
+.mesa-foot{left:auto!important;right:max(20px,env(safe-area-inset-right,0px))!important;top:max(18px,env(safe-area-inset-top,0px))!important;bottom:auto!important;z-index:61}
+.wallseg button,.mini{width:auto!important;height:36px;padding:0 11px!important;gap:7px}
+.wallseg button span,.mini span{display:inline}
+.wallseg button svg,.mini svg.i{width:16px;height:16px}
+.mesa-foot #tools-mesa{background:rgba(24,48,56,.62)!important}
+.mesa-foot [data-tip]:hover::after,.mesa-foot [data-tip]:hover::before{display:none}
+@media (max-width:720px){.mesa-foot{right:8px!important;top:max(14px,env(safe-area-inset-top,0px))!important;bottom:auto!important}.mesa-foot #tools-mesa,.mesa-foot .wallseg{flex-direction:row!important}.wallseg button span,.mini span{display:none}.wallseg button,.mini{width:34px!important;padding:0!important}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
