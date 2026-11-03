@@ -937,6 +937,12 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 .title-tape:focus-within{background:#f7eed3}
 #studio.finale .title-tape{opacity:0}
 @media (max-width:720px){.title-tape{padding:6px 22px 7px;min-width:160px}.title-tape #mess-title{font-size:22px;min-width:7em}}
+/* phase 2e: rail above the panel, quieter scrap tiles, paper shadow on the sheet */
+@media (min-width:721px){#studio .rail{z-index:30}}
+.scrap{background:rgba(255,255,255,.05);border:1px solid transparent;border-radius:12px}
+.scrap:hover{background:rgba(255,255,255,.1);border-color:rgba(238,226,196,.18)}
+.sheet{box-shadow:0 1px 1px rgba(10,30,30,.35),-16px 24px 22px rgba(8,28,32,.38)}
+#studio .rail [data-tip]:hover::after,.sel-acts [data-tip]:hover::after{background:var(--cream);color:var(--ink-dark);border-radius:9px;padding:6px 11px;font-size:12.5px;box-shadow:0 8px 18px -8px rgba(0,0,0,.5)}
 [hidden]{display:none!important}
 </style>
 </head>
