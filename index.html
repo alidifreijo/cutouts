@@ -1057,6 +1057,11 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 .fin-no b{font-size:26px;font-weight:500;letter-spacing:-.02em;color:#4a4740;text-transform:none}
 .fin.sent .fin-no span{visibility:hidden}
 body:has(#studio.finale) .crumb{display:none!important}
+/* the table's shadow moves with the board; the light stays */
+#mesa.mat::before{background:radial-gradient(ellipse 70% 60% at 62% 70%,rgba(214,232,186,.26),rgba(214,232,186,0) 70%)}
+.lamp{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:0;will-change:transform}
+.lamp polygon{fill:rgba(18,44,58,.47)}
+body.zoomin .lamp{opacity:0;transition:opacity .4s}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -1364,7 +1369,13 @@ function bounds(){const W=mesa.clientWidth,H=mesa.clientHeight;
 function setCam(x,y,hard){const b=bounds();
   if(hard){x=Math.max(b.x0,Math.min(b.x1,x));y=Math.max(b.y0,Math.min(b.y1,y))}
   camX=x;camY=y;if(!Z)boardT(x,y,0,1,0,0);
-  mesa.style.backgroundPosition=`${28+x}px ${28+y}px`;wallRulers();}
+  mesa.style.backgroundPosition=`${28+x}px ${28+y}px`;placeLamp();wallRulers();}
+// the lamp's shadow belongs to the table: it sits in its first corner and slides away with the board
+let lampEl=null,lamp0=null;
+function placeLamp(){if(!mesa)return;if(!lampEl){lampEl=document.createElementNS('http://www.w3.org/2000/svg','svg');lampEl.setAttribute('class','lamp');lampEl.setAttribute('aria-hidden','true');lampEl.innerHTML='<polygon/>';mesa.insertBefore(lampEl,mesa.firstChild)}
+  const W=mesa.clientWidth||innerWidth,H=mesa.clientHeight||innerHeight;if(!lamp0||lamp0.W!==W||lamp0.H!==H){lamp0={x:camX,y:camY,W,H};const yA=.42*H,P=1200,xTop=W+P*W/yA;lampEl.querySelector('polygon').setAttribute('points',`${-P},${-P} ${xTop},${-P} ${W},0 0,${yA} ${-P},${yA+P*yA/W}`)}
+  lampEl.style.transform=`translate(${camX-lamp0.x}px,${camY-lamp0.y}px)`}
+addEventListener('resize',()=>{lamp0=null;placeLamp()});
 const rubber=(v,lo,hi)=>v<lo?lo+(v-lo)*.35:v>hi?hi+(v-hi)*.35:v;
 let rulerKey="";
 function wallRulers(){
