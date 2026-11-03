@@ -891,7 +891,7 @@ body[data-mode=pega] .fin:not([hidden])~* .crumb{display:none}
   #studio.dock-closed .pin-float{right:16px;top:20px;bottom:auto}
 }
 /* phase 2c: as in the design — header, compact panel, short rail */
-body[data-mode=pega] .logo{display:none}
+@media (min-width:721px){body[data-mode=pega] .logo{display:none}}
 .crumb{align-items:center;gap:16px;margin-left:-40px}
 .crumb-back{display:flex;align-items:center;gap:8px;height:46px;padding:0 16px 0 12px;border-radius:14px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--glass-line);color:#efe6cf;font-size:14px}
 .crumb-back:hover{background:rgba(24,48,56,.8);color:#fff}
@@ -923,6 +923,20 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 .toast[hidden]{display:none}
 @media (max-width:720px){.sel-acts{display:none}}
 .toast-u{border:0;background:var(--cream);color:var(--ink-dark);border-radius:9px;padding:6px 14px;font:inherit;font-size:13px}
+/* phase 2d: header B — the name lives on a strip of tape stuck to the sheet */
+.crumb{gap:14px;margin-left:-44px}
+.crumb-back{height:40px;padding:0 10px;background:none!important;border:0!important;-webkit-backdrop-filter:none;backdrop-filter:none;color:rgba(239,230,207,.85);font-size:14px}
+.crumb-back:hover{color:#fff}
+.crumb-l{font-size:11px;letter-spacing:.02em;text-transform:none;color:rgba(239,230,207,.5)}
+.title-tape{position:absolute;z-index:5;left:50%;top:0;transform:translate(-50%,-55%) rotate(-2deg);display:block;padding:9px 34px 10px;min-width:220px;
+  background:rgba(242,230,196,.94);filter:drop-shadow(0 2px 3px rgba(0,0,0,.18));
+  clip-path:polygon(0 10%,4% 0,9% 12%,14% 0,86% 0,91% 10%,96% 0,100% 12%,100% 88%,96% 100%,91% 90%,86% 100%,14% 100%,9% 88%,4% 100%,0 90%);cursor:text}
+.title-tape #mess-title{display:block;width:100%;min-width:9em;field-sizing:content;text-align:center;font-family:var(--f-head);font-size:28px;line-height:1.15;color:#2a2824;background:none;border:0!important;padding:0;outline:none}
+.title-tape #mess-title::placeholder{color:rgba(42,40,36,.55)}
+.title-tape:hover{background:rgba(246,236,206,.98)}
+.title-tape:focus-within{background:#f7eed3}
+#studio.finale .title-tape{opacity:0}
+@media (max-width:720px){.title-tape{padding:6px 22px 7px;min-width:160px}.title-tape #mess-title{font-size:22px;min-width:7em}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -973,7 +987,7 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 <div class="app">
   <header class="bar">
     <h1 class="logo"><a href="./" id="home" aria-label="cutouts, back to the table">cutouts</a></h1>
-    <div class="crumb" id="crumb"><button class="crumb-back" id="crumb-back" aria-label="Back to the table. Your draft stays here."><svg class="i"><use href="#i-left"/></svg>the table</button><div class="crumb-t"><span class="crumb-l">make a mess · <span id="crumb-s">draft saved</span></span><label class="crumb-in"><input id="mess-title" maxlength="60" placeholder="Untitled mess" aria-label="Name your collage" autocomplete="off" spellcheck="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></label></div></div>
+    <div class="crumb" id="crumb"><button class="crumb-back" id="crumb-back" aria-label="Back to the table. Your draft stays here."><svg class="i"><use href="#i-left"/></svg>the table</button><span class="crumb-l" id="crumb-s">draft saved</span></div>
     <nav class="tabs dnav" role="tablist" aria-label="mode">
       <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa" aria-label="the table" data-tip="the table"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="10" rx="1" transform="rotate(-6 7 9)"/><rect x="13" y="3" width="8" height="8" rx="1" transform="rotate(5 17 7)"/><rect x="12" y="13" width="9" height="8" rx="1"/></svg><span class="t-l">the table</span></button>
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio" aria-label="make a mess" data-tip="make a mess"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg><span class="t-l">make a mess</span></button>
@@ -1004,6 +1018,7 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
       <div class="rulers"></div>
       <div class="desk" id="desk">
         <div class="canvas" id="canvas">
+          <label class="title-tape" title="click to rename"><input id="mess-title" maxlength="60" placeholder="Untitled mess" aria-label="Name your collage" autocomplete="off" spellcheck="false"></label>
           <div class="sheet" id="sheet">
             <div class="empty-msg" id="empty" hidden>Blank page panic?<br><span class="em-d">Drag something from the scrap pile →</span><span class="em-m">Tap + scraps to start.</span></div>
             <span class="sheet-tag">A4 · cutouts</span>
