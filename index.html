@@ -763,9 +763,9 @@ body.zoomin .dnav{opacity:0;pointer-events:none;transform:translate(-50%,16px)}
 .mesa-foot #tools-mesa{margin:0;display:flex;align-items:center;gap:6px}
 .mesa-foot #tools-mesa[hidden]{display:none}
 .mesa-foot .wallseg{background:none;box-shadow:none;padding:0;gap:2px}
-.wallseg button,.mini{width:auto!important;height:36px;display:flex!important;align-items:center;gap:7px;padding:0 10px!important;border:0!important;border-radius:10px;background:transparent!important;color:rgba(239,230,207,.72)!important;font-size:12.5px!important;letter-spacing:0}
-.wallseg button svg,.mini svg.i{width:16px;height:16px}
-.wallseg button:hover,.wallseg button[data-wall=strict]:hover,.mini:hover{transform:none;color:var(--cream)!important;background:rgba(255,255,255,.06)!important}
+.wallseg button, .mesa-foot .mini{width:auto!important;height:36px;display:flex!important;align-items:center;gap:7px;padding:0 10px!important;border:0!important;border-radius:10px;background:transparent!important;color:rgba(239,230,207,.72)!important;font-size:12.5px!important;letter-spacing:0}
+.wallseg button svg, .mesa-foot .mini svg.i{width:16px;height:16px}
+.wallseg button:hover,.wallseg button[data-wall=strict]:hover, .mesa-foot .mini:hover{transform:none;color:var(--cream)!important;background:rgba(255,255,255,.06)!important}
 .wallseg button[aria-pressed="true"]{color:var(--cream)!important}
 .wallseg button[aria-pressed="true"] span{text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1.5px}
 .mf-sep{width:1px;height:18px;background:rgba(238,226,196,.25)}
@@ -816,28 +816,28 @@ body.intro .dnav{animation:dnavUp .6s ease-out both}
 /* phase 1d: credit printed on the mat (under the collages), layout controls as plain text */
 #mesa>.credit{z-index:auto!important;background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:0!important;border-radius:0;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(238,218,166,.6)}
 .mesa-foot #tools-mesa{background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:0}
-.wallseg button,.mini{text-shadow:0 1px 6px rgba(8,28,32,.85)}
-.wallseg button svg,.mini svg.i{filter:drop-shadow(0 1px 4px rgba(8,28,32,.8))}
+.wallseg button, .mesa-foot .mini{text-shadow:0 1px 6px rgba(8,28,32,.85)}
+.wallseg button svg, .mesa-foot .mini svg.i{filter:drop-shadow(0 1px 4px rgba(8,28,32,.8))}
 @media (max-width:720px){.mesa-foot #tools-mesa{background:rgba(24,48,56,.42)!important;padding:3px}}
 /* phase 1e: layout + help ride next to the dock, smaller and quieter */
 .mesa-foot{position:fixed!important;left:calc(50% + 124px)!important;right:auto!important;bottom:max(36px,calc(env(safe-area-inset-bottom,0px) + 28px))!important;z-index:59}
 .mesa-foot #tools-mesa{gap:2px!important;padding:4px!important;border-radius:15px;background:rgba(24,48,56,.5)!important;-webkit-backdrop-filter:blur(12px)!important;backdrop-filter:blur(12px)!important;border:1px solid var(--glass-line)}
-.wallseg button,.mini{width:38px!important;height:38px;justify-content:center;padding:0!important;text-shadow:none;border-radius:11px}
-.wallseg button svg,.mini svg.i{width:19px;height:19px;filter:none}
-.wallseg button span,.mini span{display:none}
+.wallseg button, .mesa-foot .mini{width:38px!important;height:38px;justify-content:center;padding:0!important;text-shadow:none;border-radius:11px}
+.wallseg button svg, .mesa-foot .mini svg.i{width:19px;height:19px;filter:none}
+.wallseg button span, .mesa-foot .mini span{display:none}
 .wallseg button[aria-pressed="true"]{background:rgba(244,240,230,.16)!important}
 .mf-sep{height:20px;margin:0 2px}
 .mesa-foot [data-tip]:hover::after{bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);background:var(--cream);color:var(--ink-dark);font-size:12.5px;padding:6px 11px;border-radius:9px;text-transform:none}
 body.zoomin .mesa-foot,body.pre .mesa-foot{opacity:0;pointer-events:none}
-@media (max-width:720px){.mesa-foot{left:auto!important;right:8px!important;bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 8px))!important}.wallseg button,.mini{width:34px!important;height:34px}.mf-sep{display:none}}
+@media (max-width:720px){.mesa-foot{left:auto!important;right:8px!important;bottom:max(14px,calc(env(safe-area-inset-bottom,0px) + 8px))!important}.wallseg button, .mesa-foot .mini{width:34px!important;height:34px}.mf-sep{display:none}}
 /* phase 1f: layout + help, top right, fixed above the collages, with labels */
 .mesa-foot{left:auto!important;right:max(20px,env(safe-area-inset-right,0px))!important;top:max(18px,env(safe-area-inset-top,0px))!important;bottom:auto!important;z-index:61}
-.wallseg button,.mini{width:auto!important;height:36px;padding:0 11px!important;gap:7px}
-.wallseg button span,.mini span{display:inline}
-.wallseg button svg,.mini svg.i{width:16px;height:16px}
+.wallseg button, .mesa-foot .mini{width:auto!important;height:36px;padding:0 11px!important;gap:7px}
+.wallseg button span, .mesa-foot .mini span{display:inline}
+.wallseg button svg, .mesa-foot .mini svg.i{width:16px;height:16px}
 .mesa-foot #tools-mesa{background:rgba(24,48,56,.62)!important}
 .mesa-foot [data-tip]:hover::after,.mesa-foot [data-tip]:hover::before{display:none}
-@media (max-width:720px){.mesa-foot{right:8px!important;top:max(14px,env(safe-area-inset-top,0px))!important;bottom:auto!important}.mesa-foot #tools-mesa,.mesa-foot .wallseg{flex-direction:row!important}.wallseg button span,.mini span{display:none}.wallseg button,.mini{width:34px!important;padding:0!important}}
+@media (max-width:720px){.mesa-foot{right:8px!important;top:max(14px,env(safe-area-inset-top,0px))!important;bottom:auto!important}.mesa-foot #tools-mesa,.mesa-foot .wallseg{flex-direction:row!important}.wallseg button span, .mesa-foot .mini span{display:none}.wallseg button, .mesa-foot .mini{width:34px!important;padding:0!important}}
 /* ===== phase 2: make a mess — sheet left, tools right, breadcrumb title ===== */
 .crumb{display:none;align-items:baseline;gap:12px;margin-left:12px}
 body[data-mode=pega] .crumb{display:flex}
@@ -964,6 +964,38 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 #studio .dock .btn,#studio .dock .txt-btn,#studio .dock .chip{font-size:13px!important}
 #studio .dock .tarea{font-size:13px}
 #studio .dock .fx-empty{font-size:13px}
+/* phase 2g: compact selection header, layer tools in the rail while selected, no dark greens */
+@media (min-width:721px){
+  #studio .rail .sel-only:not(.m-only){display:none}
+  #studio.has-sel .rail .sel-only:not(.m-only){display:grid}
+  #studio.has-sel .rail hr:not(.r-end):nth-of-type(2){display:block}
+  #studio .dock .lockb{display:none}
+}
+#studio .dock .fx-sel{gap:10px;margin:8px 0 2px;flex-wrap:nowrap}
+#studio .dock .fx-thumb{width:40px;height:40px;border-radius:10px;padding:3px;background:rgba(255,255,255,.08);border:0}
+#studio .dock .fx-sel b{font-size:19px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#studio .dock .fx-sel-t{flex-wrap:nowrap}
+#studio .dock .fx-sel-t b{width:auto;min-width:0}
+#studio .dock .num,#studio .dock .dd-btn.solid,#studio .dock .nums .dd-btn.solid.sm{background:rgba(255,255,255,.07);border:1px solid transparent}
+#studio .dock .num.fill::before{background:rgba(244,240,230,.14)}
+#studio .dock .num.fill:hover::before,#studio .dock .num.scrub::before{background:rgba(244,240,230,.22)}
+#studio .dock .segs,#studio .dock .stepper{background:rgba(255,255,255,.07)}
+#studio .dock .segs button[aria-pressed="true"]{background:rgba(244,240,230,.18);color:#f8f4ea}
+#studio .dock .seg .badge,.seg .badge{background:var(--cream);color:var(--ink-dark)}
+#studio .dock .fx-item{background:rgba(255,255,255,.06)}
+#studio .dock .fx-item.open{background:rgba(244,240,230,.11)}
+#studio .dock .scrap{background:rgba(255,255,255,.05)}
+#studio .dock .chip{background:rgba(255,255,255,.07);border-color:transparent}
+#studio .dock .chip[aria-pressed="true"],#studio .dock .chip.on{background:var(--cream);color:var(--ink-dark)}
+#studio .dock .fx-sel .gchip{background:var(--cream);color:var(--ink-dark)}
+#studio .dock .ink.none{background:linear-gradient(135deg,transparent 45%,#e58c84 45% 55%,transparent 55%),rgba(255,255,255,.08)}
+.pop{background:var(--glass)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--glass-line)}
+#studio .dock ::-webkit-scrollbar-thumb{background:rgba(238,226,196,.18);border-radius:8px}
+#studio .dock::after{display:none}
+.fx-pill{background:rgba(255,255,255,.07);border-color:transparent}
+.mv-replay{background:rgba(24,48,56,.8)}
+.lb-bg{background:rgba(20,40,46,.94)}
+@media (min-width:721px){#studio .rail{top:84px!important;transform:none!important}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -2290,7 +2322,7 @@ function renderEdit(){
   const grp=p.g?members(p.g):null;
   const sub=grp?(selMode==="group"?`${grp.length} pieces`:`piece ${grp.indexOf(p)+1} of ${grp.length}`):"";
   const gact=grp?(selMode==="group"?`<button class="txt-btn" data-do="ungroup">Ungroup</button>`:`<button class="txt-btn" data-do="backgroup">Back to group</button>`):"";
-  let h=`<div class="fx-sel"><div class="fx-thumb">${isT?`<span style="font-family:'${p.t.font}'">Aa</span>`:`<img src="${SRC("s/"+p.id+".webp")}" alt="">`}</div><div class="fx-sel-t"><b>${isT?"Text":esc(s.t)}</b>${grp?`<span class="gchip${selMode==="single"?" in":""}">${selMode==="group"?"group":"in group"}</span>`:""}${sub?`<span>${sub}</span>`:""}</div>${gact}<span class="sel-acts">${[["up","front","bring to front"],["down","back","send to back"],["dup","copy","duplicate"],["rot","rotate","rotate 90°"],["flip","flip","mirror"],["del","trash","remove"]].map(([a,i,t])=>`<button class="mini" data-act="${a}" aria-label="${t}" data-tip="${t}"><svg class="i"><use href="#i-${i}"/></svg></button>`).join("")}</span><button class="mini lockb" data-do="lock" aria-pressed="${isLocked()}" aria-label="${isLocked()?"Unlock":"Lock"} layer" title="${isLocked()?"unlock":"lock"}"><svg class="i"><use href="#i-${isLocked()?"lock":"unlock"}"/></svg></button></div>`;
+  let h=`<div class="fx-sel"><div class="fx-thumb">${isT?`<span style="font-family:'${p.t.font}'">Aa</span>`:`<img src="${SRC("s/"+p.id+".webp")}" alt="">`}</div><div class="fx-sel-t"><b>${isT?"Text":esc(s.t)}</b>${grp?`<span class="gchip${selMode==="single"?" in":""}">${selMode==="group"?"group":"in group"}</span>`:""}${sub?`<span>${sub}</span>`:""}</div>${gact}<button class="mini lockb" data-do="lock" aria-pressed="${isLocked()}" aria-label="${isLocked()?"Unlock":"Lock"} layer" title="${isLocked()?"unlock":"lock"}"><svg class="i"><use href="#i-${isLocked()?"lock":"unlock"}"/></svg></button></div>`;
   // appearance first
   const bl=BLENDS.find(b=>b[0]===(p.blend||"normal"))||BLENDS[0];
   h+=`<div class="sec"><p class="sec-t">Appearance</p><div class="nums">
@@ -2323,7 +2355,7 @@ function renderEdit(){
       const m=FX[f.t],open=openFx===i;
       h+=`<div class="fx-item${open?" open":""}${f.on?"":" off"}" data-i="${i}" draggable="${n>1}">
         <div class="fx-row">
-          <button class="fx-name" data-do="toggle" aria-expanded="${open}"><i class="sw2 mini-sw" style="background:${m.sw}"></i><span class="t">${m.n}</span><svg class="i"><use href="#i-right"/></svg></button>
+          <button class="fx-name" data-do="toggle" aria-expanded="${open}"><i class="sw2 mini-sw" style="background:${m.sw}"></i><span class="t">${m.n}</span></button>
           <button class="mini hov" data-do="eye" data-tip="${f.on?"hide":"show"}" aria-label="${f.on?"Hide":"Show"} effect" aria-pressed="${!f.on}"><svg class="i"><use href="#i-${f.on?"eye":"eyeoff"}"/></svg></button>
           <button class="mini hov" data-do="rm" data-tip="remove" aria-label="Remove effect"><svg class="i"><use href="#i-x"/></svg></button>
         </div>
@@ -2447,7 +2479,7 @@ function closeMenus(except){document.querySelectorAll(".dd").forEach(d=>{if(d!==
 function fitMenu(dd,m){
   m.classList.remove("up");m.style.maxHeight="";
   const br=dd.querySelector(".dd-btn").getBoundingClientRect(),pin=$("#btn-pin"),inDock=!!dd.closest(".dock");
-  let floor=innerHeight-12;if(inDock&&pin&&!pin.hidden&&pin.offsetParent){floor=Math.min(floor,pin.getBoundingClientRect().top-10)}
+  let floor=innerHeight-12;if(inDock&&pin&&!pin.hidden&&pin.offsetParent&&pin.getBoundingClientRect().top>br.bottom){floor=Math.min(floor,pin.getBoundingClientRect().top-10)}if(inDock){floor=Math.min(floor,dock.getBoundingClientRect().bottom+240)}
   const ceil=inDock?dock.getBoundingClientRect().top+12:12,below=floor-br.bottom-6,above=br.top-ceil-6,want=Math.min(360,m.scrollHeight||360);
   if(below<Math.min(want,220)&&above>below){m.classList.add("up");m.style.maxHeight=Math.max(120,Math.min(360,above))+"px"}
   else m.style.maxHeight=Math.max(120,Math.min(360,below))+"px";
