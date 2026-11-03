@@ -297,6 +297,72 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
   .pick{overflow-y:auto}
   .inbox-side{max-height:none}
 }
+
+/* ===== mat redesign · phase 3: add scraps on the teal mat, glass panels, cream & yellow ===== */
+:root{--mat:#4a8676;--mat-deep:#3b6f63;--mat-dark:#1d3a3f;--mat-light:#5c9886;--panel:rgba(24,48,56,.62);
+  --mat-line:rgba(238,218,166,.14);--mat-line-strong:rgba(238,218,166,.34);--mat-ink:rgba(239,230,207,.72);--mint:#f4f0e6;
+  --glass:rgba(24,48,56,.62);--glass-line:rgba(238,226,196,.12);--cream:#f4f0e6;--ink-dark:#1d3a3f;--yellow:#f0cd4a;--paper:#e8e3d6}
+.embed .app{padding:0}
+.embed .bar{display:none}
+.btn{background:var(--yellow);border-color:var(--yellow);color:#1d1d1a;border-radius:14px}
+.btn:hover{background:#f5d866;border-color:#f5d866}
+.ghost{border-color:rgba(238,226,196,.35);border-radius:14px;color:#efe6cf}
+.glass-p{background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line);box-shadow:0 22px 44px -18px rgba(0,0,0,.6)}
+/* pick */
+.pick h1{font-size:clamp(48px,5.4vw,80px);color:#f8f4ea;text-shadow:-5px 9px 14px rgba(8,28,32,.32)}
+.pick .lede{color:rgba(239,230,207,.75);font-size:14px}
+.pick-main{padding-top:84px;padding-bottom:120px}
+.paper{filter:drop-shadow(0 1px 1px rgba(10,30,30,.35)) drop-shadow(-16px 24px 22px rgba(8,28,32,.4))}
+.paper .sheet{background:var(--paper);border-radius:14px}
+.paper .fold,.paper .crease{display:none}
+.paper .txt>span{color:#4a4740;font-size:14px}
+.paper .go{color:#2f5e57!important;text-decoration:none;font-weight:500}
+.paper:hover{transform:translateY(-4px) rotate(-.6deg);transition:transform .25s}
+.inbox-side{position:absolute;top:84px;right:16px;bottom:16px;width:var(--side);border-radius:22px;overflow:hidden;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line);box-shadow:0 22px 44px -18px rgba(0,0,0,.6)}
+.pick{position:relative}
+.arch-tabs{border-radius:12px;padding:4px;background:rgba(0,0,0,.18)}
+.arch-tabs button{border-radius:9px;font-size:13px}
+.arch-tabs button[aria-selected="true"]{background:rgba(244,240,230,.16);color:#f8f4ea}
+.badge{background:var(--cream);color:var(--ink-dark)}
+/* wizard: steps left, photo centre, tools right */
+.rail{padding:84px 20px 24px 64px}
+.rail .dots{left:34px;top:150px}
+.rail .dots i.on{background:var(--cream)}
+.wstep h2{font-size:clamp(56px,5.6vw,96px);line-height:1.02;color:#f8f4ea;text-shadow:-5px 9px 14px rgba(8,28,32,.32)}
+.wstep .desc{font-size:15px;color:#e8e0c8}
+.wstep .opt{font-size:11px;letter-spacing:.1em}
+.wstep.past,.wstep.next{visibility:hidden;transition:opacity .3s,transform .5s cubic-bezier(.65,0,.25,1),visibility 0s .5s}
+.wstep.on{visibility:visible;transition-delay:.12s,.12s,0s}
+:root{--rail:clamp(300px,28vw,460px);--side:300px}
+.area{padding:84px 24px 120px 0}
+.frame{border-radius:6px;overflow:visible}
+.frame .stage canvas,.pinned{filter:drop-shadow(0 1px 1px rgba(10,30,30,.35)) drop-shadow(-16px 24px 22px rgba(8,28,32,.4))}
+.drop{border:2px dashed rgba(238,226,196,.4);border-radius:18px;background:rgba(24,48,56,.25)}
+.drop:hover{background:rgba(24,48,56,.4);border-color:rgba(238,226,196,.7)}
+.drop b{color:#f8f4ea;font-size:30px}
+.wiz-wrap.with-side .side{position:absolute;top:84px;right:16px;bottom:16px;width:var(--side);border-radius:22px;overflow:hidden;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line);box-shadow:0 22px 44px -18px rgba(0,0,0,.6)}
+.wiz-wrap.with-side{grid-template-columns:var(--rail) minmax(0,1fr) calc(var(--side) + 40px)}
+.side{background:var(--glass);border-left:0}
+.sec-t{font-size:11px;letter-spacing:.1em}
+.tool{border:0;border-radius:12px;background:rgba(255,255,255,.07);width:44px;height:44px}
+.tool[aria-pressed="true"]{background:var(--cream);color:var(--ink-dark)}
+.quit{top:24px;right:24px;border-radius:14px;width:44px;height:44px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--glass-line);box-shadow:none;color:#efe6cf}
+.wiz-wrap.with-side .quit{right:24px}
+.zoom{left:24px;bottom:24px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--glass-line)}
+.busy{background:rgba(20,40,46,.6)}
+.tag{background:var(--paper);background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.04));border-radius:14px;clip-path:none;box-shadow:0 2px 0 rgba(0,0,0,.06),-14px 26px 44px -16px rgba(0,0,0,.55)}
+.tag .tag-tape{display:none}
+.tag .tag-l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b675d}
+@media (max-width:720px){
+  .rail{padding:14px 72px 10px 40px}.area{padding:8px 12px 96px}.pick-main{padding:24px 16px 110px}
+  .inbox-side{position:static;width:auto;border-radius:0}
+  .wiz-wrap.with-side .side{position:relative;top:auto;right:auto;bottom:auto;width:auto;border-radius:22px 22px 0 0}
+  .wiz-wrap.with-side{grid-template-columns:1fr}
+  .quit{top:12px;right:12px}
+}
+.embed .quit{top:24px}.embed .zoom{left:24px}
+.paper .txt>span.steps{margin-top:18px;padding-top:12px;border-top:1px solid rgba(58,56,50,.14);font-size:12px;color:#6b675d}
+.paper .steps em{display:block;font-style:normal;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
 </style>
 </head>
 <body>
@@ -322,8 +388,8 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
       <h1>What did you bring?</h1>
       <p class="lede">Everything gets a look before it goes public.</p>
       <div class="papers">
-        <button class="paper" data-path="collage"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>A collage</b><span>Glue it to the table. Spare scraps go to the pile.</span><span class="go">Start →</span></span></span></button>
-        <button class="paper" data-path="scraps"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>Just scraps</b><span>A magazine, an ad, junk mail. Cut it up for everyone.</span><span class="go">Start →</span></span></span></button>
+        <button class="paper" data-path="collage"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>A collage</b><span>Glue it to the table. Spare scraps go to the pile.</span><span class="steps"><em>3 steps</em>photo it · cut spare bits · glue it</span><span class="go">Start →</span></span></span></button>
+        <button class="paper" data-path="scraps"><span class="sheet"><span class="crease"></span><span class="fold"></span><span class="shine"></span><span class="txt"><b>Just scraps</b><span>A magazine, an ad, junk mail. Cut it up for everyone.</span><span class="steps"><em>2 steps</em>photo it · cut the bits</span><span class="go">Start →</span></span></span></button>
       </div>
       <p class="owner" id="owner-line">Yours? <button class="link" id="owner-in">Owner sign in</button></p>
     </div></div>
