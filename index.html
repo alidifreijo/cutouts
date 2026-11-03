@@ -1031,6 +1031,32 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
   .zbar.tagged .ib{width:44px;height:44px;border-radius:12px;color:#efe6cf}
   body.zoomin .mesa-foot{opacity:0;pointer-events:none}
 }
+/* phase 2j: glue it as in the design — collage · words · card */
+.title-tape{min-width:0;width:160px;height:30px;padding:0;cursor:default}
+@media (min-width:721px){
+  .fin{background-color:var(--mat);background-image:linear-gradient(var(--mat-line-strong) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line-strong) 1px,transparent 1px),linear-gradient(var(--mat-line) 1px,transparent 1px),linear-gradient(90deg,var(--mat-line) 1px,transparent 1px);
+    background-size:calc(var(--cm)*5) calc(var(--cm)*5),calc(var(--cm)*5) calc(var(--cm)*5),var(--cm) var(--cm),var(--cm) var(--cm);background-position:28px 28px;
+    grid-template-columns:minmax(0,1.15fr) minmax(260px,.8fr) minmax(300px,.85fr);align-items:center;column-gap:clamp(24px,3vw,56px);padding:0 clamp(32px,5vw,96px)}
+  .fin::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(168deg,rgba(18,44,58,.5) 0,rgba(18,44,58,.44) 24%,rgba(18,44,58,0) 24.4%)}
+  .fin-r,.fin-wrap{display:contents}
+  .fin .pp-card{grid-column:1;grid-row:1;justify-self:center;transform:rotate(-1.5deg);filter:drop-shadow(0 1px 1px rgba(10,30,30,.35)) drop-shadow(-18px 28px 26px rgba(8,28,32,.42))}
+  .fin-l{grid-column:2;grid-row:1;padding:0;overflow:visible;position:relative;z-index:1}
+  .fin-col{grid-column:3;grid-row:1;display:flex;flex-direction:column;align-items:flex-start;gap:28px;position:relative;z-index:1}
+  .fin .fin-acts{display:none}
+  .fin #pp-done .fin-acts{display:flex}
+  .fin-go .pp-btn{background:#f0cd4a;border-color:#f0cd4a;color:#1d1d1a;border-radius:14px;padding:15px 30px;font-size:16px;font-weight:500;box-shadow:0 12px 24px -12px rgba(0,0,0,.5)}
+  .fin-go .pp-btn:hover{background:#f5d866}
+  .fin-h{font-size:clamp(64px,6vw,108px)}
+  .fin-d{font-size:15px;max-width:26ch}
+  #fin-in.tag{width:100%;max-width:340px;background:#e8e3d6;background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.04));border-radius:14px;padding:26px 24px 22px;clip-path:none;box-shadow:0 2px 0 rgba(0,0,0,.06),-14px 26px 44px -16px rgba(0,0,0,.55)}
+  #fin-in .tag-tape{display:none}
+  #fin-in .tag-l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b675d}
+  .fin.sent .fin-go{display:none}
+}
+.fin-no{display:flex;align-items:baseline;gap:8px;margin-bottom:8px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b675d}
+.fin-no b{font-size:26px;font-weight:500;letter-spacing:-.02em;color:#4a4740;text-transform:none}
+.fin.sent .fin-no span{visibility:hidden}
+body:has(#studio.finale) .crumb{display:none!important}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -1112,7 +1138,7 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
       <div class="rulers"></div>
       <div class="desk" id="desk">
         <div class="canvas" id="canvas">
-          <label class="title-tape" title="click to rename"><input id="mess-title" maxlength="60" placeholder="Untitled mess" aria-label="Name your collage" autocomplete="off" spellcheck="false"></label>
+          <span class="title-tape" aria-hidden="true"></span>
           <div class="sheet" id="sheet">
             <div class="empty-msg" id="empty" hidden>Blank page panic?<br><span class="em-d">Drag something from the scrap pile →</span><span class="em-m">Tap + scraps to start.</span></div>
             <span class="sheet-tag">A4 · cutouts</span>
@@ -1213,8 +1239,8 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
   </aside>
   <div class="fin-r"><div class="fin-wrap">
     <figure class="pp-card" id="pp-card"><span class="pp-tape"></span><img id="pp-thumb" alt="Your collage"><div class="mv" id="pp-mv" hidden></div><button class="mv-replay" id="pp-replay" hidden aria-label="Replay">↻</button></figure>
-    <div class="tag" id="fin-in">
-      <span class="tag-tape"></span>
+    <div class="fin-col"><div class="tag" id="fin-in">
+      <span class="tag-tape"></span><div class="fin-no"><b>Nº <span id="fin-no"></span></b><span>next spot on the table</span></div>
       <label class="tag-l" for="pin-title">Title</label>
       <input id="pin-title" maxlength="60" placeholder="Untitled mess" autocomplete="off">
       <label class="tag-l" for="pin-desc">The story</label>
@@ -1223,7 +1249,7 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
       <input id="pin-name" maxlength="40" placeholder="name or @handle" autocomplete="off">
       <div class="pp-sw" id="pp-sw" role="switch" aria-checked="false" tabindex="0"><span class="tg"></span><span><b>Make it move</b></span></div>
       <span id="pp-count" hidden></span>
-    </div>
+    </div><div class="fin-go"></div></div>
   </div></div>
 </div>
 <div class="toast" id="toast" hidden></div>
@@ -2669,14 +2695,15 @@ const pinBtn=$("#btn-pin"),pinPop=$("#pinpop");
 if(!inArtifact)pinBtn.hidden=false;
 studio.appendChild(pinPop);
 let finDock=true;
-function sizeFin(){const r=$(".fin-r"),mob=innerWidth<=720,W=r.clientWidth-64-(mob?0:314),H=r.clientHeight-(mob?40:110),k=Math.min(W/1240,H/1754);const w=Math.max(160,Math.round(1240*k));$("#pp-card").style.width=w+"px"}
+function sizeFin(){if(innerWidth>720){const k=Math.min(innerWidth*.36/1240,(innerHeight-170)/1754);$("#pp-card").style.width=Math.max(200,Math.round(1240*k))+"px";return}const r=$(".fin-r"),mob=innerWidth<=720,W=r.clientWidth-64-(mob?0:314),H=r.clientHeight-(mob?40:110),k=Math.min(W/1240,H/1754);const w=Math.max(160,Math.round(1240*k));$("#pp-card").style.width=w+"px"}
 async function openFin(){
   if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
   if(pieces.length<2&&(pieces[0].kind!=="text")){toast("One scrap isn't a mess yet. Add another.");return} // a lone scrap stays in the pile, not on the table
   finDock=!isDockClosed();studio.classList.add("finale");pinPop.hidden=false;pinPop.classList.remove("sent");
   $("#pp-form").hidden=false;$("#pp-done").hidden=true;
   $("#pin-name").value=store.get("recortes-signed")||"";ppLayers=null;setMove(false);
-  requestAnimationFrame(sizeFin);
+  requestAnimationFrame(sizeFin);try{$("#fin-no").textContent=(WORKS.filter(w=>!w.gone).length+1)}catch(e){}
+  {const g=$("#pin-go"),fg=$(".fin-go");if(g&&fg){if(innerWidth>720){fg.appendChild(g);g.textContent="Glue it to the table"}else{$("#pp-form .fin-acts").appendChild(g);g.textContent="Glue it"}}}
   try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.8)}catch(e){}
   {const mt=$("#mess-title");if(mt&&mt.value.trim()&&!$("#pin-title").value)$("#pin-title").value=mt.value.trim()}setTimeout(()=>$("#pin-title").focus(),400);
 }
