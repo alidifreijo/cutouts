@@ -777,6 +777,18 @@ body.intro .dnav{animation:dnavUp .6s ease-out both}
   #mesa>.credit{display:none}
   .bar .dnav [data-tip]:hover::after,.bar .dnav [data-tip]:hover::before{display:none}
 }
+/* phase 1b: cleaner rulers, aligned text, a bolder dock */
+.wall .rulers::before,.wall .rulers::after{display:none}
+.rn{font-size:10px;letter-spacing:.04em;color:rgba(238,218,166,.55)}
+.diag{display:none}
+.bar{padding-top:max(26px,env(safe-area-inset-top,0px))!important;padding-left:max(64px,env(safe-area-inset-left,0px))!important}
+.dnav{gap:8px;padding:8px;border-radius:24px;background:rgba(22,44,50,.72);box-shadow:0 2px 0 rgba(255,255,255,.04) inset,0 22px 44px -16px rgba(0,0,0,.65)}
+.dnav .tab{width:64px;height:64px;border-radius:16px;background:rgba(255,255,255,.08)}
+.dnav .tab svg.i{width:28px;height:28px}
+.mesa-foot{left:max(54px,env(safe-area-inset-left,0px))}
+#mesa>.credit{right:max(24px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px))}
+@media (max-width:720px){.bar{padding-top:max(22px,env(safe-area-inset-top,0px))!important;padding-left:max(44px,env(safe-area-inset-left,0px))!important}
+  .dnav{gap:5px;padding:6px;border-radius:20px}.dnav .tab{width:52px;height:52px;border-radius:14px}.dnav .tab svg.i{width:24px;height:24px}.mesa-foot{left:auto}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1008,9 +1020,7 @@ function drawRulers(mat){
   const r=mat.querySelector(".rulers"), W=mat.clientWidth, H=mat.clientHeight, cm=38, o=28;
   if(!W)return;
   let h="";
-  for(let i=0;o+i*cm<W-10;i++) h+=`<span class="rn" style="left:${o+i*cm+3}px;top:6px">${i}</span>`;
-  for(let i=1;o+i*cm<H-10;i++) h+=`<span class="rn" style="left:6px;top:${o+i*cm+2}px">${i}</span>`;
-  h+=`<span class="diag" style="width:${Math.hypot(W,H)}px"></span>`;
+  for(let i=0;o+i*cm<W-10;i+=5) h+=`<span class="rn" style="left:${o+i*cm+4}px;top:7px">${i}</span>`;
   r.innerHTML=h;
 }
 
@@ -1039,8 +1049,8 @@ function layout(){
   const cw=small?Math.round((W-40)/1.85):Math.round(Math.max(210,Math.min(390,W/4.5)));
   const pad=small?44:64,gap=Math.round(cw*(small?.14:.18)),lbl=small?10:26;
   note.style.width="max-content";{const h=note.querySelector('h2');if(h){h.style.fontSize='';let f=parseFloat(getComputedStyle(h).fontSize);const lim=W-pad-16;while(h.scrollWidth>lim&&f>14){f-=1;h.style.fontSize=f+'px'}}}
-  const noteW=Math.min(W-pad-16,Math.ceil(note.offsetWidth));note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad}px)`;
-  const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad-gap,x1:pad+noteW+gap,y1:pad+nh+gap+24};
+  const noteW=Math.min(W-pad-16,Math.ceil(note.offsetWidth));const lift=small?30:44;note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad+lift}px)`;
+  const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad+lift-gap,x1:pad+noteW+gap,y1:pad+lift+nh+gap+24};
   const live=new Set(),place=[];
   // the endless wall's look, on a table with edges: at least ~1.5 screens each way,
   // bigger when there are more collages. Columns run one shuffled sequence at
@@ -1079,15 +1089,14 @@ function bounds(){const W=mesa.clientWidth,H=mesa.clientHeight;
 function setCam(x,y,hard){const b=bounds();
   if(hard){x=Math.max(b.x0,Math.min(b.x1,x));y=Math.max(b.y0,Math.min(b.y1,y))}
   camX=x;camY=y;if(!Z)boardT(x,y,0,1,0,0);
-  mesa.style.backgroundPosition=`${28+x}px ${28+y}px`;wallRulers();}
+  {const g=`${28+x}px ${28+y}px`;mesa.style.backgroundPosition=`0 0,0 0,${g},${g},${g},${g}`;}wallRulers();}
 const rubber=(v,lo,hi)=>v<lo?lo+(v-lo)*.35:v>hi?hi+(v-hi)*.35:v;
 let rulerKey="";
 function wallRulers(){
   const r=mesa.querySelector(".rulers"),cm=38,fx=Math.floor(camX/cm),fy=Math.floor(camY/cm),ox=camX-fx*cm,oy=camY-fy*cm,W=mesa.clientWidth,H=mesa.clientHeight;
   const key=fx+","+fy+","+W+","+H;
   if(key!==rulerKey){rulerKey=key;let h="";
-    for(let i=-1;28+i*cm<W;i++)h+=`<span class="rn rx" style="left:${28+i*cm+3}px;top:6px">${i-fx}</span>`;
-    for(let i=0;28+i*cm<H;i++)h+=`<span class="rn ry" style="left:6px;top:${28+i*cm+2}px">${i-fy}</span>`;
+    for(let i=-1;28+i*cm<W+cm*5;i++){const n=i-fx;if(((n%5)+5)%5)continue;h+=`<span class="rn rx" style="left:${28+i*cm+4}px;top:7px">${n}</span>`}
     r.innerHTML=h}
   r.style.setProperty("--ox",ox+"px");r.style.setProperty("--oy",oy+"px");
 }
