@@ -1058,8 +1058,7 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 .fin.sent .fin-no span{visibility:hidden}
 body:has(#studio.finale) .crumb{display:none!important}
 /* the table's shadow moves with the board; the light stays */
-#mesa.mat::before{background:radial-gradient(ellipse 70% 60% at 62% 70%,rgba(214,232,186,.26),rgba(214,232,186,0) 70%)}
-.lamp{position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:0;will-change:transform}
+.lamp{display:none;position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:0;will-change:transform}
 .lamp polygon{fill:rgba(18,44,58,.47)}
 body.zoomin .lamp{opacity:0;transition:opacity .4s}
 [hidden]{display:none!important}
