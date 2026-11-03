@@ -1402,7 +1402,7 @@ mesa.appendChild(zbar);
 const zcap=document.createElement("p");zcap.className="zcap";zcap.hidden=true;mesa.appendChild(zcap);
 // close-up label: the same paper card as the glue step, pinned beside the collage
 const ztag=document.createElement("div");ztag.className="tag ztag";ztag.dataset.mod="1";ztag.hidden=true;
-ztag.classList.add("zcard");ztag.innerHTML=`<div class="zc-eng" aria-hidden="true"><img alt=""></div><div class="zc-n"><b>Nº <span class="zt-no"></span></b><span>on the table</span></div><div class="zt-t"></div><span class="tag-l zt-dl" hidden></span><div class="zt-d"></div><span class="tag-l zt-bl" hidden></span><div class="zt-b"></div><div class="zc-pg"><button class="zc-b" data-z="-1" aria-label="Previous collage"><svg class="i"><use href="#i-left"/></svg></button><span class="zt-pg"></span><button class="zc-b" data-z="1" aria-label="Next collage"><svg class="i"><use href="#i-right"/></svg></button></div>`;
+ztag.classList.add("zcard");ztag.innerHTML=`<div class="zc-n"><b>Nº <span class="zt-no"></span></b><span>on the table</span></div><div class="zt-t"></div><div class="zc-eng" aria-hidden="true"><img alt=""></div><span class="tag-l zt-dl" hidden></span><div class="zt-d"></div><span class="tag-l zt-bl" hidden></span><div class="zt-b"></div><div class="zc-pg"><button class="zc-b" data-z="-1" aria-label="Previous collage"><svg class="i"><use href="#i-left"/></svg></button><span class="zt-pg"></span><button class="zc-b" data-z="1" aria-label="Next collage"><svg class="i"><use href="#i-right"/></svg></button></div>`;
 ztag.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(b)stepZoom(+b.dataset.z)});
 mesa.appendChild(ztag);
 const TAGW=264,TAGGAP=48,wideZoom=()=>mesa.clientWidth>=900;
