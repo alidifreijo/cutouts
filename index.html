@@ -818,6 +818,45 @@ body.zoomin .mesa-foot,body.pre .mesa-foot{opacity:0;pointer-events:none}
 .mesa-foot #tools-mesa{background:rgba(24,48,56,.62)!important}
 .mesa-foot [data-tip]:hover::after,.mesa-foot [data-tip]:hover::before{display:none}
 @media (max-width:720px){.mesa-foot{right:8px!important;top:max(14px,env(safe-area-inset-top,0px))!important;bottom:auto!important}.mesa-foot #tools-mesa,.mesa-foot .wallseg{flex-direction:row!important}.wallseg button span,.mini span{display:none}.wallseg button,.mini{width:34px!important;padding:0!important}}
+/* ===== phase 2: make a mess — sheet left, tools right, breadcrumb title ===== */
+.crumb{display:none;align-items:baseline;gap:12px;margin-left:12px}
+body[data-mode=pega] .crumb{display:flex}
+.crumb-sl{font-family:var(--f-head);font-size:26px;color:rgba(238,226,196,.4)}
+#mess-title{font:inherit;font-family:var(--f-head);font-size:28px;line-height:1.1;color:#f8f4ea;background:none;border:0;border-bottom:1.5px dashed rgba(244,240,230,.35);padding:0 2px 2px;width:8.6em;field-sizing:content;min-width:5em;max-width:40vw;outline:none;cursor:text}
+#mess-title::placeholder{color:rgba(248,244,234,.55)}
+#mess-title:hover{border-bottom-color:rgba(244,240,230,.7)}
+#mess-title:focus{border-bottom-style:solid;border-bottom-color:var(--cream)}
+.crumb-s{font-size:11px;color:rgba(239,230,207,.6)}
+body[data-mode=pega] .bar>#tools-pega{margin-left:18px}
+body[data-mode=pega] .dnav{display:none}
+@media (min-width:721px){
+  #studio .dock{top:16px;right:16px;bottom:16px;border-radius:22px;background:var(--glass);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid var(--glass-line);box-shadow:0 22px 44px -18px rgba(0,0,0,.6);overflow:hidden}
+  #studio.dock-closed .dock{transform:translateX(calc(100% + 24px))}
+  #studio .pin-float{right:32px;bottom:32px;width:calc(var(--dock-w,320px) - 32px);z-index:24}
+  #studio .rail{border-radius:20px;padding:8px 6px}
+  .rail [data-tip]:hover::after{left:auto;right:calc(100% + 10px)}
+  #studio .zoom{left:40px}
+}
+/* each effect is one card: the controls live inside it */
+.fx-item{background:rgba(255,255,255,.06);border:1px solid transparent;border-radius:12px;transition:background .2s,border-color .2s}
+.fx-item.open{background:rgba(244,240,230,.12);border-color:rgba(244,240,230,.26)}
+.fx-item.open .fx-body{margin:0 12px;padding:12px 0 14px;border-top:1px solid rgba(238,226,196,.2)}
+.fx-name svg.i{opacity:.75}
+.fx-list{display:flex;flex-direction:column;gap:6px}
+@media (max-width:720px){.crumb{display:none!important}}
+/* the lamp: light and shadow live on their own layer, so dragging the table only moves the grid */
+.mat{background-image:
+    linear-gradient(var(--mat-line-strong) 1px,transparent 1px),
+    linear-gradient(90deg,var(--mat-line-strong) 1px,transparent 1px),
+    linear-gradient(var(--mat-line) 1px,transparent 1px),
+    linear-gradient(90deg,var(--mat-line) 1px,transparent 1px)!important;
+  background-size:calc(var(--cm)*5) calc(var(--cm)*5),calc(var(--cm)*5) calc(var(--cm)*5),var(--cm) var(--cm),var(--cm) var(--cm)!important}
+.mat::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(168deg,rgba(18,44,58,.5) 0,rgba(18,44,58,.44) 24%,rgba(18,44,58,0) 24.4%),radial-gradient(ellipse 70% 60% at 62% 70%,rgba(214,232,186,.26),rgba(214,232,186,0) 70%)}
+/* glue it: same rhythm as the design — steps left, collage centre, card right */
+@media (min-width:721px){.fin-l{padding-top:110px}.fin-h{font-size:clamp(56px,5vw,84px);line-height:1.02;text-shadow:-5px 9px 14px rgba(8,28,32,.32)}
+  .fin-acts .pp-btn{background:#f0cd4a;border-color:#f0cd4a;color:#1d1d1a;border-radius:14px;padding:14px 28px}}
+body[data-mode=pega] .fin:not([hidden])~* .crumb{display:none}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -863,7 +902,8 @@ body.zoomin .mesa-foot,body.pre .mesa-foot{opacity:0;pointer-events:none}
 
 <div class="app">
   <header class="bar">
-    <h1 class="logo"><a href="./" id="home">cutouts</a></h1>
+    <h1 class="logo"><a href="./" id="home" aria-label="cutouts, back to the table">cutouts</a></h1>
+    <div class="crumb" id="crumb"><span class="crumb-sl" aria-hidden="true">/</span><input id="mess-title" maxlength="60" placeholder="Untitled mess" aria-label="Name your collage" autocomplete="off" spellcheck="false"><span class="crumb-s" id="crumb-s">draft saved</span></div>
     <nav class="tabs dnav" role="tablist" aria-label="mode">
       <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa" aria-label="the table" data-tip="the table"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="10" rx="1" transform="rotate(-6 7 9)"/><rect x="13" y="3" width="8" height="8" rx="1" transform="rotate(5 17 7)"/><rect x="12" y="13" width="9" height="8" rx="1"/></svg><span class="t-l">the table</span></button>
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio" aria-label="make a mess" data-tip="make a mess"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg><span class="t-l">make a mess</span></button>
@@ -1118,7 +1158,7 @@ function bounds(){const W=mesa.clientWidth,H=mesa.clientHeight;
 function setCam(x,y,hard){const b=bounds();
   if(hard){x=Math.max(b.x0,Math.min(b.x1,x));y=Math.max(b.y0,Math.min(b.y1,y))}
   camX=x;camY=y;if(!Z)boardT(x,y,0,1,0,0);
-  {const g=`${28+x}px ${28+y}px`;mesa.style.backgroundPosition=`0 0,0 0,${g},${g},${g},${g}`;}wallRulers();}
+  mesa.style.backgroundPosition=`${28+x}px ${28+y}px`;wallRulers();}
 const rubber=(v,lo,hi)=>v<lo?lo+(v-lo)*.35:v>hi?hi+(v-hi)*.35:v;
 let rulerKey="";
 function wallRulers(){
@@ -1343,6 +1383,9 @@ document.addEventListener("keydown",e=>{
 
 // ---------- tabs ----------
 let mode="mesa";
+(()=>{const t=$("#mess-title");if(!t)return;try{t.value=store.get("cutouts-mess-title")||""}catch(e){}
+  let tm;t.addEventListener("input",()=>{$("#crumb-s").textContent="saving…";clearTimeout(tm);tm=setTimeout(()=>{store.set("cutouts-mess-title",t.value.trim());$("#crumb-s").textContent="draft saved"},500)});
+  t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key==="Escape")t.blur()})})();
 function setMode(m){
   mode=m;document.body.dataset.mode=m;try{if(m!=="pega"&&hintEl){hintEl.remove();hintEl=null}}catch(e){}
   $("#tab-mesa").setAttribute("aria-selected",m==="mesa");$("#tab-pega").setAttribute("aria-selected",m==="pega");$("#tab-add").setAttribute("aria-selected",m==="add");
@@ -1779,8 +1822,8 @@ function scrapButton(s){
 // zoom + pan: the sheet stays put unless you zoom in
 let zoom=1,panX=0,panY=0;
 function region(){
-  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:34+52+30,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+30,bottom=m?92:0;
-  return {cx:left+(W-left-right)/2,cy:(H-bottom)/2,w:W-left-right,h:H-bottom};
+  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:40,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+32+52+40,top=m?0:76,bottom=m?92:16;
+  return {cx:left+(W-left-right)/2,cy:top+(H-top-bottom)/2,w:W-left-right,h:H-top-bottom};
 }
 function clampPan(){
   if(zoom<=1.001){panX=0;panY=0;return}
@@ -1791,7 +1834,7 @@ function clampPan(){
 function placeRail(){
   const rail=$("#rail");if(mobile()){rail.style.left="";rail.style.top="";return}
   const r=region(),half=sheet.offsetWidth*zoom/2,dockW=isDockClosed()?0:dock.offsetWidth;
-  const x=Math.max(34+16,r.cx+panX-half-16-rail.offsetWidth);
+  const x=Math.min(studio.clientWidth-dockW-32-rail.offsetWidth-16,r.cx+panX+half+20);
   const y=Math.max(rail.offsetHeight/2+40,Math.min(studio.clientHeight-rail.offsetHeight/2-16,r.cy+panY));
   rail.style.left=x+"px";rail.style.top=y+"px";
 }
@@ -2165,7 +2208,7 @@ function renderEdit(){
       const m=FX[f.t],open=openFx===i;
       h+=`<div class="fx-item${open?" open":""}${f.on?"":" off"}" data-i="${i}" draggable="${n>1}">
         <div class="fx-row">
-          <button class="fx-name" data-do="toggle" aria-expanded="${open}"><i class="sw2 mini-sw" style="background:${m.sw}"></i><span class="t">${m.n}</span></button>
+          <button class="fx-name" data-do="toggle" aria-expanded="${open}"><i class="sw2 mini-sw" style="background:${m.sw}"></i><span class="t">${m.n}</span><svg class="i"><use href="#i-right"/></svg></button>
           <button class="mini hov" data-do="eye" data-tip="${f.on?"hide":"show"}" aria-label="${f.on?"Hide":"Show"} effect" aria-pressed="${!f.on}"><svg class="i"><use href="#i-${f.on?"eye":"eyeoff"}"/></svg></button>
           <button class="mini hov" data-do="rm" data-tip="remove" aria-label="Remove effect"><svg class="i"><use href="#i-x"/></svg></button>
         </div>
@@ -2447,7 +2490,7 @@ async function openFin(){
   $("#pin-name").value=store.get("recortes-signed")||"";ppLayers=null;setMove(false);
   requestAnimationFrame(sizeFin);
   try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.8)}catch(e){}
-  setTimeout(()=>$("#pin-title").focus(),400);
+  {const mt=$("#mess-title");if(mt&&mt.value.trim()&&!$("#pin-title").value)$("#pin-title").value=mt.value.trim()}setTimeout(()=>$("#pin-title").focus(),400);
 }
 function closeFin(){if(pinPop.classList.contains("sent")){$("#pin-title").value="";$("#pin-desc").value=""}pinPop.hidden=true;studio.classList.remove("finale");setMove(false)}
 pinBtn.onclick=openFin;
