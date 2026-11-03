@@ -789,6 +789,10 @@ body.intro .dnav{animation:dnavUp .6s ease-out both}
 #mesa>.credit{right:max(24px,env(safe-area-inset-right,0px));bottom:max(14px,env(safe-area-inset-bottom,0px))}
 @media (max-width:720px){.bar{padding-top:max(22px,env(safe-area-inset-top,0px))!important;padding-left:max(44px,env(safe-area-inset-left,0px))!important}
   .dnav{gap:5px;padding:6px;border-radius:20px}.dnav .tab{width:52px;height:52px;border-radius:14px}.dnav .tab svg.i{width:24px;height:24px}.mesa-foot{left:auto}}
+/* phase 1c: title as in the design, three lines */
+.note h2{font-size:clamp(64px,7.2vw,124px)!important;line-height:1.02;margin:0 0 26px;text-shadow:-5px 9px 14px rgba(8,28,32,.32)}
+.note p{font-size:15px;line-height:1.6;max-width:24em}
+@media (max-width:720px){.note h2{font-size:clamp(46px,14vw,64px)!important;margin-bottom:14px}}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -1029,7 +1033,7 @@ const board=$("#board"), mesa=$("#mesa");
 let MESS_SEED=Math.floor(Math.random()*1e6);
 let wallStyle="strict",messyOrder=null; // always opens strict
 const note=document.createElement("div");note.className="note";
-note.innerHTML=`<h2><span class="w">Cut.</span> <span class="w">Glue.</span><br><span class="w">No</span> <span class="w">undo.</span></h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
+note.innerHTML=`<h2><span class="w">Cut.</span><br><span class="w">Glue.</span><br><span class="w">No</span> <span class="w">undo.</span></h2><p>Analog collages. Old magazines, sharp scissors, zero respect for the original layout.</p><p class="fine">Found magazine imagery. Non-commercial.</p>`;
 board.appendChild(note);
 const cardsById=new Map();
 let camX=0,camY=0,velX=0,velY=0,inertia=0,boardW=0,boardH=0,dragging=false;
@@ -1046,8 +1050,8 @@ function layout(){
   if(INTRO){introLayout=true;return} // never reshuffle the table under the entrance
   const W=mesa.clientWidth,H=mesa.clientHeight;if(!W)return;
   const small=W<720,messy=wallStyle==="messy",ALL=WORKS.map((w,i)=>({w,i})).filter(o=>!o.w.gone),N=ALL.length;
-  const cw=small?Math.round((W-40)/1.85):Math.round(Math.max(210,Math.min(390,W/4.5)));
-  const pad=small?44:64,gap=Math.round(cw*(small?.14:.18)),lbl=small?10:26;
+  const cw=small?Math.round((W-40)/1.95):Math.round(Math.max(180,Math.min(320,W/5.8)));
+  const pad=small?44:64,gap=Math.round(cw*(small?.18:.32)),lbl=small?10:26;
   note.style.width="max-content";{const h=note.querySelector('h2');if(h){h.style.fontSize='';let f=parseFloat(getComputedStyle(h).fontSize);const lim=W-pad-16;while(h.scrollWidth>lim&&f>14){f-=1;h.style.fontSize=f+'px'}}}
   const noteW=Math.min(W-pad-16,Math.ceil(note.offsetWidth));const lift=small?30:44;note.style.width=noteW+"px";note.style.transform=`translate(${pad}px,${pad+lift}px)`;
   const nh=note.offsetHeight,noteBox={x0:pad-gap,y0:pad+lift-gap,x1:pad+noteW+gap,y1:pad+lift+nh+gap+24};
