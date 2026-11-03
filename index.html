@@ -890,6 +890,39 @@ body[data-mode=pega] .fin:not([hidden])~* .crumb{display:none}
   #studio .pin-float{top:20px;bottom:auto;right:16px;width:auto!important;padding:13px 24px!important;border-radius:14px;font-size:15px!important}
   #studio.dock-closed .pin-float{right:16px;top:20px;bottom:auto}
 }
+/* phase 2c: as in the design — header, compact panel, short rail */
+body[data-mode=pega] .logo{display:none}
+.crumb{align-items:center;gap:16px;margin-left:-40px}
+.crumb-back{display:flex;align-items:center;gap:8px;height:46px;padding:0 16px 0 12px;border-radius:14px;background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--glass-line);color:#efe6cf;font-size:14px}
+.crumb-back:hover{background:rgba(24,48,56,.8);color:#fff}
+.crumb-back svg.i{width:16px;height:16px}
+.crumb-t{display:flex;flex-direction:column;gap:2px}
+.crumb-l{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(239,230,207,.65)}
+#crumb-s{font-size:inherit}
+.crumb-in{display:flex;align-items:center;gap:8px;cursor:text}
+.crumb-in svg.i{width:15px;height:15px;opacity:.55}
+#mess-title{border-bottom:1.5px solid transparent;font-size:30px}
+#mess-title:hover{border-bottom:1.5px dashed rgba(244,240,230,.4)}
+.crumb-sl{display:none}
+body[data-mode=pega] .bar>#tools-pega{display:none}
+@media (min-width:721px){
+  #studio .rail .sel-only:not(.m-only),#studio .rail hr:not(.r-end):nth-of-type(2){display:none}
+  #studio .rail .m-only{display:none}
+  #studio .dock{top:84px;right:88px;bottom:auto;max-height:calc(100% - 100px)}
+  #studio .dock .dock-scroll{max-height:calc(100vh - 210px)}
+  #studio .pin-float{top:20px;right:16px}
+  .rail [data-tip]:hover::after{right:calc(100% + 12px)}
+}
+.sel-acts{display:flex;flex-wrap:wrap;gap:2px;width:100%;order:9;padding-top:6px}
+.fx-sel{flex-wrap:wrap}
+.sel-acts .mini{width:32px;height:32px;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:rgba(239,230,207,.75);position:relative}
+.sel-acts .mini:hover{background:rgba(255,255,255,.1);color:#fff}
+.sel-acts .mini svg.i{width:17px;height:17px}
+.sel-acts [data-tip]:hover::after{bottom:calc(100% + 6px);left:50%;transform:translateX(-50%)}
+.toast{display:flex;align-items:center;gap:14px;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--glass-line);border-radius:14px}
+.toast[hidden]{display:none}
+@media (max-width:720px){.sel-acts{display:none}}
+.toast-u{border:0;background:var(--cream);color:var(--ink-dark);border-radius:9px;padding:6px 14px;font:inherit;font-size:13px}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -940,7 +973,7 @@ body[data-mode=pega] .fin:not([hidden])~* .crumb{display:none}
 <div class="app">
   <header class="bar">
     <h1 class="logo"><a href="./" id="home" aria-label="cutouts, back to the table">cutouts</a></h1>
-    <div class="crumb" id="crumb"><span class="crumb-sl" aria-hidden="true">/</span><input id="mess-title" maxlength="60" placeholder="Untitled mess" aria-label="Name your collage" autocomplete="off" spellcheck="false"><span class="crumb-s" id="crumb-s">draft saved</span></div>
+    <div class="crumb" id="crumb"><button class="crumb-back" id="crumb-back" aria-label="Back to the table. Your draft stays here."><svg class="i"><use href="#i-left"/></svg>the table</button><div class="crumb-t"><span class="crumb-l">make a mess · <span id="crumb-s">draft saved</span></span><label class="crumb-in"><input id="mess-title" maxlength="60" placeholder="Untitled mess" aria-label="Name your collage" autocomplete="off" spellcheck="false"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></label></div></div>
     <nav class="tabs dnav" role="tablist" aria-label="mode">
       <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa" aria-label="the table" data-tip="the table"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="10" rx="1" transform="rotate(-6 7 9)"/><rect x="13" y="3" width="8" height="8" rx="1" transform="rotate(5 17 7)"/><rect x="12" y="13" width="9" height="8" rx="1"/></svg><span class="t-l">the table</span></button>
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio" aria-label="make a mess" data-tip="make a mess"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg><span class="t-l">make a mess</span></button>
@@ -1120,6 +1153,7 @@ const coarse=matchMedia("(pointer:coarse)").matches;
 const reduce=matchMedia("(prefers-reduced-motion:reduce)").matches;
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let toastT;
+function undoToast(msg,fn){const t=$("#toast");t.innerHTML=`<span>${esc(msg)}</span><button class="toast-u">Undo</button>`;t.hidden=false;t.querySelector("button").onclick=()=>{fn?fn():$("#btn-undo").click();t.hidden=true};clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,5000)}
 function toast(msg){const t=$("#toast");t.textContent=msg;t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,2400)}
 
 function drawRulers(mat){
@@ -1859,7 +1893,7 @@ function scrapButton(s){
 // zoom + pan: the sheet stays put unless you zoom in
 let zoom=1,panX=0,panY=0;
 function region(){
-  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:40,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+16+16+60+40,top=m?0:76,bottom=m?92:16;
+  const W=studio.clientWidth,H=studio.clientHeight,m=mobile(),left=m?0:40,right=m?0:(isDockClosed()?0:parseInt(getComputedStyle(studio).getPropertyValue('--dock-w'))||320)+16+60+12+48,top=m?0:76,bottom=m?92:16;
   return {cx:left+(W-left-right)/2,cy:top+(H-top-bottom)/2,w:W-left-right,h:H-top-bottom};
 }
 function clampPan(){
@@ -1871,7 +1905,7 @@ function clampPan(){
 function placeRail(){
   const rail=$("#rail");if(mobile()){rail.style.left="";rail.style.top="";return}
   const r=region(),half=sheet.offsetWidth*zoom/2,dockW=isDockClosed()?0:dock.offsetWidth;
-  const x=studio.clientWidth-(isDockClosed()?0:dockW+16)-16-rail.offsetWidth;
+  const x=studio.clientWidth-16-rail.offsetWidth;
   const y=84+rail.offsetHeight/2;
   rail.style.left=x+"px";rail.style.top=y+"px";
 }
@@ -1978,7 +2012,8 @@ function addText(){
   if(mobile())mSheet("fx");else{setDock(true);setPane("fx")}setTimeout(()=>{const ta=$("#t-text");if(ta){ta.focus();ta.select()}},60);
 }
 $("#rail-text").onclick=addText;
-(()=>{const rl=$("#rail"),u=$("#btn-undo"),re=$("#btn-redo");if(rl&&u&&re){const hr=document.createElement("hr");rl.prepend(hr);rl.prepend(re);rl.prepend(u)}})();
+(()=>{const rl=$("#rail"),u=$("#btn-undo"),re=$("#btn-redo"),cl=$("#btn-clear"),dl=$("#btn-dl");if(rl&&u&&re){const hr=document.createElement("hr");rl.prepend(hr);rl.prepend(re);rl.prepend(u);const h2=document.createElement("hr");h2.className="r-end";rl.append(h2);if(cl)rl.append(cl);if(dl)rl.append(dl)}
+  const cb=$("#crumb-back");if(cb)cb.onclick=()=>$("#home").click()})();
 
 // selection: single piece, a whole group, or one piece inside a group
 const gbox=document.createElement("div");gbox.className="gbox";gbox.hidden=true;
@@ -2213,7 +2248,7 @@ function renderEdit(){
   const grp=p.g?members(p.g):null;
   const sub=grp?(selMode==="group"?`${grp.length} pieces`:`piece ${grp.indexOf(p)+1} of ${grp.length}`):"";
   const gact=grp?(selMode==="group"?`<button class="txt-btn" data-do="ungroup">Ungroup</button>`:`<button class="txt-btn" data-do="backgroup">Back to group</button>`):"";
-  let h=`<div class="fx-sel"><div class="fx-thumb">${isT?`<span style="font-family:'${p.t.font}'">Aa</span>`:`<img src="${SRC("s/"+p.id+".webp")}" alt="">`}</div><div class="fx-sel-t"><b>${isT?"Text":esc(s.t)}</b>${grp?`<span class="gchip${selMode==="single"?" in":""}">${selMode==="group"?"group":"in group"}</span>`:""}${sub?`<span>${sub}</span>`:""}</div>${gact}<button class="mini lockb" data-do="lock" aria-pressed="${isLocked()}" aria-label="${isLocked()?"Unlock":"Lock"} layer" title="${isLocked()?"unlock":"lock"}"><svg class="i"><use href="#i-${isLocked()?"lock":"unlock"}"/></svg></button></div>`;
+  let h=`<div class="fx-sel"><div class="fx-thumb">${isT?`<span style="font-family:'${p.t.font}'">Aa</span>`:`<img src="${SRC("s/"+p.id+".webp")}" alt="">`}</div><div class="fx-sel-t"><b>${isT?"Text":esc(s.t)}</b>${grp?`<span class="gchip${selMode==="single"?" in":""}">${selMode==="group"?"group":"in group"}</span>`:""}${sub?`<span>${sub}</span>`:""}</div>${gact}<span class="sel-acts">${[["up","front","bring to front"],["down","back","send to back"],["dup","copy","duplicate"],["rot","rotate","rotate 90°"],["flip","flip","mirror"],["del","trash","remove"]].map(([a,i,t])=>`<button class="mini" data-act="${a}" aria-label="${t}" data-tip="${t}"><svg class="i"><use href="#i-${i}"/></svg></button>`).join("")}</span><button class="mini lockb" data-do="lock" aria-pressed="${isLocked()}" aria-label="${isLocked()?"Unlock":"Lock"} layer" title="${isLocked()?"unlock":"lock"}"><svg class="i"><use href="#i-${isLocked()?"lock":"unlock"}"/></svg></button></div>`;
   // appearance first
   const bl=BLENDS.find(b=>b[0]===(p.blend||"normal"))||BLENDS[0];
   h+=`<div class="sec"><p class="sec-t">Appearance</p><div class="nums">
@@ -2308,6 +2343,7 @@ $("#pane-fx").addEventListener("pointerdown",e=>{
 function syncFx(){const T=targets();T.forEach(t=>{if(t!==sel)t.fx=sel.fx.map(f=>({...f}))});return T}
 function fxChanged(full){const T=syncFx();T.forEach(refresh);save();updateBadge();if(full)renderEdit()}
 dock.addEventListener("click",e=>{
+  {const ab=e.target.closest("[data-act]");if(ab&&dock.contains(ab)){act(ab.dataset.act);return}}
   const gh=e.target.closest(".menu li.grp[data-grp]");
   if(gh&&dock.contains(gh)){const m=gh.closest(".menu"),g=gh.dataset.grp,was=gh.classList.contains("open");fxGrp=was?"":g;
     m.querySelectorAll("li.grp[data-grp]").forEach(x=>x.classList.toggle("open",x.dataset.grp===fxGrp));
@@ -2339,7 +2375,7 @@ dock.addEventListener("click",e=>{
     case "toggle":openFx=openFx===i?-1:i;renderEdit();break;
     case "up":[p.fx[i-1],p.fx[i]]=[p.fx[i],p.fx[i-1]];openFx=i-1;fxChanged(true);break;
     case "eye":f.on=!f.on;fxChanged(true);break;
-    case "rm":p.fx.splice(i,1);openFx=-1;fxChanged(true);break;
+    case "rm":{const nm=FX[f.t].n,gone=p.fx.splice(i,1)[0];openFx=-1;fxChanged(true);undoToast("Removed "+nm,()=>{p.fx.splice(Math.min(i,p.fx.length),0,gone);if(sel===p)openFx=i;fxChanged(true)});break}
     case "c1":f.c1=b.dataset.c;fxChanged(true);break;
     case "c2":f.c2=b.dataset.c;fxChanged(true);break;
   }
