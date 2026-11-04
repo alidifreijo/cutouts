@@ -860,7 +860,7 @@ async function openFile(f){
   img.onload=()=>{
     const k=Math.min(1,2200/Math.max(img.naturalWidth,img.naturalHeight)),c=mk(img.naturalWidth*k,img.naturalHeight*k);
     c.getContext("2d").drawImage(img,0,0,c.width,c.height);srcImg=c;URL.revokeObjectURL(url);
-    quad=guessQuad(c);scraps=[];trimmed=null;$("#trim").value=PATH==="collage"?0:(guessQuad.irregular?20:0);
+    quad=PATH==="collage"?stdQuad(c):guessQuad(c);scraps=[];trimmed=null;$("#trim").value=PATH==="collage"?0:(guessQuad.irregular?20:0);
     show("square");
   };
   img.onerror=()=>toast("That file isn't an image this browser can read.",true);
@@ -869,6 +869,8 @@ async function openFile(f){
 function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
 // ---------- 2 sheet: corners + perspective ----------
 let quad=null,sheetCv=null,trimmed=null;
+// default frame: a straight A4 sheet (1:1.414), as big as fits, centred; the user adjusts from there
+function stdQuad(im){const W=im.width,H=im.height,R=1.414;let h=H*.9,w=h/R;if(w>W*.9){w=W*.9;h=w*R}const x=(W-w)/2,y=(H-h)/2;return [[x,y],[x+w,y],[x+w,y+h],[x,y+h]]}
 function small(c,max){const s=Math.min(1,max/Math.max(c.width,c.height)),w=Math.max(8,Math.round(c.width*s)),h=Math.max(8,Math.round(c.height*s)),t=mk(w,h),g=t.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,w,h);g.filter="blur(1.2px)";g.drawImage(t,0,0);return {t,w,h,s,d:g.getImageData(0,0,w,h).data}}
 function bgOf(d,w,h){const rs=[],gs=[],bs=[],add=i=>{rs.push(d[i*4]);gs.push(d[i*4+1]);bs.push(d[i*4+2])};for(let x=0;x<w;x++){add(x);add((h-1)*w+x)}for(let y=0;y<h;y++){add(y*w);add(y*w+w-1)}const med=a=>a.sort((x,y)=>x-y)[a.length>>1];return [med(rs),med(gs),med(bs)]}
 function distMap(d,w,h,bg){const m=new Float32Array(w*h);for(let i=0;i<w*h;i++){const j=i*4;m[i]=Math.hypot(d[j]-bg[0],d[j+1]-bg[1],d[j+2]-bg[2])}return m}
@@ -1114,7 +1116,7 @@ function bindLoose(el,s){
 // a quarter turn clockwise, baked into the pixels so it's saved that way
 function rotCanvas(c){const o=mk(c.height,c.width),g=o.getContext("2d");g.translate(o.width,0);g.rotate(Math.PI/2);g.drawImage(c,0,0);return o}
 function rotateScrap(s){s.canvas=rotCanvas(s.canvas);if(s.orig)s.orig=rotCanvas(s.orig);renderScraps();layoutPile(false)}
-function rotateSource(){srcImg=rotCanvas(srcImg);quad=guessQuad(srcImg);trimmed=null;scraps=[];$("#loose").innerHTML="";VZ["w-sheet"]=1;layoutSheet()}
+function rotateSource(){srcImg=rotCanvas(srcImg);quad=PATH==="collage"?stdQuad(srcImg):guessQuad(srcImg);trimmed=null;scraps=[];$("#loose").innerHTML="";VZ["w-sheet"]=1;layoutSheet()}
 
 async function cleanScrap(s){
   if(s.busy)return;
