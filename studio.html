@@ -363,6 +363,61 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .embed .quit{top:24px}.embed .zoom{left:24px}
 .paper .txt>span.steps{margin-top:18px;padding-top:12px;border-top:1px solid rgba(58,56,50,.14);font-size:12px;color:#6b675d}
 .paper .steps em{display:block;font-style:normal;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+
+/* phase 3b: as in the design — horizontal stepper, 64px titles, glass inputs, glue card on the right */
+.rail{padding-top:72px}
+.rail .dots{position:absolute;left:64px;top:118px;flex-direction:row;gap:6px}
+.rail .dots i{width:22px;height:6px;border-radius:3px;background:rgba(239,230,207,.25);transition:width .45s cubic-bezier(.65,0,.25,1),background .3s}
+.rail .dots i.dn{background:rgba(239,230,207,.5)}
+.rail .dots i.on{width:44px;height:6px;background:var(--cream)}
+.wstep{gap:14px}
+.wstep .back{font-size:15px;color:#efe6cf;margin-bottom:28px}
+.wstep h2{font-size:clamp(48px,4.4vw,72px)!important;line-height:1.02}
+.wstep .desc{font-size:15px;line-height:1.6;max-width:28ch}
+.wstep .acts .btn,.wstep .acts .ghost{font-size:15px;padding:0 24px;height:50px;border-radius:14px;display:inline-flex;align-items:center}
+.side-scroll{padding:16px}
+.side .sec-t{font-size:11px;letter-spacing:.1em;color:rgba(239,230,207,.75)}
+.hint{font-size:12.5px;color:rgba(239,230,207,.75)}
+.sec{border-top:1px solid rgba(238,226,196,.14)}
+.scrap{background:rgba(255,255,255,.06);border:1px solid transparent;border-radius:14px;grid-template-columns:52px minmax(0,1fr) auto;gap:8px 12px}
+.scrap .th{width:52px;height:52px;border-radius:10px;background:rgba(255,255,255,.08)}
+.input,.scrap .input{background:rgba(255,255,255,.07);border:1px solid transparent;border-radius:10px;color:#f8f4ea;font-size:13px}
+.scrap .input{font-family:var(--f-head);font-size:19px;padding:2px 8px;background:transparent}
+.scrap .input:hover{background:rgba(255,255,255,.07)}
+.input:focus{border-color:rgba(244,240,230,.5)}
+.dd-btn{border:1px solid rgba(238,226,196,.2);background:transparent;font-size:13px;border-radius:10px;padding:9px 12px;color:#efe6cf}
+.dd-btn:hover,.dd-btn[aria-expanded="true"]{border-color:rgba(244,240,230,.6)}
+.dd-btn.bad{border-color:var(--yellow);box-shadow:none}
+.menu{background:rgba(14,32,38,.95);border:1px solid rgba(238,226,196,.14);border-radius:14px;padding:6px;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.menu li{font-size:13px;color:#efe6cf;border-radius:9px}
+.menu li[aria-selected="true"],.menu li:hover{background:rgba(244,240,230,.12)}
+.bgx{border:1px dashed rgba(238,226,196,.35);color:#efe6cf;font-size:12px;border-radius:10px}
+.bgx.on{background:rgba(244,240,230,.14)}
+.x:hover{background:rgba(255,255,255,.1)}
+.empty{font-size:13px;border-color:rgba(238,226,196,.25);color:rgba(239,230,207,.75)}
+.flat{background:repeating-conic-gradient(rgba(255,255,255,.1) 0 25%,rgba(255,255,255,.04) 0 50%) 0 0/16px 16px}
+.toast{background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--glass-line);border-radius:14px;color:#f4f0e6}
+.ibx{background:rgba(255,255,255,.06)}.ibx:hover{background:rgba(255,255,255,.1)}
+.findall{border-color:rgba(238,226,196,.35);border-radius:10px;font-size:13px;color:#efe6cf}
+/* glue step */
+@media (min-width:821px){
+  .send{padding:20px 20px 20px 0;place-items:center}
+  .send .table{display:grid;grid-template-columns:auto 320px;grid-template-areas:"col card" "bits go";gap:28px 56px;align-items:center;justify-items:center;flex-wrap:nowrap}
+  .pinwrap{display:contents}
+  .pinned{grid-area:col}
+  .label-in.tag{grid-area:card;align-self:center}
+  .bits{grid-area:bits;max-width:none}
+  .send-go{grid-area:go;justify-self:start;align-self:start}
+  .send.only .table{grid-template-areas:"col card" "col go";grid-template-rows:auto auto}
+  .send.only .label-in.tag{align-self:end}
+}
+.send-go .btn{font-size:15px;font-weight:500;height:52px;padding:0 28px;border-radius:14px;box-shadow:0 12px 24px -12px rgba(0,0,0,.5)}
+.label-in.tag{width:320px;transform:rotate(1.5deg);padding:24px;gap:6px}
+.tag-no{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b675d}
+.tag-no b{font-size:24px;font-weight:500;letter-spacing:-.02em;color:#4a4740;text-transform:none}
+.bits figcaption,.bits .lbl{color:rgba(239,230,207,.75)}
+.sign2{border-bottom-color:rgba(238,226,196,.35);color:#f4f0e6;font-size:13px}
+@media (max-width:820px){.send-go{display:flex;justify-content:center;margin-top:12px}}
 </style>
 </head>
 <body>
@@ -457,7 +512,7 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
             <div class="pinwrap" id="send-col">
               <figure class="pinned"><span class="tape"></span><img id="pub-preview" alt="Your collage"></figure>
               <div class="tag label-in">
-                <span class="tag-tape"></span>
+                <span class="tag-tape"></span><div class="tag-no"><span>your piece · waiting for a look</span></div>
                 <label class="tag-l" for="title">Title</label>
                 <input id="title" maxlength="60" placeholder="Untitled mess" autocomplete="off">
                 <label class="tag-l" for="desc">The story</label>
@@ -1154,6 +1209,7 @@ function renderPublish(){
 const slug=t=>(t||"collage").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,32)||"collage";
 const webp=(c,q=.82)=>new Promise(r=>c.toBlob(r,"image/webp",q));
 const uuid=()=>crypto.randomUUID?crypto.randomUUID():"10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+(()=>{const t=$(".send .table"),b=$("#publish");if(t&&b){const g=document.createElement("div");g.className="send-go";t.appendChild(g);g.appendChild(b)}})();
 $("#publish").onclick=async()=>{
   const btn=$("#publish"),label=btn.textContent;
   const last=+localStorage.getItem("cutouts-sent")||0;
