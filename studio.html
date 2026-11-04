@@ -460,6 +460,13 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 @media (max-width:720px){.pick-main{padding-top:78px!important}
   .embed .wiz-wrap{padding-bottom:84px}.embed .side{margin-bottom:0}
   .embed .send{padding-bottom:100px}.embed .rail{padding-top:62px}.embed .quit{top:14px}}
+@media (min-width:821px){
+  .send .table:has(#send-col[hidden]){grid-template-columns:auto;grid-template-areas:"bits" "go";justify-items:center}
+  .send .table:has(#send-col[hidden]) .send-go{justify-self:center}
+  .send .table:has(#send-col[hidden]) .bits{flex-direction:column;gap:22px}
+  .send .table:has(#send-col[hidden]) .bits figure img{max-width:200px;max-height:200px}
+}
+.sign2{min-width:240px;text-align:center;font-size:14px;padding:6px 2px}
 </style>
 </head>
 <body>
