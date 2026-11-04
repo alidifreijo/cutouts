@@ -1123,6 +1123,14 @@ body.intro .bar{animation:none!important;opacity:1!important}
 .tour.first .tag.tour-card,.tour.first .tour-hole{transition:none!important}
 .tour-card.pop{animation:tourIn .5s cubic-bezier(.2,.9,.3,1)}
 @keyframes tourIn{from{opacity:0;transform:translateY(10px) rotate(-1.5deg)}to{opacity:1;transform:rotate(-1.5deg)}}
+/* audit fixes */
+#fin-in.tag{width:100%;max-width:340px;background:#e8e3d6;background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.04));border-radius:14px;padding:24px;clip-path:none;box-shadow:0 2px 0 rgba(0,0,0,.06),-14px 26px 44px -16px rgba(0,0,0,.55)}
+#fin-in .tag-tape{display:none}
+#fin-in .tag-l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b675d}
+.fin-no{flex-wrap:nowrap;white-space:nowrap}
+@media (max-width:720px){.fin-l{padding-top:72px!important}.fin-col{display:flex;flex-direction:column;align-items:center;gap:20px;width:100%}.fin-acts .pp-btn{background:#f0cd4a;border-color:#f0cd4a;color:#1d1d1a;border-radius:14px}
+  body[data-mode=add] .dnav{bottom:max(12px,env(safe-area-inset-bottom,0px))}}
+@media (max-width:720px){.fin-r{place-items:start center;overflow:visible;padding-top:8px}.fin-wrap{align-items:center}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -2001,6 +2009,7 @@ let openName=null;
 function openPop(n){
   openName=(n&&openName!==n)?n:null;
   $("#pop-paper").hidden=openName!=="paper";
+  if(openName==="paper"&&innerWidth>720){const b=$('#rail [data-pop="paper"]').getBoundingClientRect(),pp=$("#pop-paper"),sr=studio.getBoundingClientRect();pp.style.left="auto";pp.style.right=(sr.right-b.left+12)+"px";pp.style.top=(b.top-sr.top-8)+"px";pp.style.bottom="auto"}
   document.querySelectorAll("#rail [data-pop]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.pop===openName));
 }
 document.querySelectorAll("#rail [data-pop]").forEach(b=>b.onclick=()=>openPop(b.dataset.pop));
@@ -2768,7 +2777,7 @@ const pinBtn=$("#btn-pin"),pinPop=$("#pinpop");
 if(!inArtifact)pinBtn.hidden=false;
 studio.appendChild(pinPop);
 let finDock=true;
-function sizeFin(){if(innerWidth>720){const k=Math.min(innerWidth*.36/1240,(innerHeight-170)/1754);$("#pp-card").style.width=Math.max(200,Math.round(1240*k))+"px";return}const r=$(".fin-r"),mob=innerWidth<=720,W=r.clientWidth-64-(mob?0:314),H=r.clientHeight-(mob?40:110),k=Math.min(W/1240,H/1754);const w=Math.max(160,Math.round(1240*k));$("#pp-card").style.width=w+"px"}
+function sizeFin(){if(innerWidth<=720){$("#pp-card").style.width=Math.round(Math.min(innerWidth*.72,300))+"px";return}if(innerWidth>720){const k=Math.min(innerWidth*.36/1240,(innerHeight-170)/1754);$("#pp-card").style.width=Math.max(200,Math.round(1240*k))+"px";return}const r=$(".fin-r"),mob=innerWidth<=720,W=r.clientWidth-64-(mob?0:314),H=r.clientHeight-(mob?40:110),k=Math.min(W/1240,H/1754);const w=Math.max(160,Math.round(1240*k));$("#pp-card").style.width=w+"px"}
 async function openFin(){
   if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
   if(pieces.length<2&&(pieces[0].kind!=="text")){toast("One scrap isn't a mess yet. Add another.");return} // a lone scrap stays in the pile, not on the table
