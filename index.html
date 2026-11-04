@@ -1101,6 +1101,20 @@ body.zoomin .lamp{opacity:0;transition:opacity .4s}
 #mesa.wall{transition:box-shadow .6s ease}
 #mesa.wall.zoomed{box-shadow:inset 0 0 0 200vmax rgba(10,28,32,.42)}
 #mesa.mat::before{transition:opacity .6s}#mesa.wall.zoomed::before{opacity:.2}
+/* entrance: the mat first, its lamp shadow eases in, then everything around arrives at once */
+.lamp{opacity:0;transition:opacity 2.6s cubic-bezier(.4,0,.2,1)}
+.lamp.on{opacity:1}
+body.zoomin .lamp.on{opacity:0;transition:opacity .4s}
+#mesa.mat::before{animation:lampLight 2.6s cubic-bezier(.4,0,.2,1) both}
+@keyframes lampLight{from{opacity:0}to{opacity:1}}
+body.pre .logo,body.intro .logo,body.pre .dnav,body.intro .dnav,body.pre .mesa-foot,body.intro .mesa-foot,body.intro #mesa>.credit{opacity:0!important;animation:none!important;pointer-events:none}
+.logo,.dnav,.mesa-foot,#mesa>.credit{transition:opacity .9s ease .1s}
+body.intro .bar{animation:none!important;opacity:1!important}
+/* one stepper everywhere: short bars, the current one long */
+.tour-dots{gap:6px}
+.tour-dots i{width:22px;height:6px;border-radius:3px;background:#cfc9ba}
+.tour-dots i.dn{background:#9a958a}
+.tour-dots i.on{width:44px;height:6px;border-radius:3px;background:#4a4740}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -1411,7 +1425,7 @@ function setCam(x,y,hard){const b=bounds();
   mesa.style.backgroundPosition=`${28+x}px ${28+y}px`;placeLamp();wallRulers();}
 // the lamp's shadow belongs to the table: it sits in its first corner and slides away with the board
 let lampEl=null,lamp0=null;
-function placeLamp(){if(!mesa)return;if(!lampEl){lampEl=document.createElementNS('http://www.w3.org/2000/svg','svg');lampEl.setAttribute('class','lamp');lampEl.setAttribute('aria-hidden','true');lampEl.innerHTML='<polygon/>';mesa.insertBefore(lampEl,mesa.firstChild)}
+function placeLamp(){if(!mesa)return;if(!lampEl){lampEl=document.createElementNS('http://www.w3.org/2000/svg','svg');lampEl.setAttribute('class','lamp');lampEl.setAttribute('aria-hidden','true');lampEl.innerHTML='<polygon/>';mesa.insertBefore(lampEl,mesa.firstChild);setTimeout(()=>lampEl.classList.add('on'),250)}
   const W=mesa.clientWidth||innerWidth,H=mesa.clientHeight||innerHeight;if(!lamp0||lamp0.W!==W||lamp0.H!==H){lamp0={x:camX,y:camY,W,H};const yA=.42*H,P=1200,xTop=W+P*W/yA;lampEl.querySelector('polygon').setAttribute('points',`${-P},${-P} ${xTop},${-P} ${W},0 0,${yA} ${-P},${yA+P*yA/W}`)}
   lampEl.style.transform=`translate(${camX-lamp0.x}px,${camY-lamp0.y}px)`}
 addEventListener('resize',()=>{lamp0=null;placeLamp()});
