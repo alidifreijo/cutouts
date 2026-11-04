@@ -1137,6 +1137,8 @@ body.intro .bar{animation:none!important;opacity:1!important}
 #studio .dock .fx-sel:has(.gchip){flex-wrap:wrap}
 #studio .dock .fx-sel:has(.gchip) .fx-sel-t{flex-wrap:wrap}
 #studio .dock .fx-sel:has(.gchip) .fx-sel-t b{width:100%}
+.toast{white-space:nowrap;max-width:calc(100vw - 32px)}
+@media (max-width:720px){.toast{top:max(64px,calc(env(safe-area-inset-top,0px) + 56px));bottom:auto;left:50%!important;right:auto!important;transform:translateX(-50%)!important}#studio .dock .dock-scroll{padding-bottom:260px}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -2631,9 +2633,9 @@ function fitMenu(dd,m){
   m.classList.remove("up");m.style.maxHeight="";
   const inDock=!!dd.closest(".dock"),sc=dd.closest(".dock-scroll");
   // in the panel: slide the list up so the menu opens downward with room to scroll
-  if(inDock&&sc&&innerWidth>720){const b0=dd.querySelector(".dd-btn").getBoundingClientRect(),st=sc.getBoundingClientRect();if(st.bottom-b0.bottom<300)sc.scrollTop+=b0.top-st.top-6}
+  if(inDock&&sc){const b0=dd.querySelector(".dd-btn").getBoundingClientRect(),st=sc.getBoundingClientRect();if(st.bottom-b0.bottom<300)sc.scrollTop+=b0.top-st.top-6}
   const br=dd.querySelector(".dd-btn").getBoundingClientRect(),pin=$("#btn-pin");
-  let floor=innerHeight-12;if(inDock&&pin&&!pin.hidden&&pin.offsetParent&&pin.getBoundingClientRect().top>br.bottom){floor=Math.min(floor,pin.getBoundingClientRect().top-10)}if(inDock&&innerWidth>720){floor=Math.min(floor,dock.getBoundingClientRect().bottom-14)}
+  let floor=innerHeight-12;if(inDock&&pin&&!pin.hidden&&pin.offsetParent&&pin.getBoundingClientRect().top>br.bottom){floor=Math.min(floor,pin.getBoundingClientRect().top-10)}if(inDock){floor=Math.min(floor,dock.getBoundingClientRect().bottom-14)}
   const ceil=inDock?dock.getBoundingClientRect().top+12:12,below=floor-br.bottom-6,above=br.top-ceil-6,want=Math.min(360,m.scrollHeight||360);
   if(below<Math.min(want,220)&&above>below){m.classList.add("up");m.style.maxHeight=Math.max(120,Math.min(360,above))+"px"}
   else m.style.maxHeight=Math.max(120,Math.min(360,below))+"px";
