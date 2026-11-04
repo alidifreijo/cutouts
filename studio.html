@@ -443,6 +443,19 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .paper .txt{gap:12px}
 .frame,.frame .pane,.frame .view,.area{scrollbar-width:none;-ms-overflow-style:none}
 .frame::-webkit-scrollbar,.frame .pane::-webkit-scrollbar,.frame .view::-webkit-scrollbar,.area::-webkit-scrollbar{display:none;width:0;height:0}
+
+/* phase 3d: Next waits until every bit has a pile; glue step balanced like the design */
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:saturate(.6)}
+.btn:disabled:hover{background:var(--yellow);border-color:var(--yellow)}
+@media (min-width:821px){
+  .send{padding:0 0 0 0}
+  .send .table{gap:24px 56px;align-content:center}
+  .bits{flex-direction:row;gap:18px;align-items:flex-end;justify-self:center}
+  .bits .pile{gap:14px 18px}
+  .bits figure img{max-width:110px;max-height:110px}
+  .label-in.tag{align-self:center}
+  .send-go{justify-self:start;align-self:start}
+}
 </style>
 </head>
 <body>
@@ -1059,7 +1072,8 @@ function addScrap(s){
   s.id=++uid;s.name="";s.cluster="";s.lib=true;s.par=true;scraps.push(s);drawCut();
   setTimeout(()=>{const i=$(`#scraps [data-id="${s.id}"] .input`);if(i)i.focus()},30);
 }
-function renderScraps(){
+function syncNext(){const b=$("#to-pub");if(!b)return;const off=(PATH==="scraps"&&!scraps.length)||scraps.some(s=>!s.cluster);b.disabled=off;b.title=off?(scraps.length?"Every bit needs a pile":"Cut something first"):""}
+function renderScraps(){setTimeout(syncNext,0);
   syncLoose();
   const el=$("#scraps");$("#bits-n").textContent=scraps.length||"";
   if(!scraps.length){el.innerHTML=`<div class="empty">${PATH==="collage"?"Draw around something you love.<br>It lands here.":"Draw around something.<br>Roughly is fine."}</div>`;return}
@@ -1080,7 +1094,7 @@ $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");i
   if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}
   if(e.target.closest("[data-bg]"))cleanScrap(s);
   const db=e.target.closest("[data-dd]");if(db){const m=db.nextElementSibling,open=m.hidden;closeDD();m.hidden=!open;db.setAttribute("aria-expanded",open);if(open){const r=db.getBoundingClientRect();m.classList.toggle("up",innerHeight-r.bottom<260)}}
-  const o=e.target.closest(".menu [data-v]");if(o){s.cluster=o.dataset.v;s.bad=false;const b=o.closest(".dd").querySelector(".dd-btn");b.classList.remove("bad");b.querySelector("span").textContent=CL[s.cluster];o.parentNode.querySelectorAll("li").forEach(li=>li.setAttribute("aria-selected",li===o));closeDD()}});
+  const o=e.target.closest(".menu [data-v]");if(o){s.cluster=o.dataset.v;s.bad=false;setTimeout(syncNext,0);const b=o.closest(".dd").querySelector(".dd-btn");b.classList.remove("bad");b.querySelector("span").textContent=CL[s.cluster];o.parentNode.querySelectorAll("li").forEach(li=>li.setAttribute("aria-selected",li===o));closeDD()}});
 // cut bits come loose: they lift off the page and can be dragged anywhere on the mat
 function syncLoose(){
   const L=$("#loose");if(!L)return;const live=new Set(scraps.map(s=>s.id));
@@ -1218,7 +1232,7 @@ function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===
 // ---------- 4 send ----------
 function sizePub(){ // the collage takes what the frame gives once the side panel has gone
   if(!trimmed||PATH!=="collage"||$("#w-send").hidden)return;const im=$("#pub-preview"),fr=$("#frame"),mob=innerWidth<=820;
-  const bw=Math.min(mob?fr.clientWidth-60:fr.clientWidth-270-44-100,900),bh=Math.max(220,fr.clientHeight-150-(scraps.length&&!mob?230:0));
+  const bw=Math.min(mob?fr.clientWidth-60:fr.clientWidth-320-56-60,900),bh=Math.max(260,fr.clientHeight-40-(scraps.length&&!mob?170:0));
   const k=Math.min(bw/trimmed.width,bh/trimmed.height);im.style.width=Math.round(trimmed.width*k)+"px";im.style.height=Math.round(trimmed.height*k)+"px";
 }
 addEventListener("resize",()=>sizePub());
