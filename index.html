@@ -989,7 +989,7 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 #studio .dock .chip[aria-pressed="true"],#studio .dock .chip.on{background:var(--cream);color:var(--ink-dark)}
 #studio .dock .fx-sel .gchip{background:var(--cream);color:var(--ink-dark)}
 #studio .dock .ink.none{background:linear-gradient(135deg,transparent 45%,#e58c84 45% 55%,transparent 55%),rgba(255,255,255,.08)}
-.pop{background:var(--glass)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--glass-line)}
+#studio .pop{background:var(--glass)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--glass-line)}
 #studio .dock ::-webkit-scrollbar-thumb{background:rgba(238,226,196,.18);border-radius:8px}
 #studio .dock::after{display:none}
 .fx-pill{background:rgba(255,255,255,.07);border-color:transparent}
@@ -1066,6 +1066,24 @@ body.zoomin .lamp{opacity:0;transition:opacity .4s}
 .zcard .zc-eng img{display:block;width:100%;height:auto;filter:grayscale(1) contrast(1.6) brightness(1.08);mix-blend-mode:multiply;transform:perspective(420px) rotateX(9deg) rotateY(-14deg) skewX(-4deg);transform-origin:50% 60%}
 .zcard .zc-eng::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(115deg,rgba(232,227,214,.92) 0 1.2px,rgba(232,227,214,0) 1.2px 3.2px);mix-blend-mode:screen;pointer-events:none}
 @media (min-width:721px){.fin-l{grid-column:1!important}.fin .pp-card{grid-column:2!important}.fin{grid-template-columns:minmax(260px,.75fr) minmax(0,1.15fr) minmax(300px,.85fr)!important}}
+/* how it works, as in the design sheet */
+.tag.tour-card{background:#e8e3d6;background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.04));border-radius:14px;clip-path:none;width:340px;padding:24px 24px 18px;color:#3a3832;filter:none;box-shadow:0 24px 50px -20px rgba(0,0,0,.6)}
+.tour-card .tag-tape{display:none}
+.tour-top{display:flex;align-items:baseline;gap:10px;margin-bottom:6px}
+.tour-top #tour-n{font-size:26px;font-weight:500;letter-spacing:-.02em;color:#4a4740}
+.tour-top .tt-l{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b675d}
+.tour-card h3{font-size:36px;color:#2a2824;margin:2px 0 10px}
+.tour-card p{font-size:13.5px;line-height:1.6;color:#4a4740}
+.tour-foot{padding-top:12px;margin-top:16px;border-top:1px solid rgba(58,56,50,.14)}
+.tour-dots{display:flex;gap:6px;align-items:center;margin-right:auto}
+.tour-dots i{width:8px;height:8px;border-radius:50%;background:#c9c3b4}
+.tour-dots i.dn{background:#9a958a}
+.tour-dots i.on{width:22px;border-radius:4px;background:#4a4740}
+.tour-skip{color:#5b5850;font-size:13px}
+.tour-next{background:#2f5e57;border-radius:12px;padding:11px 22px;font-size:13.5px}
+.tour-next:hover{background:#244b45}
+.tour-hole{box-shadow:0 0 0 200vmax rgba(10,28,30,.62);border-radius:20px}
+.tour-hole::after{border-color:rgba(244,240,230,.85)}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -2826,10 +2844,11 @@ function tourShow(i){
   tourI=i;const st=TOUR[i];if(!st){tourEnd();return}
   let t=$(st.el);if(!t||!t.offsetParent)t=null;
   if(!t&&st.m)t=$(st.m);
+  {const tc=$("#tour-card");if(!tc.querySelector(".tour-top")){const h=document.createElement("div");h.className="tour-top";h.innerHTML='<span class="tt-l">how it works</span>';h.prepend($("#tour-n"));tc.insertBefore(h,$("#tour-h"));const dt=document.createElement("span");dt.className="tour-dots";dt.setAttribute("aria-hidden","true");$(".tour-foot").prepend(dt)}tc.querySelector(".tour-dots").innerHTML=TOUR.map((_,k)=>`<i class="${k===i?"on":k<i?"dn":""}"></i>`).join("")}
   $("#tour-h").textContent=st.h;$("#tour-p").textContent=st.p;$("#tour-n").textContent=`${i+1} / ${TOUR.length}`;
   $("#tour-next").textContent=st.last?"Got it":"Next";$("#tour-skip").hidden=!!st.last;
   tourCard.classList.remove("pop");void tourCard.offsetWidth;tourCard.classList.add("pop");
-  const W=innerWidth,H=innerHeight,cw=Math.min(300,W-32),ch=tourCard.offsetHeight||200;
+  const W=innerWidth,H=innerHeight,cw=Math.min(tourCard.offsetWidth||340,W-32),ch=tourCard.offsetHeight||200;
   let cx,cy,r=null,up=false;
   if(t){r=t.getBoundingClientRect();const pad=8;
     Object.assign(tourHole.style,{left:r.left-pad+"px",top:r.top-pad+"px",width:r.width+pad*2+"px",height:r.height+pad*2+"px"});tourHole.classList.remove("none");
