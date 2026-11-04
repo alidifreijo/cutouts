@@ -1059,7 +1059,7 @@ body[data-mode=pega] .bar>#tools-pega{display:none}
 body:has(#studio.finale) .crumb{display:none!important}
 /* the table's shadow moves with the board; the light stays */
 .lamp{display:none;position:absolute;left:0;top:0;width:1px;height:1px;overflow:visible;pointer-events:none;z-index:0;will-change:transform}
-.lamp polygon{fill:rgba(18,44,58,.47)}
+.lamp polygon{}
 body.zoomin .lamp{opacity:0;transition:opacity .4s}
 /* close-up card: an engraved, warped print of the collage, like the instruction sheets */
 .zcard .zc-eng{position:relative;width:150px;align-self:center;margin:4px 0 6px;overflow:hidden}
@@ -1115,6 +1115,14 @@ body.intro .bar{animation:none!important;opacity:1!important}
 .tour-dots i{width:22px;height:6px;border-radius:3px;background:#cfc9ba}
 .tour-dots i.dn{background:#9a958a}
 .tour-dots i.on{width:44px;height:6px;border-radius:3px;background:#4a4740}
+/* first-visit tour: softer, settles in place, no jumping */
+.tour{animation:tourFade .6s ease both}
+@keyframes tourFade{from{opacity:0}to{opacity:1}}
+.tour-hole,.tour-hole.none{box-shadow:0 0 0 200vmax rgba(10,28,30,.4)}
+.tour-hole.none{box-shadow:0 0 0 200vmax rgba(10,28,30,.22)}
+.tour.first .tag.tour-card,.tour.first .tour-hole{transition:none!important}
+.tour-card.pop{animation:tourIn .5s cubic-bezier(.2,.9,.3,1)}
+@keyframes tourIn{from{opacity:0;transform:translateY(10px) rotate(-1.5deg)}to{opacity:1;transform:rotate(-1.5deg)}}
 [hidden]{display:none!important}
 </style>
 </head>
@@ -1426,7 +1434,7 @@ function setCam(x,y,hard){const b=bounds();
 // the lamp's shadow belongs to the table: it sits in its first corner and slides away with the board
 let lampEl=null,lamp0=null;
 function placeLamp(){if(!mesa)return;if(!lampEl){lampEl=document.createElementNS('http://www.w3.org/2000/svg','svg');lampEl.setAttribute('class','lamp');lampEl.setAttribute('aria-hidden','true');lampEl.innerHTML='<polygon/>';mesa.insertBefore(lampEl,mesa.firstChild);setTimeout(()=>lampEl.classList.add('on'),250)}
-  const W=mesa.clientWidth||innerWidth,H=mesa.clientHeight||innerHeight;if(!lamp0||lamp0.W!==W||lamp0.H!==H){lamp0={x:camX,y:camY,W,H};const yA=.42*H,P=1200,xTop=W+P*W/yA;lampEl.querySelector('polygon').setAttribute('points',`${-P},${-P} ${xTop},${-P} ${W},0 0,${yA} ${-P},${yA+P*yA/W}`)}
+  const W=mesa.clientWidth||innerWidth,H=mesa.clientHeight||innerHeight;if(!lamp0||lamp0.W!==W||lamp0.H!==H){lamp0={x:camX,y:camY,W,H};const yA=.42*H,P=1200,xR=W*1.15,yR=-.15*yA;lampEl.innerHTML=`<defs><linearGradient id='lampFade' gradientUnits='userSpaceOnUse' x1='${W*.72}' y1='0' x2='${xR}' y2='0'><stop offset='0' stop-color='rgb(18,44,58)' stop-opacity='.47'/><stop offset='1' stop-color='rgb(18,44,58)' stop-opacity='0'/></linearGradient></defs><polygon fill='url(#lampFade)' points='${-P},${-P} ${xR},${-P} ${xR},${yR} 0,${yA} ${-P},${yA+P*yA/W}'/>`}
   lampEl.style.transform=`translate(${camX-lamp0.x}px,${camY-lamp0.y}px)`}
 addEventListener('resize',()=>{lamp0=null;placeLamp()});
 const rubber=(v,lo,hi)=>v<lo?lo+(v-lo)*.35:v>hi?hi+(v-hi)*.35:v;
@@ -2864,7 +2872,7 @@ async function loadRemote(){
 
 // ---------- first visit: a short tour, then one-off hints in make a mess ----------
 const TOUR=[
-  {el:"#tab-mesa",h:"The table",p:"Everything here was cut out of old magazines and glued down with zero respect for the original layout. Click one to stick your nose in."},
+  {el:null,h:"Welcome to the table",p:"Everything here was cut out of old magazines and glued down with zero respect for the original layout. Drag to wander, click one to stick your nose in."},
   {el:"#tab-pega",m:"#tab-pega",h:"Make a mess",p:"Grab scraps from the pile, slap them on a blank sheet, add effects until it gets weird. Then glue it to the table for everyone to see."},
   {el:"#tab-add",h:"Add scraps",p:"Hoarding old magazines? Snap a page, cut out the good bits and feed them to everyone's pile."},
   {el:"#tour-btn",h:"That's the tour",p:"Lost later? Poke the little i and we'll do this all over again.",last:true}
@@ -2873,7 +2881,7 @@ let tourI=-1;
 const tourEl=$("#tour"),tourCard=$("#tour-card"),tourHole=$("#tour-hole");
 function tourShow(i){
   tourI=i;const st=TOUR[i];if(!st){tourEnd();return}
-  let t=$(st.el);if(!t||!t.offsetParent)t=null;
+  let t=st.el?$(st.el):null;if(t&&!t.offsetParent)t=null;
   if(!t&&st.m)t=$(st.m);
   {const tc=$("#tour-card");if(!tc.querySelector(".tour-top")){const h=document.createElement("div");h.className="tour-top";h.innerHTML='<span class="tt-l">how it works</span>';h.prepend($("#tour-n"));tc.insertBefore(h,$("#tour-h"));const dt=document.createElement("span");dt.className="tour-dots";dt.setAttribute("aria-hidden","true");$(".tour-foot").prepend(dt)}tc.querySelector(".tour-dots").innerHTML=TOUR.map((_,k)=>`<i class="${k===i?"on":k<i?"dn":""}"></i>`).join("")}
   $("#tour-h").textContent=st.h;$("#tour-p").textContent=st.p;$("#tour-n").textContent=`${i+1} / ${TOUR.length}`;
@@ -2895,7 +2903,7 @@ function tourShow(i){
   else{path.setAttribute("d","");head.setAttribute("d","")}
   setTimeout(()=>$("#tour-next").focus({preventScroll:true}),60);
 }
-function tourStart(){if(mode!=="mesa")setMode("mesa");unzoom(true);tourEl.hidden=false;requestAnimationFrame(()=>tourShow(0))}
+function tourStart(){if(mode!=="mesa")setMode("mesa");unzoom(true);tourEl.hidden=false;tourEl.classList.add("first");requestAnimationFrame(()=>{tourShow(0);requestAnimationFrame(()=>requestAnimationFrame(()=>tourEl.classList.remove("first")))})}
 function tourEnd(){tourEl.hidden=true;tourI=-1;store.set("cutouts-tour",1)}
 $("#tour-next").onclick=()=>tourShow(tourI+1);
 $("#tour-skip").onclick=tourEnd;
@@ -2945,7 +2953,7 @@ async function playIntro(ready,done){
   INTRO=false;layout();INTRO=true;introLayout=false;
   const mr=mesa.getBoundingClientRect(),cx=mr.left+mr.width*.58,cy=mr.top+mr.height*.48;
   let vis=placed.filter(el=>{const r=el.getBoundingClientRect();return r.bottom>mr.top&&r.top<mr.bottom&&r.right>mr.left&&r.left<mr.right});
-  await Promise.race([Promise.all(vis.map(el=>{const im=el.querySelector("img");im.loading="eager";return im.decode?im.decode().catch(()=>{}):Promise.resolve()})),sleep(900)]);
+  await Promise.race([Promise.all(vis.map(el=>{const im=el.querySelector("img");im.loading="eager";return im.decode?im.decode().catch(()=>{}):Promise.resolve()})),sleep(2600)]);
   vis=vis.filter(el=>{const im=el.querySelector("img");return im.complete&&im.naturalWidth}).sort(()=>Math.random()-.5);
   document.body.classList.remove("cards-wait");
   if(short){ // returning visitor: papers just drop into place, title written fast, ~1.5s
@@ -3006,7 +3014,7 @@ async function boot(){
   applyView();
   // the built-in collages animate straight away; visitors' ones join as soon as they arrive
   const remote=loadRemote();
-  playIntro(remote,async()=>{await remote;if(!store.get("cutouts-tour")&&!new URLSearchParams(location.search).has("embed")&&mode==="mesa")tourStart()});
+  playIntro(remote,async()=>{await remote;if(!store.get("cutouts-tour")&&!new URLSearchParams(location.search).has("embed")&&mode==="mesa")setTimeout(tourStart,900)});
   await remote;
 }
 addEventListener("resize",()=>{clearTimeout(window.__rz);window.__rz=setTimeout(()=>{
