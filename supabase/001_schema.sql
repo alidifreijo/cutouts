@@ -10,6 +10,7 @@ create table if not exists public.collages (
   layers jsonb,
   motion jsonb,
   sort int,
+  published boolean not null default true,
   created_at timestamptz not null default now()
 );
 
@@ -44,3 +45,7 @@ create table if not exists public.hidden (
   id text primary key,
   created_at timestamptz not null default now()
 );
+
+-- Row Level Security is on for all four tables; the policies live in the project (see 000_audit.sql output)
+-- and the extra hardening in 002_security.sql. is_admin() is defined in the project, not here,
+-- so the admin's email never ends up in this public repo.
