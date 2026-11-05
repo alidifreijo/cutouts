@@ -1,0 +1,17 @@
+@font-face{font-family:"Cutouts Hand";src:url("../fonts/cutouts-hand.woff2") format("woff2");font-display:swap}
+:root{--mat:#4a8676;--ink:#f4f0e6;--soft:rgba(239,230,207,.78);--line:rgba(238,218,166,.3);--cm:38px}
+*{box-sizing:border-box}
+html{background:var(--mat)}
+body{margin:0;min-height:100vh;color:var(--ink);font:15px/1.7 "DM Mono",ui-monospace,Menlo,monospace;background-color:var(--mat);
+  background-image:linear-gradient(168deg,rgba(18,44,58,.5) 0,rgba(18,44,58,.44) 24%,rgba(18,44,58,0) 24.4%),
+  linear-gradient(rgba(238,218,166,.3) 1px,transparent 1px),linear-gradient(90deg,rgba(238,218,166,.3) 1px,transparent 1px),
+  linear-gradient(rgba(238,218,166,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(238,218,166,.12) 1px,transparent 1px);
+  background-size:100% 100%,calc(var(--cm)*5) calc(var(--cm)*5),calc(var(--cm)*5) calc(var(--cm)*5),var(--cm) var(--cm),var(--cm) var(--cm);background-attachment:fixed}
+main{max-width:720px;margin:0 auto;padding:40px 24px 80px}
+.logo{font-family:"Cutouts Hand",cursive;font-size:28px;color:var(--ink);text-decoration:none}
+h1{font-family:"Cutouts Hand",cursive;font-weight:400;font-size:clamp(48px,8vw,84px);line-height:1.05;margin:48px 0 24px;text-shadow:-5px 9px 14px rgba(8,28,32,.32)}
+h2{font-family:"Cutouts Hand",cursive;font-weight:400;font-size:30px;margin:40px 0 8px}
+p,li{color:var(--soft)}a{color:var(--ink)}
+.sheet{background:#e8e3d6;color:#3a3832;border-radius:14px;padding:22px 24px;margin:24px 0;box-shadow:-14px 26px 44px -16px rgba(0,0,0,.55)}
+.sheet p,.sheet li{color:#4a4740}.sheet a{color:#2f5e57}
+small{color:rgba(239,230,207,.6)}

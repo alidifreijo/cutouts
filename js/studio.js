@@ -1,0 +1,713 @@
+const SB_URL="https://wybuusahvefqbxnnidky.supabase.co",SB_KEY="sb_publishable_T3lcQF74EXSIjbIELHPoJA_eQR0c1M3";
+const Q=new URLSearchParams(location.search),DEMO=Q.has("demo"),EMBED=Q.has("embed");
+if(EMBED)document.documentElement.classList.add("embed");
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=t=>String(t||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const CLUSTERS=[["people","People"],["nature","Creatures"],["plants","Plants"],["food","Food"],["things","Things"],["vehicles","Vehicles"],["places","Places"],["heads","Headlines"],["words","Words"],["textures","Textures"]];
+const CL=Object.fromEntries(CLUSTERS);
+let toastT;function toast(m,err){const t=$("#toast");t.textContent=m;t.classList.toggle("err",!!err);t.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>t.hidden=true,3400)}
+const mk=(w,h)=>{const c=document.createElement("canvas");c.width=Math.max(1,Math.round(w));c.height=Math.max(1,Math.round(h));return c};
+function matchDock(){ // same width as the make-a-mess scrap pile
+  let w=0;try{const ps=parent!==window&&parent.document.querySelector("#studio");if(ps)w=parseInt(parent.getComputedStyle(ps).getPropertyValue("--dock-w"))}catch(e){}
+  if(!w)try{const dw=JSON.parse(localStorage.getItem("recortes-dockw2"));if(typeof dw==="number")w=dw}catch(e){}
+  if(w)document.documentElement.style.setProperty("--side",Math.max(240,Math.min(680,w))+"px");
+}
+matchDock();addEventListener("resize",matchDock);
+const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY):null;
+const tell=type=>{if(EMBED)parent.postMessage({type},location.origin)};
+let OWNER=false,PATH="collage";
+
+// ---------- views ----------
+let step="pick";
+const order=()=>PATH==="collage"?["snap","square","cut","send"]:["snap","cut","send"];
+function show(v){
+  if(v==="square"&&PATH==="scraps"){quad=[[0,0],[srcImg.width,0],[srcImg.width,srcImg.height],[0,srcImg.height]];$("#trim").value=0;flatten();VZ["w-cut"]=1;v="cut"}
+  const prev=step;step=v;
+  $("#v-pick").hidden=v!=="pick";$("#v-wiz").hidden=v==="pick";
+  if(v==="pick"){revealPapers();return}
+  const O=order(),i=v==="done"?O.length:O.indexOf(v),pi=prev==="done"?O.length:O.indexOf(prev),dir=i>=pi?1:-1;
+  // the rail: only the current step shows; it rolls up on Next, down on Back
+  $$(".wstep").forEach(w=>{const k=w.dataset.s==="done"?O.length:O.indexOf(w.dataset.s),on=w.dataset.s===v;
+    w.classList.toggle("on",on);w.classList.toggle("past",!on&&(k<i||k<0&&dir>0));w.classList.toggle("next",!on&&!(k<i||k<0&&dir>0));
+    w.hidden=k<0;});
+  $("#dots").innerHTML=O.map((_,k)=>`<i class="${k===i?"on":k<i?"dn":""}"></i>`).join("");
+  $(".wstep[data-s=snap] .back").hidden=false;
+  const panes={snap:"#drop",square:"#w-sheet",cut:"#w-cut",send:"#w-send",done:"#w-send"};
+  ["#drop","#w-sheet","#w-cut","#w-send"].forEach(id=>{const el=$(id),on=panes[v]===id;if(on&&el.hidden){el.hidden=false;el.classList.remove("in-up","in-down");void el.offsetWidth;el.classList.add(dir>0?"in-up":"in-down")}else if(!on)el.hidden=true});
+  $("#zoom").hidden=!(v==="square"||v==="cut");$("#loose").hidden=true;
+  $("#v-wiz").classList.toggle("with-side",v==="cut");
+  $("#w-send").classList.toggle("sent",v==="done");
+  matchDock();requestAnimationFrame(fitSteps);
+  if(v==="square")requestAnimationFrame(layoutSheet);
+  if(v==="cut"){requestAnimationFrame(drawCut);setTimeout(drawCut,560)}
+  if(v==="square")setTimeout(()=>{sizeView("w-sheet");placeCorners()},560);
+  if(v==="send"&&prev!=="done")renderPublish();
+}
+$$("[data-back]").forEach(b=>b.onclick=()=>{const O=order(),i=O.indexOf(step);show(i>0?O[i-1]:"pick")});
+function setPath(p){
+  PATH=p;const col=p==="collage";
+  $("#snap-h").textContent=col?"Drop your mess":"Drop your page";
+  $("#drop-t").textContent=col?"Drop your mess":"Drop your page";
+  $("#cut-opt").hidden=!col;$("#skip-cut").hidden=!col;
+  $("#send-h").textContent=col?"Glue it":"Pile it";
+}
+// step titles shrink until the whole step (title, text, buttons) fits above the zoom bar
+function fitSteps(){
+  const rail=$("#rail");if(!rail||!rail.clientHeight)return;
+  if(innerWidth<=820){ // phones: the rail is as tall as the step that's showing, nothing gets clipped
+    const on=$(".wstep.on");$$(".wstep h2").forEach(h=>h.style.fontSize="");$("#rail .track").style.height=on?on.offsetHeight+"px":"";return}
+  $("#rail .track").style.height="";
+  $$(".wstep").forEach(w=>{const h=w.querySelector("h2");if(!h)return;h.style.fontSize="";
+    if(!w.classList.contains("on"))return;
+    const room=rail.clientHeight-parseFloat(getComputedStyle(rail).paddingTop)-84;
+    let f=parseFloat(getComputedStyle(h).fontSize);
+    while(w.scrollHeight>room&&f>30){f-=3;h.style.fontSize=f+"px"}
+  });
+}
+addEventListener("resize",()=>requestAnimationFrame(fitSteps));
+if(document.fonts)document.fonts.ready.then(fitSteps);
+
+// ---------- paper cards: unfold on arrival, crumple when picked ----------
+const REDUCE=matchMedia("(prefers-reduced-motion:reduce)").matches;
+function rng(seed){return()=>(seed=(seed*16807)%2147483647)/2147483647}
+function creaseSVG(seed){ // jittered grid split into triangles, each a slightly different shade of paper
+  const r=rng(seed),N=7,M=9,P=[];
+  for(let y=0;y<=M;y++)for(let x=0;x<=N;x++){const e=x===0||x===N||y===0||y===M;P.push([x/N*100+(e?0:(r()-.5)*11),y/M*100+(e?0:(r()-.5)*9)])}
+  let t="";const at=(x,y)=>P[y*(N+1)+x];
+  for(let y=0;y<M;y++)for(let x=0;x<N;x++){const a=at(x,y),b=at(x+1,y),c=at(x+1,y+1),d=at(x,y+1),f=r()<.5;
+    for(const tri of f?[[a,b,c],[a,c,d]]:[[a,b,d],[b,c,d]]){const v=r(),col=v<.5?`rgba(60,45,25,${(.5-v)*.5})`:`rgba(255,255,255,${(v-.5)*.9})`;t+=`<polygon points="${tri.map(p=>p.join(",")).join(" ")}" fill="${col}"/>`}}
+  return `url("data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' preserveAspectRatio='none'>${t}</svg>`)}")`;
+}
+function paperShape(el,seed){ // outline points: a slightly torn rectangle and an irregular ball
+  const r=rng(seed+7),K=36,rect=[],ball=[];
+  for(let i=0;i<K;i++){const u=i/K*4,side=Math.floor(u),f=u-side,j=()=>(r()-.5)*1.4;
+    rect.push(side===0?[f*100,j()]:side===1?[100+j(),f*100]:side===2?[100-f*100,100+j()]:[j(),100-f*100]);
+    const a=Math.atan2(rect[i][1]-50,rect[i][0]-50),rad=21+(r()-.5)*6+(i%2?1.5:-1.5);ball.push([50+Math.cos(a)*rad,50+Math.sin(a)*rad*.8])}
+  return {rect,ball};
+}
+const PAPERS=$$(".paper").map((el,k)=>{
+  const seed=1234+k*977,sh=paperShape(el,seed),crease=el.querySelector(".crease"),txt=el.querySelector(".txt"),fold=el.querySelector(".fold"),tilt=k?2:-2.5;
+  crease.style.backgroundImage=creaseSVG(seed);
+  const o={el,t:0,tilt,draw(t){
+    const e=t<.5?2*t*t:1-Math.pow(-2*t+2,2)/2;
+    const pts=sh.rect.map((p,i)=>{const q=sh.ball[i],w=Math.sin(i*1.7+t*9)*e*(1-e)*14;return `${p[0]+(q[0]-p[0])*e+w}% ${p[1]+(q[1]-p[1])*e+w*.6}%`});
+    el.querySelector(".sheet").style.clipPath=e<.001?"none":`polygon(${pts.join(",")})`;
+    crease.style.opacity=.09+e*.95;crease.style.transform=`scale(${1+e*.35}) rotate(${e*24}deg)`;
+    fold.style.opacity=1-e;txt.style.opacity=Math.max(0,1-e*2.4);txt.style.transform=`scale(${1-e*.4}) rotate(${e*-14}deg)`;
+    el.style.transform=`rotate(${tilt+e*-40}deg) scale(${1-e*.1})`;
+    el.style.filter=`drop-shadow(0 ${12-e*6}px ${16-e*8}px rgba(28,22,14,${.42+e*.1}))`;
+  }};
+  o.draw(1);return o;
+});
+function tween(o,to,ms){return new Promise(res=>{if(REDUCE){o.t=to;o.draw(to);return res()}
+  const from=o.t,t0=performance.now();cancelAnimationFrame(o.raf);
+  const step=now=>{const k=Math.min(1,(now-t0)/ms);o.t=from+(to-from)*k;o.draw(o.t);if(k<1)o.raf=requestAnimationFrame(step);else res()};o.raf=requestAnimationFrame(step)})}
+function revealPapers(){PAPERS.forEach((o,k)=>{o.draw(1);setTimeout(()=>tween(o,0,900),200+k*160)})}
+PAPERS.forEach(o=>{
+  o.el.addEventListener("pointerenter",()=>{if(o.t<.2&&!o.busy)tween(o,.07,260)});
+  o.el.addEventListener("pointerleave",()=>{if(o.t<.2&&!o.busy)tween(o,0,300)});
+  o.el.onclick=async()=>{
+    if(o.busy)return;PAPERS.forEach(x=>{x.busy=true;if(x!==o)x.el.classList.add("away")});
+    await tween(o,1,650);
+    const r=o.el.getBoundingClientRect(),dx=innerWidth/2-(r.left+r.width/2),dy=innerHeight*.55-(r.top+r.height/2);
+    $$(".pick-main h1,.pick-main .lede,.owner").forEach(x=>x.animate([{opacity:1},{opacity:0}],{duration:REDUCE?1:280,fill:"forwards"}));
+    PAPERS.forEach(x=>{if(x!==o)x.el.animate([{opacity:.35},{opacity:0,transform:x.el.style.transform+" translateY(30px)"}],{duration:REDUCE?1:280,fill:"forwards"})});
+    o.el.animate([{translate:"0 0",opacity:1},{translate:`${dx*.6}px ${dy*.6-60}px`,opacity:1,offset:.45},{translate:`${dx}px ${dy}px`,opacity:0}],{duration:REDUCE?1:520,easing:"cubic-bezier(.4,0,.6,1)",fill:"forwards"}).onfinish=()=>{
+      setPath(o.el.dataset.path);resetWork();show("snap");
+      const w=$("#v-wiz");w.classList.remove("enter");void w.offsetWidth;w.classList.add("enter");setTimeout(()=>w.classList.remove("enter"),700);
+      PAPERS.forEach(x=>{x.busy=false;x.el.classList.remove("away");x.el.getAnimations().forEach(a=>a.cancel())});
+      $$(".pick-main h1,.pick-main .lede,.owner").forEach(x=>x.getAnimations().forEach(a=>a.cancel()));
+    };
+  };
+});
+function resetWork(){srcImg=null;scraps=[];$("#loose").innerHTML="";trimmed=null;quad=null;$("#title").value="";$("#desc").value=""}
+$("#rot-src").addEventListener("pointerdown",e=>e.stopPropagation());$("#rot-src").onclick=e=>{e.stopPropagation();rotateSource()};
+$("#quit").onclick=()=>{resetWork();show("pick")};
+$("#again").onclick=()=>{resetWork();show("pick")};
+$("#go-mess").onclick=()=>{if(EMBED)parent.postMessage({type:"cutouts:mess"},location.origin);else location.href="./"};
+$("#skip-cut").onclick=()=>{scraps=[];show("send")};
+$("#skip-sq").onclick=()=>{quad=[[0,0],[srcImg.width,0],[srcImg.width,srcImg.height],[0,srcImg.height]];$("#trim").value=0;flatten();VZ["w-cut"]=1;show("cut")};
+$("#desc").addEventListener("input",e=>{e.target.style.height="auto";e.target.style.height=e.target.scrollHeight+"px"});
+$("#signed").addEventListener("input",e=>$("#signed2").value=e.target.value);$("#signed2").addEventListener("input",e=>$("#signed").value=e.target.value);
+
+// ---------- owner ----------
+async function initAuth(){
+  $("#signed").value=$("#signed2").value=localStorage.getItem("recortes-signed")||"";
+  if(DEMO){$("#owner-line").hidden=true;return}
+  if(!sb)return;
+  const {data:{session}}=await sb.auth.getSession();applySession(session);
+  sb.auth.onAuthStateChange((_e,s)=>applySession(s));
+}
+// who may moderate is decided by the database (public.admins + is_admin()), never here
+async function applySession(s){
+  const email=s&&s.user&&s.user.email;
+  let admin=false;if(email){try{const {data,error}=await sb.rpc("is_admin");admin=!error&&data===true}catch(e){}}
+  OWNER=admin;try{admin?localStorage.setItem("cutouts-admin","1"):localStorage.removeItem("cutouts-admin")}catch(e){}
+  $("#inbox-side").hidden=!OWNER;$("#owner-line").hidden=OWNER;
+  $$("[data-visitor]").forEach(f=>f.hidden=OWNER);
+  if(OWNER){$("#who-email").textContent=email;$("#login").hidden=true;loadInbox()}
+  else if(email){toast("Signed in, but this drawer isn't yours.",true)}
+}
+$("#owner-in").onclick=()=>{$("#login").hidden=false;$("#email").focus()};
+$("#login-x").onclick=()=>$("#login").hidden=true;
+$("#login").addEventListener("click",e=>{if(e.target.id==="login")$("#login").hidden=true});
+$("#login-form").onsubmit=async e=>{
+  e.preventDefault();const email=$("#email").value.trim(),b=$("#login-btn");b.disabled=true;
+  const {error}=await sb.auth.signInWithOtp({email,options:{emailRedirectTo:new URL("./?studio",location.href).href,shouldCreateUser:false}});
+  b.disabled=false;const m=$("#login-msg");m.hidden=false;
+  m.textContent=error?(/signups? not allowed|not found|otp_disabled/i.test(error.message)?"That email isn't on the list.":"Couldn't send the link: "+error.message):"Sent. Open it on this device.";
+};
+$("#signout").onclick=async()=>{if(sb)await sb.auth.signOut();tell("cutouts:signedout");location.reload()};
+
+// inbox: one entry per visit (a collage and/or its scraps)
+let BATCHES=[];
+const pub=(bucket,path)=>`${SB_URL}/storage/v1/object/public/${bucket}/${path}`;
+async function loadInbox(){
+  if(!sb||!OWNER)return;
+  const [c,s]=await Promise.all([sb.from("community").select("*").eq("approved",false).order("created_at",{ascending:false}),
+    sb.from("scraps").select("*").eq("published",false).like("id","v-%").order("created_at",{ascending:false})]);
+  if(c.error||s.error){$("#inbox-note").textContent="Couldn't load them: "+(c.error||s.error).message;return}
+  const map=new Map();
+  c.data.forEach(r=>{const k=r.batch||r.id;map.set(k,{key:k,col:r,scraps:[],at:r.created_at})});
+  s.data.forEach(r=>{const k=r.batch||r.id;if(!map.has(k))map.set(k,{key:k,col:null,scraps:[],at:r.created_at});map.get(k).scraps.push(r)});
+  BATCHES=[...map.values()].sort((a,b)=>b.at.localeCompare(a.at));
+  renderInbox();loadLive();
+}
+function ago(t){const m=Math.round((Date.now()-new Date(t))/6e4);return m<1?"just now":m<60?m+" min ago":m<1440?Math.round(m/60)+" h ago":Math.round(m/1440)+" d ago"}
+function renderInbox(){
+  const n=BATCHES.length;$("#inbox-n").hidden=!n;$("#inbox-n").textContent=n;
+  $("#inbox-note").textContent=n?"Tap one to see it big.":"Nothing waiting. Quiet day.";
+  tell("cutouts:pending:"+n);
+  $("#inbox").innerHTML=BATCHES.map((b,i)=>{const who=(b.col&&b.col.signed)||(b.scraps[0]&&b.scraps[0].signed);
+    const th=b.col?pub("community",b.col.image_path):pub("scraps",b.scraps[0].image_path);
+    const t=b.col?(b.col.title||"Untitled mess"):`${b.scraps.length} scrap${b.scraps.length>1?"s":""}`;
+    const extra=b.col&&b.scraps.length?` + ${b.scraps.length} scrap${b.scraps.length>1?"s":""}`:"";
+    return `<button class="ibx" data-i="${i}"><span class="th"><img src="${th}" alt="" loading="lazy"></span><span><b>${esc(t)}</b><small>${who?"by "+esc(who):"anonymous"} · ${ago(b.at)}${extra}</small></span></button>`}).join("");
+}
+$("#inbox").addEventListener("click",e=>{const b=e.target.closest(".ibx");if(b)openBig(+b.dataset.i)});
+function openBig(i){
+  const b=BATCHES[i];if(!b)return;const who=(b.col&&b.col.signed)||(b.scraps[0]&&b.scraps[0].signed);
+  $("#big").innerHTML=`<button class="x" data-bx aria-label="Close">✕</button>
+   <div class="shot">${b.col?`<img src="${pub("community",b.col.image_path)}" alt="">`:`<div class="pile" style="justify-content:center">${b.scraps.map(s=>`<img src="${pub("scraps",s.image_path)}" alt="" style="max-width:200px;max-height:200px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.45))">`).join("")}</div>`}</div>
+   <div class="info"><h2>${esc(b.col?(b.col.title||"Untitled mess"):"Scraps for the pile")}</h2>
+    <p class="muted" style="margin:0 0 8px">${who?"by "+esc(who):"anonymous"} · ${ago(b.at)}</p>
+    ${b.col&&b.col.description?`<p style="line-height:1.6;margin:0 0 10px">${esc(b.col.description)}</p>`:""}
+    ${b.scraps.length?`<p class="muted" style="margin:10px 0 0">${b.scraps.length} scrap${b.scraps.length>1?"s":""} for the pile</p><div class="pile">${b.scraps.map(s=>`<figure><img src="${pub("scraps",s.image_path)}" alt=""><figcaption>${esc(s.title)}<br>${esc(CL[{faces:"people",bodies:"people"}[s.cluster]||s.cluster]||s.cluster)}</figcaption></figure>`).join("")}</div>`:""}
+    <div style="display:flex;gap:10px;justify-content:flex-end"><button class="ghost" data-bin>Bin it</button><button class="btn" data-keep>Keep it</button></div></div>`;
+  $("#bigview").hidden=false;
+  $("#big [data-bx]").onclick=()=>$("#bigview").hidden=true;
+  $("#big [data-keep]").onclick=e=>decide(b,true,e.target);
+  $("#big [data-bin]").onclick=e=>decide(b,false,e.target);
+}
+$("#bigview").addEventListener("click",e=>{if(e.target.id==="bigview")$("#bigview").hidden=true});
+addEventListener("keydown",e=>{if(e.key==="Escape"){$("#bigview").hidden=true;$("#login").hidden=true}});
+// owner: archive of everything on the site (built-in + uploaded), removable
+let LIVE=[],ARCH="collages",BUILT=null;
+async function builtIns(){
+  if(BUILT)return BUILT;
+  try{const h=await (await fetch("./index.html?b="+Date.now())).text();
+    const i0=h.indexOf("const SCRAPS=")+13,sc=JSON.parse(h.slice(i0,h.indexOf("];",i0)+1));
+    const w0=h.indexOf("const WORKS=["),wb=h.slice(w0,h.indexOf("];",w0));
+    const ws=[...wb.matchAll(/\{id:"([^"]+)",t:"([^"]*)"/g)].map(m=>({id:m[1],t:m[2]}));
+    BUILT={scraps:sc,works:ws}}catch(e){BUILT={scraps:[],works:[]}}
+  return BUILT;
+}
+async function loadLive(){
+  const [b,a,c,sp,hd]=await Promise.all([builtIns(),sb.from("collages").select("id,title,image_path,created_at"),
+    sb.from("community").select("*").eq("approved",true),
+    sb.from("scraps").select("id,title,cluster,image_path,signed,created_at").eq("published",true),sb.from("hidden").select("id")]);
+  const H=new Set((hd.data||[]).map(r=>r.id)),remote=new Set((sp.data||[]).map(r=>r.id)),old="2000-01-01";
+  const cols=[...(a.data||[]).map(r=>({kind:"collages",r,img:pub("collages",r.image_path),t:r.title||"Untitled",who:"yours"})),
+    ...(c.data||[]).map(r=>({kind:"community",r,img:pub("community",r.image_path),t:r.title||"Untitled mess",who:r.signed?"by "+r.signed:"anonymous"})),
+    ...b.works.filter(w=>!H.has("collage:"+w.id)).map(w=>({kind:"builtin-collage",r:{id:w.id,created_at:old},img:"a/"+w.id+".webp",t:w.t,who:"original"}))];
+  const scr=[...(sp.data||[]).map(r=>({kind:"scraps",r,img:pub("scraps",r.image_path),t:r.title,who:(r.signed?"by "+r.signed:"yours")+(r.cluster?" · "+r.cluster:"")})),
+    ...b.scraps.filter(x=>!H.has("scrap:"+x.id)&&!remote.has(x.id)).map(x=>({kind:"builtin-scrap",r:{id:x.id,created_at:old},img:"s/"+x.id+".webp",t:x.t,who:"original"}))];
+  LIVE=(ARCH==="collages"?cols:scr).sort((x,y)=>y.r.created_at.localeCompare(x.r.created_at));
+  $("#live-n").hidden=false;$("#live-n").textContent=cols.length+scr.length;
+  $$(".arch-tabs button").forEach(t=>{const c2=t.dataset.arch==="collages";t.setAttribute("aria-selected",t.dataset.arch===ARCH);t.textContent=(c2?"Collages ":"Scraps ")+(c2?cols.length:scr.length)});
+  $("#onboard").innerHTML=LIVE.map((x,i)=>`<div class="ibx" style="cursor:default"><span class="th"><img src="${x.img}" alt="" loading="lazy"></span><span style="display:flex;align-items:center;gap:8px;min-width:0"><span style="flex:1;min-width:0"><b>${esc(x.t)}</b><small>${esc(x.who)}</small></span><button class="ghost" data-down="${i}" style="padding:5px 12px;font-size:13px">Take down</button></span></div>`).join("")||'<p class="muted">Nothing here.</p>';
+}
+$$(".arch-tabs button").forEach(t=>t.onclick=()=>{ARCH=t.dataset.arch;loadLive()});
+$("#onboard").addEventListener("click",async e=>{
+  const b=e.target.closest("[data-down]");if(!b)return;const x=LIVE[+b.dataset.down];
+  b.disabled=true;
+  try{
+    if(x.kind.startsWith("builtin")){const r=await sb.from("hidden").insert({id:(x.kind==="builtin-scrap"?"scrap:":"collage:")+x.r.id});if(r.error)throw r.error}
+    else{const r=await sb.from(x.kind).delete().eq("id",x.r.id);if(r.error)throw r.error;await sb.storage.from(x.kind).remove([x.r.image_path,...((x.r.motion&&x.r.motion.files)||[])])}
+    b.closest(".ibx").remove();toast("Gone.");tell("cutouts:published");loadLive()}
+  catch(err){toast("Couldn't take it down: "+err.message,true);b.disabled=false}
+});
+
+async function decide(b,keep,btn){
+  btn.disabled=true;
+  try{
+    if(keep){
+      if(b.col){const r=await sb.from("community").update({approved:true}).eq("id",b.col.id);if(r.error)throw r.error}
+      if(b.scraps.length){const r=await sb.from("scraps").update({published:true}).in("id",b.scraps.map(s=>s.id));if(r.error)throw r.error}
+      toast(b.col?"On the table.":"On the pile.");
+    }else{
+      if(b.col){const r=await sb.from("community").delete().eq("id",b.col.id);if(r.error)throw r.error;await sb.storage.from("community").remove([b.col.image_path,...((b.col.motion&&b.col.motion.files)||[])])}
+      if(b.scraps.length){const r=await sb.from("scraps").delete().in("id",b.scraps.map(s=>s.id));if(r.error)throw r.error;await sb.storage.from("scraps").remove(b.scraps.map(s=>s.image_path))}
+      toast("Binned.");
+    }
+    BATCHES=BATCHES.filter(x=>x!==b);renderInbox();$("#bigview").hidden=true;tell("cutouts:published");
+  }catch(err){toast("Couldn't do that: "+err.message,true);btn.disabled=false}
+}
+
+// ---------- 1 photo ----------
+let srcImg=null;
+const drop=$("#drop");
+["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("over")}));
+["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("over")}));
+drop.addEventListener("drop",e=>{const f=e.dataTransfer.files[0];if(f)openFile(f)});
+$("#file").onchange=e=>{const f=e.target.files[0];if(f)openFile(f);e.target.value=""};
+async function openFile(f){
+  let blob=f;
+  if(/heic|heif/i.test(f.type)||/\.hei[cf]$/i.test(f.name)){
+    toast("Converting HEIC…");
+    try{if(!window.heic2any)await loadScript("js/vendor/heic2any-0.0.4.min.js");blob=await heic2any({blob:f,toType:"image/jpeg",quality:.9});if(Array.isArray(blob))blob=blob[0]}
+    catch(err){toast("Couldn't read that HEIC. Export it as JPG and try again.",true);return}
+  }
+  const url=URL.createObjectURL(blob),img=new Image();
+  img.onload=()=>{
+    const k=Math.min(1,2200/Math.max(img.naturalWidth,img.naturalHeight)),c=mk(img.naturalWidth*k,img.naturalHeight*k);
+    c.getContext("2d").drawImage(img,0,0,c.width,c.height);srcImg=c;URL.revokeObjectURL(url);
+    quad=PATH==="collage"?stdQuad(c):guessQuad(c);scraps=[];trimmed=null;$("#trim").value=PATH==="collage"?0:(guessQuad.irregular?20:0);
+    show("square");
+  };
+  img.onerror=()=>toast("That file isn't an image this browser can read.",true);
+  img.src=url;
+}
+function loadScript(src){return new Promise((res,rej)=>{const s=document.createElement("script");s.src=src;s.onload=res;s.onerror=rej;document.head.appendChild(s)})}
+// ---------- 2 sheet: corners + perspective ----------
+let quad=null,sheetCv=null,trimmed=null;
+// default frame: a straight A4 sheet (1:1.414), as big as fits, centred; the user adjusts from there
+function stdQuad(im){const W=im.width,H=im.height,R=1.414;let h=H*.9,w=h/R;if(w>W*.9){w=W*.9;h=w*R}const x=(W-w)/2,y=(H-h)/2;return [[x,y],[x+w,y],[x+w,y+h],[x,y+h]]}
+function small(c,max){const s=Math.min(1,max/Math.max(c.width,c.height)),w=Math.max(8,Math.round(c.width*s)),h=Math.max(8,Math.round(c.height*s)),t=mk(w,h),g=t.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,w,h);g.filter="blur(1.2px)";g.drawImage(t,0,0);return {t,w,h,s,d:g.getImageData(0,0,w,h).data}}
+function bgOf(d,w,h){const rs=[],gs=[],bs=[],add=i=>{rs.push(d[i*4]);gs.push(d[i*4+1]);bs.push(d[i*4+2])};for(let x=0;x<w;x++){add(x);add((h-1)*w+x)}for(let y=0;y<h;y++){add(y*w);add(y*w+w-1)}const med=a=>a.sort((x,y)=>x-y)[a.length>>1];return [med(rs),med(gs),med(bs)]}
+function distMap(d,w,h,bg){const m=new Float32Array(w*h);for(let i=0;i<w*h;i++){const j=i*4;m[i]=Math.hypot(d[j]-bg[0],d[j+1]-bg[1],d[j+2]-bg[2])}return m}
+function otsu(m){const hist=new Array(256).fill(0);m.forEach(v=>hist[Math.min(255,v|0)]++);const n=m.length;let sum=0;for(let i=0;i<256;i++)sum+=i*hist[i];let sb=0,wb=0,best=0,th=60;for(let i=0;i<256;i++){wb+=hist[i];if(!wb)continue;const wf=n-wb;if(!wf)break;sb+=i*hist[i];const mb=sb/wb,mf=(sum-sb)/wf,v=wb*wf*(mb-mf)**2;if(v>best){best=v;th=i}}return th}
+// largest blob that isn't connected-to-the-edge background
+function sheetMask(c,tol){
+  const {w,h,s,d}=small(c,220),bg=bgOf(d,w,h),m=distMap(d,w,h,bg),th=tol??Math.max(30,otsu(m)),seen=new Uint8Array(w*h),q=[];
+  for(let x=0;x<w;x++){q.push(x,(h-1)*w+x)}for(let y=0;y<h;y++){q.push(y*w,y*w+w-1)}
+  while(q.length){const i=q.pop();if(seen[i]||m[i]>=th)continue;seen[i]=1;const x=i%w,y=(i/w)|0;if(x>0)q.push(i-1);if(x<w-1)q.push(i+1);if(y>0)q.push(i-w);if(y<h-1)q.push(i+w)}
+  // open (erode then dilate) to drop grain specks
+  let fg=new Uint8Array(w*h);for(let i=0;i<w*h;i++)fg[i]=seen[i]?0:1;
+  const morph=(a,er)=>{const o=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=er?1:0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+dx,Y=y+dy,b=X<0||Y<0||X>=w||Y>=h?0:a[Y*w+X];if(er)v&=b;else v|=b}o[y*w+x]=v}return o};
+  fg=morph(morph(morph(morph(fg,1),1),0),0);
+  const lab=new Int32Array(w*h);let best=0,bestN=0,n=0;
+  for(let i=0;i<w*h;i++){if(!fg[i]||lab[i])continue;n++;let cnt=0;const st=[i];lab[i]=n;while(st.length){const j=st.pop();cnt++;const x=j%w,y=(j/w)|0;for(const k of [x>0?j-1:-1,x<w-1?j+1:-1,y>0?j-w:-1,y<h-1?j+w:-1])if(k>=0&&fg[k]&&!lab[k]){lab[k]=n;st.push(k)}}if(cnt>bestN){bestN=cnt;best=n}}
+  const keep=new Uint8Array(w*h);for(let i=0;i<w*h;i++)keep[i]=lab[i]===best?1:0;
+  // fill holes: anything not reachable from the edge through non-keep pixels
+  const out=new Uint8Array(w*h).fill(1),q2=[];for(let x=0;x<w;x++){q2.push(x,(h-1)*w+x)}for(let y=0;y<h;y++){q2.push(y*w,y*w+w-1)}
+  while(q2.length){const i=q2.pop();if(!out[i]||keep[i])continue;out[i]=0;const x=i%w,y=(i/w)|0;if(x>0)q2.push(i-1);if(x<w-1)q2.push(i+1);if(y>0)q2.push(i-w);if(y<h-1)q2.push(i+w)}
+  return {mask:out,w,h,s,area:bestN/(w*h)};
+}
+function guessQuad(c){
+  const {mask,w,h,s,area}=sheetMask(c);
+  if(area<.15){const W=c.width,H=c.height;return [[W*.06,H*.06],[W*.94,H*.06],[W*.94,H*.94],[W*.06,H*.94]]}
+  // extreme points along the diagonals give the four corners
+  let tl=[0,0,1e9],tr=[0,0,-1e9],br=[0,0,-1e9],bl=[0,0,1e9];
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){if(!mask[y*w+x])continue;const a=x+y,b=x-y;if(a<tl[2])tl=[x,y,a];if(a>br[2])br=[x,y,a];if(b>tr[2])tr=[x,y,b];if(b<bl[2])bl=[x,y,b]}
+  const S=1/s,q=[tl,tr,br,bl];
+  const poly=q.reduce((a,p,i)=>{const n=q[(i+1)%4];return a+p[0]*n[1]-n[0]*p[1]},0)/2,cnt=mask.reduce((a,v)=>a+v,0);
+  if(cnt/Math.abs(poly)<.9){ // irregular cut-out sheet: take its bounding box and trim the table later
+    let x0=w,y0=h,x1=0,y1=0;for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(mask[y*w+x]){x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)}
+    guessQuad.irregular=true;return [[x0*S,y0*S],[(x1+1)*S,y0*S],[(x1+1)*S,(y1+1)*S],[x0*S,(y1+1)*S]];
+  }
+  guessQuad.irregular=false;return q.map(p=>[(p[0]+.5)*S,(p[1]+.5)*S]);
+}
+function layoutSheet(){
+  const cv=$("#src-cv");cv.width=srcImg.width;cv.height=srcImg.height;cv.getContext("2d").drawImage(srcImg,0,0);
+  const st=$("#sheet-stage");st.querySelectorAll(".corner").forEach(c=>c.remove());
+  quad.forEach((p,i)=>{const h=document.createElement("div");h.className="corner";h.dataset.i=i;h.tabIndex=0;h.setAttribute("aria-label","corner "+(i+1));st.appendChild(h);bindCorner(h)});
+  VZ["w-sheet"]=1;sizeView("w-sheet");placeCorners();flatten();
+}
+function scaleOf(){const cv=$("#src-cv");return cv.clientWidth/cv.width}
+function placeCorners(){
+  const k=scaleOf();$$("#sheet-stage .corner").forEach(h=>{const p=quad[+h.dataset.i];h.style.left=p[0]*k+"px";h.style.top=p[1]*k+"px"});
+  $("#quad-svg").setAttribute("viewBox",`0 0 ${$("#src-cv").clientWidth} ${$("#src-cv").clientHeight}`);
+  $("#quad").setAttribute("points",quad.map(p=>p[0]*k+","+p[1]*k).join(" "));
+}
+function bindCorner(h){
+  h.addEventListener("pointerdown",e=>{
+    h.setPointerCapture(e.pointerId);const r=$("#src-cv").getBoundingClientRect(),k=scaleOf(),i=+h.dataset.i,q0=quad.map(p=>[...p]),o=q0[(i+2)%4],v0=[q0[i][0]-o[0],q0[i][1]-o[1]],L0=v0[0]*v0[0]+v0[1]*v0[1]||1,sx=e.clientX,sy=e.clientY;
+    let free=false,moved=false;const hold=setTimeout(()=>{if(!moved){free=true;h.classList.add("free");toast("Just this corner.")}},420);
+    const clampP=p=>[Math.max(0,Math.min(srcImg.width,p[0])),Math.max(0,Math.min(srcImg.height,p[1]))];
+    const mv=ev=>{if(!moved&&Math.hypot(ev.clientX-sx,ev.clientY-sy)<4)return;moved=true;const p=[(ev.clientX-r.left)/k,(ev.clientY-r.top)/k];
+      if(free)quad[i]=clampP(p);
+      else{const t=Math.max(.05,((p[0]-o[0])*v0[0]+(p[1]-o[1])*v0[1])/L0);quad=q0.map(q=>clampP([o[0]+(q[0]-o[0])*t,o[1]+(q[1]-o[1])*t]))}
+      placeCorners()};
+    const up=()=>{clearTimeout(hold);h.classList.remove("free");h.removeEventListener("pointermove",mv);h.removeEventListener("pointerup",up);flatten()};
+    h.addEventListener("pointermove",mv);h.addEventListener("pointerup",up);
+  });
+  h.addEventListener("keydown",e=>{const i=+h.dataset.i,d=e.shiftKey?10:2;const m={ArrowLeft:[-d,0],ArrowRight:[d,0],ArrowUp:[0,-d],ArrowDown:[0,d]}[e.key];if(!m)return;e.preventDefault();quad[i]=[quad[i][0]+m[0],quad[i][1]+m[1]];placeCorners();clearTimeout(h._t);h._t=setTimeout(flatten,200)});
+}
+addEventListener("resize",()=>{if(step==="square"){sizeView("w-sheet");placeCorners()}if(step==="cut")drawCut()});
+// homography: maps unit square (u,v) -> quad
+function homography(q){
+  const [[x0,y0],[x1,y1],[x2,y2],[x3,y3]]=q;
+  const dx1=x1-x2,dx2=x3-x2,dy1=y1-y2,dy2=y3-y2,sx=x0-x1+x2-x3,sy=y0-y1+y2-y3;
+  let g=0,h=0;const den=dx1*dy2-dx2*dy1;
+  if(Math.abs(sx)>1e-9||Math.abs(sy)>1e-9){g=(sx*dy2-dx2*sy)/den;h=(dx1*sy-sx*dy1)/den}
+  return {a:x1-x0+g*x1,b:x3-x0+h*x3,c:x0,d:y1-y0+g*y1,e:y3-y0+h*y3,f:y0,g,h};
+}
+function flatten(){
+  const q=quad,dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+  let W=(dist(q[0],q[1])+dist(q[3],q[2]))/2,H=(dist(q[0],q[3])+dist(q[1],q[2]))/2;
+  const k=Math.min(1,1600/Math.max(W,H));W=Math.round(W*k);H=Math.round(H*k);
+  const M=homography(q),out=mk(W,H),og=out.getContext("2d"),od=og.createImageData(W,H),o=od.data;
+  const sd=srcImg.getContext("2d").getImageData(0,0,srcImg.width,srcImg.height).data,SW=srcImg.width,SH=srcImg.height;
+  for(let y=0;y<H;y++){const v=(y+.5)/H;for(let x=0;x<W;x++){
+    const u=(x+.5)/W,z=M.g*u+M.h*v+1,sx=(M.a*u+M.b*v+M.c)/z,sy=(M.d*u+M.e*v+M.f)/z;
+    const x0=Math.floor(sx),y0=Math.floor(sy),fx=sx-x0,fy=sy-y0,i=(y*W+x)*4;
+    if(x0<0||y0<0||x0>=SW-1||y0>=SH-1){o[i+3]=0;continue}
+    const a=(y0*SW+x0)*4,b=a+4,c=a+SW*4,dd=c+4;
+    for(let ch=0;ch<3;ch++)o[i+ch]=(sd[a+ch]*(1-fx)+sd[b+ch]*fx)*(1-fy)+(sd[c+ch]*(1-fx)+sd[dd+ch]*fx)*fy;
+    o[i+3]=255;
+  }}
+  og.putImageData(od,0,0);sheetCv=out;applyTrim();
+}
+// remove table showing around an irregular sheet
+function applyTrim(){
+  const v=+$("#trim").value;$("#trim-v").textContent=v?"":"off";
+  if(!v){trimmed=sheetCv;showFlat();return}
+  const {mask,w,h}=sheetMask(sheetCv,8+v*1.6);
+  const m=mk(w,h),mg=m.getContext("2d"),md=mg.createImageData(w,h);for(let i=0;i<w*h;i++)md.data[i*4+3]=mask[i]?255:0;mg.putImageData(md,0,0);
+  const out=mk(sheetCv.width,sheetCv.height),g=out.getContext("2d");g.drawImage(sheetCv,0,0);g.globalCompositeOperation="destination-in";g.imageSmoothingEnabled=true;g.imageSmoothingQuality="high";g.filter="blur(1.5px)";g.drawImage(m,0,0,out.width,out.height);
+  trimmed=out;showFlat();
+}
+let trimT;$("#trim").oninput=()=>{clearTimeout(trimT);trimT=setTimeout(applyTrim,60)};
+function showFlat(){fullMask=null;const c=$("#flat-cv");c.width=trimmed.width;c.height=trimmed.height;const g=c.getContext("2d");g.clearRect(0,0,c.width,c.height);g.drawImage(trimmed,0,0)}
+$("#to-cut").onclick=()=>{VZ["w-cut"]=1;show("cut")};
+
+// ---------- work views: always fit the image, wheel / buttons zoom, space-drag pans ----------
+const VZ={"w-sheet":1,"w-cut":1};
+function viewDims(w){return w==="w-sheet"?[srcImg.width,srcImg.height,$("#src-cv")]:[trimmed.width,trimmed.height,$("#cut-cv")]}
+function sizeView(w){
+  const el=$("#"+w);if(!el||!el.clientWidth)return;const [iw,ih,cv]=viewDims(w);if(!iw)return;
+  const pile=0; // bits live in the side list only; the page keeps all the room
+  let base=Math.min((el.clientWidth-80)/iw,(el.clientHeight-80)/ih,8),k=base*VZ[w],side="";
+  if(pile){ // bits stack to the right of the page; page and pile are centred together and never touch the step text
+    // the pile gets up to a third of the room at real size; past that the bits shrink, then the page gives a little
+    side="right";const avail=el.clientWidth-80-60,pw=Math.min(pile*base,avail*.26);
+    base=Math.min(base,(avail-pw)/iw);k=base*VZ[w];PK=Math.min(k,pw/pile);
+  }else PK=k;
+  cv.style.width=iw*k+"px";cv.style.height=ih*k+"px";
+  if(w==="w-cut"){const st=el.querySelector(".stage");st.style.transform=side==="right"?`translateX(${-(pile*PK+60)/2}px)`:"";PILESIDE=side}
+  const zv=$("#zoom .zv");if(zv)zv.textContent=Math.round(VZ[w]*100)+"%";
+}
+const afterZoom=w=>{if(w==="w-sheet")placeCorners();else{drawCut();layoutPile(false)}};
+function zoomView(w,nz,cx,cy){
+  const el=$("#"+w),r=el.getBoundingClientRect();nz=Math.max(.5,Math.min(8,nz));
+  if(cx==null){cx=r.left+r.width/2;cy=r.top+r.height/2}
+  const st=el.querySelector(".stage").getBoundingClientRect(),fx=(cx-st.left)/st.width,fy=(cy-st.top)/st.height;
+  VZ[w]=nz;sizeView(w);afterZoom(w);
+  const st2=el.querySelector(".stage").getBoundingClientRect();
+  el.scrollLeft+=st2.left+fx*st2.width-cx;el.scrollTop+=st2.top+fy*st2.height-cy;
+}
+let spaceDown=false;
+addEventListener("keydown",e=>{if(e.code==="Space"&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName)){e.preventDefault();spaceDown=true;$$(".work.view").forEach(w=>w.classList.add("space"))}});
+addEventListener("keyup",e=>{if(e.code==="Space"){spaceDown=false;$$(".work.view").forEach(w=>w.classList.remove("space"))}});
+["w-sheet","w-cut"].forEach(w=>{
+  const el=$("#"+w);
+  el.addEventListener("wheel",e=>{e.preventDefault();
+    if(!e.ctrlKey&&VZ[w]>1.001&&Math.abs(e.deltaX)>Math.abs(e.deltaY)){el.scrollLeft+=e.deltaX;return}
+    zoomView(w,VZ[w]*Math.exp(-e.deltaY*(e.ctrlKey?.01:.0015)),e.clientX,e.clientY)},{passive:false});
+  el.addEventListener("pointerdown",e=>{
+    if(!(spaceDown||e.button===1||(e.target===el&&VZ[w]>1.001)))return;
+    e.preventDefault();e.stopPropagation();el.setPointerCapture(e.pointerId);el.classList.add("panning");
+    const sx=e.clientX,sy=e.clientY,l=el.scrollLeft,t=el.scrollTop;
+    const mv=ev=>{el.scrollLeft=l-(ev.clientX-sx);el.scrollTop=t-(ev.clientY-sy)};
+    const up=()=>{el.classList.remove("panning");el.removeEventListener("pointermove",mv);el.removeEventListener("pointerup",up);el.removeEventListener("pointercancel",up)};
+    el.addEventListener("pointermove",mv);el.addEventListener("pointerup",up);el.addEventListener("pointercancel",up);
+  },true);
+});
+
+// ---------- 3 cut ----------
+let scraps=[],tool="lasso",uid=0;
+const TOOL_HINT={smart:"Draw roughly around something. It snaps to the edges.",lasso:"Cut freehand. The line gets smoothed, like real scissors.",rect:"Drag a box. Good for headlines and text."};
+$$("[data-tool]").forEach(b=>b.onclick=()=>{tool=b.dataset.tool;$$("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",x===b));$("#tool-hint").textContent=TOOL_HINT[tool]});
+function drawCut(){
+  const cv=$("#cut-cv");if(cv.width!==trimmed.width||cv.height!==trimmed.height||!cv.style.width){cv.width=trimmed.width;cv.height=trimmed.height}sizeView("w-cut");const g=cv.getContext("2d");g.clearRect(0,0,cv.width,cv.height);g.drawImage(trimmed,0,0);
+  const svg=$("#cut-svg");svg.setAttribute("viewBox",`0 0 ${cv.width} ${cv.height}`);
+  svg.innerHTML=scraps.map(s=>s.poly?`<polygon points="${s.poly.map(p=>p.join(",")).join(" ")}" fill="rgba(212,236,220,.18)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`
+    :`<rect x="${s.box[0]}" y="${s.box[1]}" width="${s.box[2]}" height="${s.box[3]}" fill="rgba(212,236,220,.14)" stroke="#d4ecdc" stroke-width="${2/cvScale()}" stroke-dasharray="${6/cvScale()} ${4/cvScale()}"/>`).join("")+`<polyline id="live-halo" fill="none" stroke="rgba(10,30,20,.75)" stroke-width="${5/cvScale()}" stroke-linejoin="round" stroke-linecap="round"/><polyline id="live" fill="none" stroke="#f0cd4a" stroke-width="${2.5/cvScale()}" stroke-dasharray="${7/cvScale()} ${4/cvScale()}" stroke-linejoin="round" stroke-linecap="round"/>`;
+  renderScraps();
+}
+function cvScale(){const cv=$("#cut-cv");return cv.clientWidth/cv.width||1}
+(()=>{const st=$("#cut-stage");let pts=null,start=null;
+  const pt=e=>{const r=$("#cut-cv").getBoundingClientRect(),k=cvScale();return [Math.max(0,Math.min(trimmed.width,(e.clientX-r.left)/k)),Math.max(0,Math.min(trimmed.height,(e.clientY-r.top)/k))]};
+  st.addEventListener("pointerdown",e=>{if(e.button!==0||!$("#busy").hidden)return;st.setPointerCapture(e.pointerId);start=pt(e);pts=[start]});
+  st.addEventListener("pointermove",e=>{if(!pts)return;const p=pt(e);
+    if(tool!=="rect"){const l=pts[pts.length-1];if(Math.hypot(p[0]-l[0],p[1]-l[1])>3/cvScale())pts.push(p)}
+    else pts=[start,[p[0],start[1]],p,[start[0],p[1]]];
+    const live=$("#live"),halo=$("#live-halo"),P=(tool!=="rect"?pts:[...pts,start]).map(q=>q.join(",")).join(" ");if(halo)halo.setAttribute("points",P);if(live)live.setAttribute("points",P);if(false)live.setAttribute("points",(tool!=="rect"?pts:[...pts,start]).map(q=>q.join(",")).join(" "))});
+  const end=()=>{if(!pts)return;let p=pts;pts=null;const live=$("#live");if(live)live.setAttribute("points","");const halo=$("#live-halo");if(halo)halo.setAttribute("points","");
+    const xs=p.map(q=>q[0]),ys=p.map(q=>q[1]),bw=Math.max(...xs)-Math.min(...xs),bh=Math.max(...ys)-Math.min(...ys);
+    if(bw<12||bh<12||(tool!=="rect"&&p.length<6))return;
+    if(tool==="smart")return snap(p);
+    if(tool==="lasso")p=organic(p,cvScale());
+    addScrap(tool==="lasso"?cutPoly(p):cutPoly(p,true))};
+  st.addEventListener("pointerup",end);st.addEventListener("pointercancel",end);
+})();
+function cutPoly(poly,isRect){
+  const xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),x0=Math.floor(Math.min(...xs)),y0=Math.floor(Math.min(...ys)),x1=Math.ceil(Math.max(...xs)),y1=Math.ceil(Math.max(...ys));
+  const c=mk(x1-x0,y1-y0),g=c.getContext("2d");
+  g.beginPath();poly.forEach((p,i)=>g[i?"lineTo":"moveTo"](p[0]-x0,p[1]-y0));g.closePath();g.clip();
+  g.drawImage(trimmed,-x0,-y0);
+  return {canvas:tightCrop(c),box:[x0,y0,x1-x0,y1-y0],poly:isRect?null:poly};
+}
+function tightCrop(c){
+  const g=c.getContext("2d"),d=g.getImageData(0,0,c.width,c.height).data;let x0=c.width,y0=c.height,x1=-1,y1=-1;
+  for(let y=0;y<c.height;y++)for(let x=0;x<c.width;x++)if(d[(y*c.width+x)*4+3]>20){if(x<x0)x0=x;if(x>x1)x1=x;if(y<y0)y0=y;if(y>y1)y1=y}
+  if(x1<0)return c;const o=mk(x1-x0+1,y1-y0+1);o.getContext("2d").drawImage(c,-x0,-y0);o._off=[x0,y0];return o;
+}
+function addScrap(s){
+  const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];
+  s.id=++uid;s.name="";s.cluster="";s.lib=true;s.par=true;scraps.push(s);drawCut();
+  setTimeout(()=>{const i=$(`#scraps [data-id="${s.id}"] .input`);if(i)i.focus()},30);
+}
+function syncNext(){const b=$("#to-pub");if(!b)return;const off=(PATH==="scraps"&&!scraps.length)||scraps.some(s=>!s.cluster);b.disabled=off;b.title=off?(scraps.length?"Every bit needs a pile":"Cut something first"):""}
+function renderScraps(){setTimeout(syncNext,0);
+  syncLoose();
+  const el=$("#scraps");$("#bits-n").textContent=scraps.length||"";
+  if(!scraps.length){el.innerHTML=`<div class="empty">${PATH==="collage"?"Draw around something you love.<br>It lands here.":"Draw around something.<br>Roughly is fine."}</div>`;return}
+  el.innerHTML=scraps.map(s=>`<div class="scrap" data-id="${s.id}">
+    <div class="th"><img src="${s.canvas.toDataURL()}" alt=""></div>
+    <div class="meta">
+      <input class="input" value="${s.name.replace(/"/g,"&quot;")}" maxlength="60" placeholder="Name it" aria-label="Scrap name">
+      <div class="dd"><button class="dd-btn${s.bad&&!s.cluster?" bad":""}" data-dd aria-haspopup="listbox" aria-expanded="false"><span>${s.cluster?CL[s.cluster]:"Pick a pile"}</span><svg class="i chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg></button><ul class="menu" role="listbox" hidden>${CLUSTERS.map(([k,l])=>`<li role="option" data-v="${k}" aria-selected="${s.cluster===k}">${l}</li>`).join("")}</ul></div>
+      <button class="bgx${s.clean?" on":""}" data-bg>${s.busy?"Cleaning…":s.clean?"✦ Bring background back":"✦ Remove background"}</button>
+    </div>
+    <button class="x" data-rm aria-label="Delete scrap">✕</button>
+  </div>`).join("");
+}
+$("#scraps").addEventListener("input",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);if(e.target.matches(".input"))s.name=e.target.value});
+function closeDD(){$$("#scraps .menu").forEach(m=>{m.hidden=true;m.previousElementSibling.setAttribute("aria-expanded","false")})}
+document.addEventListener("pointerdown",e=>{if(!e.target.closest(".dd"))closeDD()});
+$("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
+  if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}
+  if(e.target.closest("[data-bg]"))cleanScrap(s);
+  const db=e.target.closest("[data-dd]");if(db){const m=db.nextElementSibling,open=m.hidden;closeDD();m.hidden=!open;db.setAttribute("aria-expanded",open);if(open){const r=db.getBoundingClientRect();m.classList.toggle("up",innerHeight-r.bottom<260)}}
+  const o=e.target.closest(".menu [data-v]");if(o){s.cluster=o.dataset.v;s.bad=false;setTimeout(syncNext,0);const b=o.closest(".dd").querySelector(".dd-btn");b.classList.remove("bad");b.querySelector("span").textContent=CL[s.cluster];o.parentNode.querySelectorAll("li").forEach(li=>li.setAttribute("aria-selected",li===o));closeDD()}});
+// cut bits come loose: they lift off the page and can be dragged anywhere on the mat
+function syncLoose(){
+  const L=$("#loose");if(!L)return;const live=new Set(scraps.map(s=>s.id));
+  [...L.children].forEach(el=>{if(!live.has(+el.dataset.id))el.remove()});
+  const W=$("#v-wiz").getBoundingClientRect(),k0=cvScale(),cv0=$("#cut-cv").getBoundingClientRect(),fresh=[];
+  scraps.forEach(s=>{
+    let el=L.querySelector(`[data-id="${s.id}"]`);const src=s.canvas.toDataURL();
+    if(!el){el=document.createElement("div");el.className="lb";el.dataset.id=s.id;el.innerHTML=`<img alt="${esc(s.name||"scrap")}" src="${src}"><button class="rot" aria-label="Rotate 90°" title="rotate">↻</button>`;L.appendChild(el);bindLoose(el,s);
+      s.pos={x:cv0.left-W.left+s.box[0]*k0,y:cv0.top-W.top+s.box[1]*k0,r:0};el.style.width=s.canvas.width*k0+"px";place(el,s);fresh.push(s)}
+    else{const im=el.querySelector("img");if(im.getAttribute("src")!==src)im.src=src}
+  });
+  if(fresh.length){requestAnimationFrame(()=>{drawCut();layoutPile(true)})}else layoutPile(false);
+}
+// unmoved bits stack in a column beside the page, at the page's scale
+let PILESIDE="",PK=1;function layoutPile(anim){
+  const L=$("#loose");if(!L||step!=="cut"||L.hidden)return;
+  const W=$("#v-wiz").getBoundingClientRect(),cv=$("#cut-cv").getBoundingClientRect(),k=Math.min(cvScale(),PK);
+  const pile=scraps.filter(s=>!s.moved),pw=Math.max(0,...pile.map(s=>s.canvas.width*k)),x=PILESIDE==="left"?cv.left-W.left-40-pw:cv.right-W.left+40;let y=cv.top-W.top;
+  const total=pile.reduce((a,s)=>a+s.canvas.height*k,0),step2=pile.length>1?Math.min(1,(cv.height-(pile.length?pile[pile.length-1].canvas.height*k:0))/Math.max(1,total-(pile[pile.length-1]||{canvas:{height:0}}).canvas.height*k)):1;
+  scraps.forEach(s=>{const el=L.querySelector(`[data-id="${s.id}"]`);if(!el)return;el.style.width=s.canvas.width*k+"px";if(s.moved)return;
+    const h=s.canvas.height*k;s.pos={x:x+(PILESIDE==="left"?pw-s.canvas.width*k:0)+((s.id*13)%14-7),y,r:s.pos&&anim?((s.id*37)%11-5):(s.pos?s.pos.r:0)};y+=h*step2+8;
+    if(anim){el.classList.add("fly");setTimeout(()=>el.classList.remove("fly"),700)}place(el,s)});
+}
+let LZ=1;function place(el,s){el.style.transform=`translate(${s.pos.x}px,${s.pos.y}px) rotate(${s.pos.r}deg)`}
+function bindLoose(el,s){
+  let st=null;
+  el.querySelector(".rot").addEventListener("pointerdown",e=>e.stopPropagation());
+  el.querySelector(".rot").addEventListener("click",e=>{e.stopPropagation();rotateScrap(s)});
+  el.addEventListener("pointerdown",e=>{e.stopPropagation();e.preventDefault();el.setPointerCapture(e.pointerId);el.classList.add("drag");el.style.zIndex=++LZ;st={x:e.clientX,y:e.clientY,px:s.pos.x,py:s.pos.y,r:s.pos.r,lx:e.clientX}});
+  el.addEventListener("pointermove",e=>{if(!st)return;s.moved=true;const vx=e.clientX-st.lx;st.lx=e.clientX;s.pos.x=st.px+e.clientX-st.x;s.pos.y=st.py+e.clientY-st.y;s.pos.r=st.r+Math.max(-12,Math.min(12,vx*.6));place(el,s)});
+  const end=()=>{if(!st)return;st=null;el.classList.remove("drag");el.classList.add("fly");s.pos.r=Math.max(-10,Math.min(10,s.pos.r));place(el,s);setTimeout(()=>el.classList.remove("fly"),700)};
+  el.addEventListener("pointerup",end);el.addEventListener("pointercancel",end);
+}
+
+// a quarter turn clockwise, baked into the pixels so it's saved that way
+function rotCanvas(c){const o=mk(c.height,c.width),g=o.getContext("2d");g.translate(o.width,0);g.rotate(Math.PI/2);g.drawImage(c,0,0);return o}
+function rotateScrap(s){s.canvas=rotCanvas(s.canvas);if(s.orig)s.orig=rotCanvas(s.orig);renderScraps();layoutPile(false)}
+function rotateSource(){srcImg=rotCanvas(srcImg);quad=PATH==="collage"?stdQuad(srcImg):guessQuad(srcImg);trimmed=null;scraps=[];$("#loose").innerHTML="";VZ["w-sheet"]=1;layoutSheet()}
+
+async function cleanScrap(s){
+  if(s.busy)return;
+  if(s.clean){s.canvas=s.orig;s.clean=false;renderScraps();return}
+  s.busy=true;renderScraps();if(!modelReady)toast("Sharpening the scissors… first time takes a moment.");
+  try{const m=await modelMask(s.orig||s.canvas);s.orig=s.orig||s.canvas;const c=mk(s.orig.width,s.orig.height),g=c.getContext("2d");g.drawImage(m,0,0,c.width,c.height);g.globalCompositeOperation="destination-in";g.drawImage(s.orig,0,0);
+    const t=tightCrop(c);if(alphaCount(t)<alphaCount(s.orig)*.04)throw new Error("nothing left");s.canvas=t;s.clean=true}
+  catch(err){console.error(err);toast("Couldn't find a clear shape in that one.",true)}
+  s.busy=false;renderScraps();
+}
+// the cut-out model runs in the browser; loaded once, on first use
+let modelP=null,modelReady=false;
+function getModel(){return modelP||(modelP=import("https://esm.sh/@imgly/background-removal@1.4.5").then(m=>{return m}).catch(e=>{modelP=null;throw e}))}
+const blobOf=c=>new Promise(r=>c.toBlob(r,"image/png"));
+function alphaCount(c){const d=c.getContext("2d").getImageData(0,0,c.width,c.height).data;let n=0;for(let i=3;i<d.length;i+=4)if(d[i]>110)n++;return n}
+// smart scissors: rough lasso in, clean cut-out of what's inside it out
+let fullMask=null;
+async function modelMask(c){const mod=await getModel();const out=await mod.removeBackground(await blobOf(c),{output:{format:"image/png"}});modelReady=true;return createImageBitmap(out)}
+async function sheetMaskModel(){if(!fullMask)fullMask=await modelMask(trimmed);return fullMask}
+async function snap(poly){
+  const busy=$("#busy");busy.hidden=false;busy.textContent=modelReady?"Snipping…":"Sharpening the scissors… (first time only)";
+  try{
+    const T=trimmed,xs=poly.map(p=>p[0]),ys=poly.map(p=>p[1]),bx0=Math.min(...xs),by0=Math.min(...ys),bw=Math.max(...xs)-bx0,bh=Math.max(...ys)-by0;
+    const pad=Math.round(Math.max(bw,bh)*.06)+4,ctx=Math.round(Math.max(bw,bh)*.3);
+    // a roomier crop gives the model context; the result is clipped back to a loose version of the lasso
+    const X0=Math.max(0,Math.floor(bx0-ctx)),Y0=Math.max(0,Math.floor(by0-ctx)),X1=Math.min(T.width,Math.ceil(bx0+bw+ctx)),Y1=Math.min(T.height,Math.ceil(by0+bh+ctx)),W=X1-X0,H=Y1-Y0;
+    const crop=mk(W,H);crop.getContext("2d").drawImage(T,-X0,-Y0);
+    const path=g=>{g.beginPath();poly.forEach((p,i)=>g[i?"lineTo":"moveTo"](p[0]-X0,p[1]-Y0));g.closePath()};
+    const lasso=mk(W,H),lg=lasso.getContext("2d");path(lg);lg.fill();
+    const loose=mk(W,H),og=loose.getContext("2d");path(og);og.fill();og.lineJoin="round";og.lineWidth=pad*1.4;og.stroke();
+    const need=alphaCount(lasso)*.08;
+    const clip=src=>{const r=mk(W,H),g=r.getContext("2d");g.drawImage(src.img,src.dx,src.dy,src.dw,src.dh);g.globalCompositeOperation="destination-in";g.drawImage(loose,0,0);g.drawImage(crop,0,0);return r};
+    let res=clip({img:await modelMask(crop),dx:0,dy:0,dw:W,dh:H});
+    if(alphaCount(res)<need){busy.textContent="Looking harder…";const fm=await sheetMaskModel();res=clip({img:fm,dx:-X0,dy:-Y0,dw:T.width,dh:T.height})}
+    if(alphaCount(res)<need){addScrap(cutPoly(poly));toast("No clear shape there. Cut as drawn.")}
+    else addScrap({canvas:tightCrop(res),box:[X0,Y0,W,H],poly:null});
+  }catch(err){console.error(err);addScrap(cutPoly(poly));toast("Smart scissors won't load here. Cut as drawn.",true)}
+  busy.hidden=true;
+}
+
+// scissors: tidy the hand-drawn path into a smooth, slightly wobbly, hand-cut line
+function rdp(pts,eps){if(pts.length<3)return pts;let dmax=0,idx=0;const [a,b]=[pts[0],pts[pts.length-1]],L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;
+  for(let i=1;i<pts.length-1;i++){const d=Math.abs((b[0]-a[0])*(a[1]-pts[i][1])-(a[0]-pts[i][0])*(b[1]-a[1]))/L;if(d>dmax){dmax=d;idx=i}}
+  return dmax>eps?rdp(pts.slice(0,idx+1),eps).slice(0,-1).concat(rdp(pts.slice(idx),eps)):[a,b]}
+function organic(p,k){
+  let q=rdp(p,2.2/k);if(q.length<4)q=p;
+  for(let n=0;n<3;n++){const o=[];for(let i=0;i<q.length;i++){const a=q[i],b=q[(i+1)%q.length];o.push([a[0]*.75+b[0]*.25,a[1]*.75+b[1]*.25],[a[0]*.25+b[0]*.75,a[1]*.25+b[1]*.75])}q=o}
+  const amp=.9/k;return q.map((pt,i)=>{const a=q[(i+q.length-1)%q.length],b=q[(i+1)%q.length],dx=b[0]-a[0],dy=b[1]-a[1],l=Math.hypot(dx,dy)||1,w=Math.sin(i*.9)*Math.sin(i*.23+1)*amp;return [pt[0]-dy/l*w,pt[1]+dx/l*w]});
+}
+// find them all: what the model sees + whatever stands out from the paper colour
+function colourMask(c){
+  const {w,h,d}=small(c,320),bg=bgOf(d,w,h),m=distMap(d,w,h,bg),th=Math.max(34,otsu(m));
+  let fg=new Uint8Array(w*h);for(let i=0;i<w*h;i++)fg[i]=m[i]>=th?1:0;
+  const morph=(a,er)=>{const o=new Uint8Array(w*h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){let v=er?1:0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=x+dx,Y=y+dy,b=X<0||Y<0||X>=w||Y>=h?0:a[Y*w+X];if(er)v&=b;else v|=b}o[y*w+x]=v}return o};
+  fg=morph(morph(fg,0),1);fg=morph(morph(fg,1),0);
+  const t=mk(w,h),g=t.getContext("2d"),id=g.createImageData(w,h);for(let i=0;i<w*h;i++){id.data[i*4]=id.data[i*4+1]=id.data[i*4+2]=255;id.data[i*4+3]=fg[i]?255:0}g.putImageData(id,0,0);return t;
+}
+
+// find all: run the model on the whole sheet, then split into separate pieces
+if($("#auto"))$("#auto").onclick=async()=>{
+  const busy=$("#busy");busy.hidden=false;busy.textContent=modelReady?"Hunting…":"Sharpening the scissors… (first time only)";
+  try{
+    busy.textContent="Hunting…";
+    let img=null;try{img=await sheetMaskModel()}catch(e){console.warn(e)}
+    const U=mk(trimmed.width,trimmed.height),ug=U.getContext("2d");if(img)ug.drawImage(img,0,0,U.width,U.height);ug.imageSmoothingEnabled=true;ug.drawImage(colourMask(trimmed),0,0,U.width,U.height);
+    const full=mk(trimmed.width,trimmed.height),fgx=full.getContext("2d");fgx.drawImage(trimmed,0,0);fgx.globalCompositeOperation="destination-in";fgx.drawImage(U,0,0);
+    const found=splitPieces(full);
+    found.forEach(addScrapQuiet);drawCut();
+    toast(found.length?`${found.length} found. Bin the duds.`:"Nothing obvious. Scissors it is.");
+  }catch(err){console.error(err);toast("The robot scissors won't load here. Hand scissors still work.",true)}
+  busy.hidden=true;
+};
+function addScrapQuiet(s){const off=s.canvas._off||[0,0];s.box=[s.box[0]+off[0],s.box[1]+off[1],s.canvas.width,s.canvas.height];s.id=++uid;s.name="";s.cluster="";s.lib=true;s.par=true;scraps.push(s)}
+function splitPieces(full){
+  const S=Math.min(1,320/Math.max(full.width,full.height)),w=Math.round(full.width*S),h=Math.round(full.height*S),t=mk(w,h);t.getContext("2d").drawImage(full,0,0,w,h);
+  const d=t.getContext("2d").getImageData(0,0,w,h).data,lab=new Int32Array(w*h),out=[];let n=0;
+  for(let i=0;i<w*h;i++){if(lab[i]||d[i*4+3]<110)continue;n++;const q=[i],px=[];lab[i]=n;
+    while(q.length){const j=q.pop();px.push(j);const x=j%w,y=(j/w)|0;for(const k of [x>0?j-1:-1,x<w-1?j+1:-1,y>0?j-w:-1,y<h-1?j+w:-1])if(k>=0&&!lab[k]&&d[k*4+3]>=110){lab[k]=n;q.push(k)}}
+    if(px.length<w*h*.012||px.length>w*h*.6)continue;
+    const m=mk(w,h),mg=m.getContext("2d"),md=mg.createImageData(w,h);let x0=w,y0=h,x1=0,y1=0;
+    px.forEach(j=>{md.data[j*4+3]=255;const x=j%w,y=(j/w)|0;x0=Math.min(x0,x);x1=Math.max(x1,x);y0=Math.min(y0,y);y1=Math.max(y1,y)});mg.putImageData(md,0,0);
+    const pad=2,X0=Math.max(0,Math.floor((x0-pad)/S)),Y0=Math.max(0,Math.floor((y0-pad)/S)),X1=Math.min(full.width,Math.ceil((x1+pad+1)/S)),Y1=Math.min(full.height,Math.ceil((y1+pad+1)/S));
+    const c2=mk(X1-X0,Y1-Y0),g2=c2.getContext("2d");g2.drawImage(full,-X0,-Y0);g2.globalCompositeOperation="destination-in";g2.imageSmoothingEnabled=true;g2.drawImage(m,-X0,-Y0,full.width,full.height);
+    out.push({canvas:tightCrop(c2),box:[X0,Y0,X1-X0,Y1-Y0],poly:null});
+  }
+  return out;
+}
+$("#to-pub").onclick=()=>{
+  if(PATH==="scraps"&&!scraps.length){toast("Nothing cut yet. Draw around something first.");return}
+  const miss=scraps.filter(s=>!s.cluster);
+  if(miss.length){toast(miss.length===1?"One scrap needs a pile.":`${miss.length} scraps need a pile.`);miss.forEach(s=>{s.bad=true;const r=$(`#scraps [data-id="${s.id}"]`);if(r){r.querySelector(".dd-btn").classList.add("bad");r.classList.remove("shake");void r.offsetWidth;r.classList.add("shake")}});const r=$(`#scraps [data-id="${miss[0].id}"]`);if(r)r.scrollIntoView({block:"nearest",behavior:"smooth"});return}
+  show("send")};
+function confirmNoScraps(){toast("No scraps. Just the collage, then.");return true}
+
+function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===1)return c;const o=mk(c.width*k,c.height*k);const g=o.getContext("2d");g.imageSmoothingQuality="high";g.drawImage(c,0,0,o.width,o.height);return o}
+
+// ---------- 4 send ----------
+function sizePub(){ // the collage takes what the frame gives once the side panel has gone
+  if(!trimmed||PATH!=="collage"||$("#w-send").hidden)return;const im=$("#pub-preview"),fr=$("#frame"),mob=innerWidth<=820;
+  const bw=Math.min(mob?fr.clientWidth-60:fr.clientWidth-320-56-60,900),bh=Math.max(260,fr.clientHeight-40-(scraps.length&&!mob?170:0));
+  const k=Math.min(bw/trimmed.width,bh/trimmed.height);im.style.width=Math.round(trimmed.width*k)+"px";im.style.height=Math.round(trimmed.height*k)+"px";
+}
+addEventListener("resize",()=>sizePub());
+function renderPublish(){
+  const col=PATH==="collage";
+  $("#w-send").classList.toggle("only",!col||!scraps.length);
+  $("#send-col").hidden=!col;$("#send-pile").hidden=!scraps.length;$("#signed2").hidden=col||OWNER;
+  if(col){$("#pub-preview").src=trimmed.toDataURL("image/webp",.85);sizePub();requestAnimationFrame(sizePub);setTimeout(sizePub,420)}
+  $("#pub-list").innerHTML=scraps.map(s=>`<figure style="transform:rotate(${(s.id*37%9)-4}deg)"><img src="${s.canvas.toDataURL()}" alt="${esc(s.name||"scrap")}">${s.name?`<figcaption>${esc(s.name)}</figcaption>`:""}</figure>`).join("");
+  $("#pile-n").textContent=`${scraps.length} to the pile`;
+  $("#send-note").textContent=col?"Name it and tell its story on the little card.":(OWNER?"Straight into the pile.":"Sign them so you get the credit.");
+  $("#publish").textContent=col?"Glue it":"Pile it";
+  if(col&&innerWidth>820)setTimeout(()=>$("#title").focus({preventScroll:true}),30);
+}
+const slug=t=>(t||"collage").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,32)||"collage";
+const webp=(c,q=.82)=>new Promise(r=>c.toBlob(r,"image/webp",q));
+const uuid=()=>crypto.randomUUID?crypto.randomUUID():"10000000-1000-4000-8000-100000000000".replace(/[018]/g,c=>(c^crypto.getRandomValues(new Uint8Array(1))[0]&15>>c/4).toString(16));
+(()=>{const t=$(".send .table"),b=$("#publish");if(t&&b){const g=document.createElement("div");g.className="send-go";t.appendChild(g);g.appendChild(b)}})();
+$("#publish").onclick=async()=>{
+  const btn=$("#publish"),label=btn.textContent;
+  const last=+localStorage.getItem("cutouts-sent")||0;
+  if(!OWNER&&!DEMO&&Date.now()-last<60000){toast("Easy, tiger. One send a minute.");return}
+  btn.disabled=true;btn.textContent="Gluing…";
+  try{
+    if(DEMO){await new Promise(r=>setTimeout(r,500));done();return}
+    if(!sb)throw new Error("no connection");
+    const title=$("#title").value.trim(),description=$("#desc").value.trim()||null,signed=$("#signed").value.trim()||null;
+    if(signed)localStorage.setItem("recortes-signed",signed);
+    const up=async(bucket,path,c)=>{const {error}=await sb.storage.from(bucket).upload(path,await webp(c),{contentType:"image/webp",upsert:false});if(error)throw new Error(bucket+": "+error.message)};
+    if(OWNER)await ownerPublish(title,description,up);
+    else{
+      const batch=uuid();
+      if(PATH==="collage"){
+        const col=fitTo(trimmed,1400),id=uuid();
+        await up("community",id+".webp",col);
+        let row={image_path:id+".webp",w:col.width,h:col.height,signed,title:title||null,description,batch,approved:false};
+        let r=await sb.from("community").insert(row);
+        if(r.error&&/batch|title|description/.test(r.error.message)){const {batch:_b,...rest}=row;r=await sb.from("community").insert(rest)}
+        if(r.error)throw new Error(r.error.message);
+      }
+      for(const [i,s] of scraps.entries()){
+        const id=uuid(),img=fitTo(s.canvas,600);
+        await up("scraps","v/"+id+".webp",img);
+        const r=await sb.from("scraps").insert({id:"v-"+id,title:s.name||(title||"scrap")+" "+(i+1),cluster:s.cluster,image_path:"v/"+id+".webp",w:img.width,h:img.height,published:false,signed,batch,sort:Date.now()%2147483647});
+        if(r.error)throw new Error(r.error.message);
+      }
+      localStorage.setItem("cutouts-sent",Date.now());
+    }
+    done();
+  }catch(err){console.error(err);toast("Couldn't send it: "+err.message,true)}
+  btn.disabled=false;btn.textContent=label;
+};
+function done(){
+  const col=PATH==="collage";
+  $("#done-h").textContent=OWNER?(col?"Glued.":"Piled."):"Sent.";
+  $("#done-p").textContent=OWNER?(col?"It's on the table.":"They're in the scrap pile."):"It shows up once it's had a look. Usually soon-ish.";
+  show("done");tell("cutouts:published");
+}
+async function ownerPublish(title,description,up){
+  title=title||"Untitled";
+  if(PATH==="scraps"){
+    const base="s-"+Math.random().toString(36).slice(2,8),srt=Date.now()%2147483647,rows=[];
+    for(const [i,s] of scraps.entries()){const id=base+"-"+(i+1)+"-"+slug(s.name).slice(0,16),img=fitTo(s.canvas,600);await up("scraps",id+".webp",img);rows.push({id,title:s.name||"scrap "+(i+1),cluster:s.cluster,image_path:id+".webp",w:img.width,h:img.height,sort:srt})}
+    const r=await sb.from("scraps").insert(rows);if(r.error)throw new Error(r.error.message);return;
+  }
+  const base=slug(title)+"-"+Math.random().toString(36).slice(2,6);
+  const col=fitTo(trimmed,1000);
+  const pieces=scraps.map((s,i)=>({s,id:base+"-"+(i+1)+"-"+slug(s.name).slice(0,16),img:fitTo(s.canvas,600)}));
+  const depths=[.5,1,.8,.65,.95,.7,.9];
+  const layers=pieces.map((p,i)=>({id:p.id,x:+(p.s.box[0]/trimmed.width*100).toFixed(2),y:+(p.s.box[1]/trimmed.height*100).toFixed(2),w:+(p.s.box[2]/trimmed.width*100).toFixed(2),d:depths[i%depths.length],src:SB_URL+"/storage/v1/object/public/scraps/"+p.id+".webp"}));
+  const row={id:base,title,description,image_path:base+".webp",w:col.width,h:col.height,layers,sort:Date.now()%2147483647};
+  const srows=pieces.map((p,i)=>({id:p.id,title:p.s.name||title+" "+(i+1),cluster:p.s.cluster,image_path:p.id+".webp",w:p.img.width,h:p.img.height,collage_id:base,sort:row.sort}));
+  await up("collages",row.image_path,col);
+  for(const p of pieces)await up("scraps",p.id+".webp",p.img);
+  let r=await sb.from("collages").insert(row);
+  if(r.error&&/description/.test(r.error.message)){const {description:_d,...rest}=row;r=await sb.from("collages").insert(rest)}
+  if(r.error)throw new Error(r.error.message);
+  if(srows.length){r=await sb.from("scraps").insert(srows);if(r.error)throw new Error(r.error.message)}
+}
+
+initAuth();revealPapers();

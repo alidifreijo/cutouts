@@ -1,0 +1,34 @@
+name: backup
+# Every Monday: dump the public schema, encrypt it, keep it 90 days as an artifact.
+# Secrets (Settings → Secrets and variables → Actions): SUPABASE_DB_URL (Session pooler URI, with the password) and BACKUP_PASSPHRASE.
+# Restore: download the artifact, gpg -d backup.sql.gpg > backup.sql, then psql "$SUPABASE_DB_URL" -f backup.sql
+on:
+  schedule: [{ cron: "41 3 * * 1" }]
+  workflow_dispatch:
+permissions: { contents: read }
+jobs:
+  dump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Postgres 17 client
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq postgresql-client-17
+      - name: Dump and encrypt
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          test -n "$DB" && test -n "$PASS"
+          /usr/lib/postgresql/17/bin/pg_dump "$DB" --schema=public --no-owner --no-privileges > backup.sql
+          test -s backup.sql
+          gpg --batch --yes --pinentry-mode loopback --passphrase "$PASS" --symmetric --cipher-algo AES256 -o backup.sql.gpg backup.sql
+          rm backup.sql
+          ls -lh backup.sql.gpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: cutouts-db-${{ github.run_number }}
+          path: backup.sql.gpg
+          retention-days: 90
