@@ -24,8 +24,15 @@ jobs:
           if [ -z "$DB" ]; then echo "::error::Missing secret SUPABASE_DB_URL (Settings → Secrets and variables → Actions)"; exit 1; fi
           if [ -z "$PASS" ]; then echo "::error::Missing secret BACKUP_PASSPHRASE"; exit 1; fi
           case "$DB" in *YOUR-PASSWORD*) echo "::error::SUPABASE_DB_URL still has [YOUR-PASSWORD] in it"; exit 1;; esac
-          /usr/lib/postgresql/17/bin/pg_dump "$DB" --schema=public --no-owner --no-privileges > backup.sql \
-            || { echo "::error::pg_dump failed. Check the Session pooler URI and the database password."; exit 1; }
+          # Split the URI by hand so a password with symbols (@ ! * $ …) can't break parsing or end up in the log
+          rest="${DB#*://}"; creds="${rest%@*}"; hostpart="${rest##*@}"
+          export PGUSER="${creds%%:*}" PGPASSWORD="${creds#*:}"
+          echo "::add-mask::$PGPASSWORD"
+          hp="${hostpart%%/*}"; export PGHOST="${hp%%:*}" PGPORT="${hp##*:}"
+          db="${hostpart#*/}"; export PGDATABASE="${db%%\?*}"; if [ -z "$PGDATABASE" ]; then export PGDATABASE=postgres; fi
+          if [ "$PGPORT" = "$PGHOST" ]; then export PGPORT=5432; fi
+          /usr/lib/postgresql/17/bin/pg_dump --schema=public --no-owner --no-privileges > backup.sql 2> err.txt \
+            || { echo "::error::pg_dump failed: $(head -c 300 err.txt)"; exit 1; }
           test -s backup.sql
           gpg --batch --yes --pinentry-mode loopback --passphrase "$PASS" --symmetric --cipher-algo AES256 -o backup.sql.gpg backup.sql
           rm backup.sql
