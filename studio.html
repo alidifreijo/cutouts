@@ -477,6 +477,14 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 }
 @media (max-width:720px){.rail .dots{top:100px!important;left:40px!important}.wstep .back{margin-bottom:24px!important}}
 @media (min-width:821px){.send .table{column-gap:84px}}
+/* UX round 2 */
+@media (min-width:821px){.wiz-wrap.with-side .side{bottom:auto;max-height:calc(100% - 100px)}}
+@media (max-width:720px){
+  .wiz-wrap.with-side .side{max-height:none!important;height:auto;transition:max-height .3s}
+  .wiz-wrap.with-side .side:not(.has-bits){max-height:64px!important;overflow:hidden}
+  .wiz-wrap.with-side .side:not(.has-bits) .sec-t,.wiz-wrap.with-side .side:not(.has-bits) #tool-hint,.wiz-wrap.with-side .side:not(.has-bits) .empty{display:none}
+  .wiz-wrap.with-side .side.has-bits{max-height:42dvh!important}
+}
 </style>
 </head>
 <body>

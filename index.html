@@ -1151,6 +1151,19 @@ body.intro .bar{animation:none!important;opacity:1!important}
 #studio .empty-msg .em-d,#studio .empty-msg .em-m{font-size:15px}
 @media (max-width:720px){.fin-go{display:flex;justify-content:center;width:100%;margin:4px 0 24px}.fin-go .pp-btn{background:#f0cd4a;border-color:#f0cd4a;color:#1d1d1a;border-radius:14px;padding:14px 28px;font-size:16px}
   #pp-form .fin-acts{display:none}}
+/* UX round 2 */
+.crumb-back{font-size:16px!important;height:44px;padding:0 12px 0 8px!important;color:#f4f0e6!important;border-radius:12px!important}
+.crumb-back:hover{background:rgba(255,255,255,.08)!important}
+.crumb-back svg.i{width:18px;height:18px}
+/* zoom card: bigger engraved print */
+.zcard .zc-eng{max-width:200px;height:140px}
+.zcard .zc-eng img{max-height:140px}
+.tag.ztag.zcard{width:320px}
+@media (max-width:720px){
+  /* logo and rulers don't collide */
+  #mesa .rulers .rx{top:auto!important;bottom:4px}
+  .wall .rulers .rn.rx{transform:translateX(var(--ox,0))}
+}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>
@@ -1204,7 +1217,7 @@ body.intro .bar{animation:none!important;opacity:1!important}
 <div class="app">
   <header class="bar">
     <h1 class="logo"><a href="./" id="home" aria-label="cutouts, back to the table">cutouts</a></h1>
-    <div class="crumb" id="crumb"><button class="crumb-back" id="crumb-back" aria-label="Back to the table. Your draft stays here."><svg class="i"><use href="#i-left"/></svg>the table</button><span class="crumb-l" id="crumb-s">draft saved</span></div>
+    <div class="crumb" id="crumb"><button class="crumb-back" id="crumb-back" aria-label="Back to the table. Your draft stays here."><svg class="i"><use href="#i-left"/></svg>the table</button></div>
     <nav class="tabs dnav" role="tablist" aria-label="mode">
       <button class="tab" role="tab" id="tab-mesa" aria-selected="true" aria-controls="mesa" aria-label="the table" data-tip="the table"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="8" height="10" rx="1" transform="rotate(-6 7 9)"/><rect x="13" y="3" width="8" height="8" rx="1" transform="rotate(5 17 7)"/><rect x="12" y="13" width="9" height="8" rx="1"/></svg><span class="t-l">the table</span></button>
       <button class="tab" role="tab" id="tab-pega" aria-selected="false" aria-controls="studio" aria-label="make a mess" data-tip="make a mess"><svg class="i" aria-hidden="true"><use href="#i-scissors"/></svg><span class="t-l">make a mess</span></button>

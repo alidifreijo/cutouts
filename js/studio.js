@@ -134,6 +134,7 @@ $("#signed").addEventListener("input",e=>$("#signed2").value=e.target.value);$("
 async function initAuth(){
   $("#signed").value=$("#signed2").value=localStorage.getItem("recortes-signed")||"";
   if(DEMO){$("#owner-line").hidden=true;return}
+  if(!Q.has("studio")&&!localStorage.getItem("cutouts-admin"))$("#owner-line").hidden=true;
   if(!sb)return;
   const {data:{session}}=await sb.auth.getSession();applySession(session);
   sb.auth.onAuthStateChange((_e,s)=>applySession(s));
@@ -143,7 +144,7 @@ async function applySession(s){
   const email=s&&s.user&&s.user.email;
   let admin=false;if(email){try{const {data,error}=await sb.rpc("is_admin");admin=!error&&data===true}catch(e){}}
   OWNER=admin;try{admin?localStorage.setItem("cutouts-admin","1"):localStorage.removeItem("cutouts-admin")}catch(e){}
-  $("#inbox-side").hidden=!OWNER;$("#owner-line").hidden=OWNER;
+  $("#inbox-side").hidden=!OWNER;$("#owner-line").hidden=OWNER||(!Q.has("studio")&&!localStorage.getItem("cutouts-admin"));
   $$("[data-visitor]").forEach(f=>f.hidden=OWNER);
   if(OWNER){$("#who-email").textContent=email;$("#login").hidden=true;loadInbox()}
   else if(email){toast("Signed in, but this drawer isn't yours.",true)}
@@ -469,7 +470,7 @@ function addScrap(s){
   s.id=++uid;s.name="";s.cluster="";s.lib=true;s.par=true;scraps.push(s);drawCut();
   setTimeout(()=>{const i=$(`#scraps [data-id="${s.id}"] .input`);if(i)i.focus()},30);
 }
-function syncNext(){const b=$("#to-pub");if(!b)return;const off=(PATH==="scraps"&&!scraps.length)||scraps.some(s=>!s.cluster);b.disabled=off;b.title=off?(scraps.length?"Every bit needs a pile":"Cut something first"):""}
+function syncNext(){const sd=$("#side");if(sd)sd.classList.toggle("has-bits",scraps.length>0);const b=$("#to-pub");if(!b)return;const off=(PATH==="scraps"&&!scraps.length)||scraps.some(s=>!s.cluster);b.disabled=off;b.title=off?(scraps.length?"Every bit needs a pile":"Cut something first"):""}
 function renderScraps(){setTimeout(syncNext,0);
   syncLoose();
   const el=$("#scraps");$("#bits-n").textContent=scraps.length||"";

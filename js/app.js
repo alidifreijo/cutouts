@@ -140,7 +140,7 @@ const ztag=document.createElement("div");ztag.className="tag ztag";ztag.dataset.
 ztag.classList.add("zcard");ztag.innerHTML=`<div class="zc-n"><b>Nº <span class="zt-no"></span></b><span>on the table</span></div><div class="zt-t"></div><div class="zc-eng" aria-hidden="true"><img alt=""></div><span class="tag-l zt-dl" hidden></span><div class="zt-d"></div><span class="tag-l zt-bl" hidden></span><div class="zt-b"></div><div class="zc-pg"><button class="zc-b" data-z="-1" aria-label="Previous collage"><svg class="i"><use href="#i-left"/></svg></button><span class="zt-pg"></span><button class="zc-b" data-z="1" aria-label="Next collage"><svg class="i"><use href="#i-right"/></svg></button></div>`;
 ztag.addEventListener("click",e=>{const b=e.target.closest("[data-z]");if(b)stepZoom(+b.dataset.z)});
 mesa.appendChild(ztag);
-const TAGW=300,TAGGAP=48,wideZoom=()=>mesa.clientWidth>=900;
+const TAGW=320,TAGGAP=48,wideZoom=()=>mesa.clientWidth>=900;
 function showZtag(w,cx,cy,cardW){
   if(!wideZoom()||!w){ztag.hidden=true;ztag.classList.remove("in");return}
   {const im=ztag.querySelector(".zc-eng img");if(im)im.src=w.src||SRC("a/"+w.id+".webp")}
@@ -341,7 +341,7 @@ document.addEventListener("keydown",e=>{
 // ---------- tabs ----------
 let mode="mesa";
 (()=>{const t=$("#mess-title");if(!t)return;try{t.value=store.get("cutouts-mess-title")||""}catch(e){}
-  let tm;t.addEventListener("input",()=>{$("#crumb-s").textContent="saving…";clearTimeout(tm);tm=setTimeout(()=>{store.set("cutouts-mess-title",t.value.trim());$("#crumb-s").textContent="draft saved"},500)});
+  let tm;t.addEventListener("input",()=>{clearTimeout(tm);tm=setTimeout(()=>{store.set("cutouts-mess-title",t.value.trim());0},500)});
   t.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key==="Escape")t.blur()})})();
 function setMode(m){
   mode=m;document.body.dataset.mode=m;try{if(m!=="pega"&&hintEl){hintEl.remove();hintEl=null}}catch(e){}
@@ -358,7 +358,7 @@ let addHash="";
 function ownerSignedIn(){try{return !!localStorage.getItem(AUTH_KEY)&&localStorage.getItem("cutouts-admin")==="1"}catch(e){return false}}
 function openAdd(){
   const pane=$("#addpane");drawRulers(pane);
-  if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed&v="+Date.now()+addHash;addHash="";pane.appendChild(f)}
+  if(!pane.querySelector("iframe")){const f=document.createElement("iframe");f.className="add-frame";f.title="Add a collage";f.src="studio.html?embed"+(new URLSearchParams(location.search).has("studio")||addHash?"&studio":"")+"&v="+Date.now()+addHash;addHash="";pane.appendChild(f)}
 }
 function initAdd(){
   const q=new URLSearchParams(location.search),h=location.hash;
