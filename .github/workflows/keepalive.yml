@@ -1,3 +1,4 @@
+# Keeps the free Supabase project awake: it pauses after 7 days without activity.
 name: keepalive
 # The free Supabase plan pauses a project after 7 days without activity. One tiny read every 3 days keeps it awake.
 on:

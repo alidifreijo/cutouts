@@ -1,44 +1,60 @@
+# Weekly copy of the database (public schema: collages, community, scraps, hidden).
+# The repo is public, so the copy is encrypted before it is stored.
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL     Supabase → Connect → "Session pooler" connection string, with your DB password in it
+#   BACKUP_PASSPHRASE   any long passphrase; keep it in your password manager, you need it to restore
+# Download: Actions → backup → latest run → Artifacts. Kept 90 days.
+# Decrypt:  gpg --decrypt cutouts-YYYY-MM-DD.sql.gpg > backup.sql
 name: backup
-# Every Monday: dump the public schema, encrypt it, keep it 90 days as an artifact.
-# Secrets (Settings → Secrets and variables → Actions): SUPABASE_DB_URL (Session pooler URI, with the password) and BACKUP_PASSPHRASE.
-# Restore: download the artifact, gpg -d backup.sql.gpg > backup.sql, then psql "$SUPABASE_DB_URL" -f backup.sql
 on:
-  schedule: [{ cron: "41 3 * * 1" }]
-  workflow_dispatch:
+  schedule:
+    - cron: "41 3 * * 1"     # Mondays, 03:41 UTC
+  workflow_dispatch: {}
 permissions: { contents: read }
 jobs:
   dump:
     runs-on: ubuntu-24.04
     steps:
-      - name: Install Postgres 17 client
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y -qq postgresql-common
-          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
-          sudo apt-get install -y -qq postgresql-client-17
-      - name: Dump and encrypt
+      - name: Keep the password out of the logs
+        # The password travels apart from the address (PGPASSWORD), so an error
+        # can never echo it back, and every form of it is masked anyway.
         env:
-          DB: ${{ secrets.SUPABASE_DB_URL }}
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          python3 - <<'PY'
+          import os, re, urllib.parse as u
+          url = os.environ.get("DB_URL", "")
+          m = re.match(r"^([a-z]+://[^:/@]*):(.*)@([^@]*)$", url, re.S)
+          if not m:
+              # unexpected format: keep the old behaviour, GitHub still masks the whole secret
+              open(os.environ["GITHUB_ENV"], "a").write("DB_SAFE_URL<<EOV\n" + url + "\nEOV\n")
+              raise SystemExit(0)
+          raw = m.group(2); pw = u.unquote(raw)
+          for v in {raw, pw, u.quote(pw, safe="")}:
+              print("::add-mask::" + v)
+          with open(os.environ["GITHUB_ENV"], "a") as f:
+              f.write("PGPASSWORD<<EOV\n" + pw + "\nEOV\n")
+              f.write("DB_SAFE_URL=" + m.group(1) + "@" + m.group(3) + "\n")
+          PY
+      - name: Dump the public schema
+        env:
+          DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          test -n "$DB_URL" || { echo "::error::Add the SUPABASE_DB_URL secret first."; exit 1; }
+          docker run --rm -e DB_SAFE_URL -e PGPASSWORD postgres:17 sh -c 'pg_dump "$DB_SAFE_URL" --schema=public --no-owner --no-privileges' > backup.sql
+          test -s backup.sql
+          echo "Dump size: $(wc -c < backup.sql) bytes"
+      - name: Encrypt it
+        env:
           PASS: ${{ secrets.BACKUP_PASSPHRASE }}
         run: |
-          if [ -z "$DB" ]; then echo "::error::Missing secret SUPABASE_DB_URL (Settings → Secrets and variables → Actions)"; exit 1; fi
-          if [ -z "$PASS" ]; then echo "::error::Missing secret BACKUP_PASSPHRASE"; exit 1; fi
-          case "$DB" in *YOUR-PASSWORD*) echo "::error::SUPABASE_DB_URL still has [YOUR-PASSWORD] in it"; exit 1;; esac
-          # Split the URI by hand so a password with symbols (@ ! * $ …) can't break parsing or end up in the log
-          rest="${DB#*://}"; creds="${rest%@*}"; hostpart="${rest##*@}"
-          export PGUSER="${creds%%:*}" PGPASSWORD="${creds#*:}"
-          echo "::add-mask::$PGPASSWORD"
-          hp="${hostpart%%/*}"; export PGHOST="${hp%%:*}" PGPORT="${hp##*:}"
-          db="${hostpart#*/}"; export PGDATABASE="${db%%\?*}"; if [ -z "$PGDATABASE" ]; then export PGDATABASE=postgres; fi
-          if [ "$PGPORT" = "$PGHOST" ]; then export PGPORT=5432; fi
-          /usr/lib/postgresql/17/bin/pg_dump --schema=public --no-owner --no-privileges > backup.sql 2> err.txt \
-            || { echo "::error::pg_dump failed: $(head -c 300 err.txt)"; exit 1; }
-          test -s backup.sql
-          gpg --batch --yes --pinentry-mode loopback --passphrase "$PASS" --symmetric --cipher-algo AES256 -o backup.sql.gpg backup.sql
+          test -n "$PASS" || { echo "::error::Add the BACKUP_PASSPHRASE secret first."; exit 1; }
+          name="cutouts-$(date -u +%F).sql.gpg"
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 --passphrase "$PASS" -o "$name" backup.sql
           rm backup.sql
-          ls -lh backup.sql.gpg
+          echo "NAME=$name" >> "$GITHUB_ENV"
       - uses: actions/upload-artifact@v5
         with:
-          name: cutouts-db-${{ github.run_number }}
-          path: backup.sql.gpg
+          name: ${{ env.NAME }}
+          path: ${{ env.NAME }}
           retention-days: 90
