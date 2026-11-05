@@ -696,7 +696,7 @@ body.thud .board{animation:thud .18s ease-out}
   #studio .seg{margin:14px 56px 4px 16px}
   #studio .lib{grid-template-columns:repeat(3,1fr);gap:8px}
   #studio .desk{transition:transform .3s cubic-bezier(.2,.8,.2,1);transform-origin:50% 0}
-  #studio.m-open .desk{transform:translateY(12px) scale(.4)}
+  #studio.m-open .desk{transform:var(--mo,translateY(12px) scale(.4))}
   #studio .dock::after{display:none}
   #studio .dock-scroll{padding-bottom:max(24px,env(safe-area-inset-bottom,0px))}
   #studio .empty-msg{align-content:center;gap:6px}
@@ -1178,6 +1178,17 @@ body.intro .bar{animation:none!important;opacity:1!important}
   .zbar:not(.tagged) .ib:active{background:rgba(40,40,36,.16);color:#2a2824}
   .zbar:not(.tagged) .zt{color:#2a2824;font-size:21px;line-height:1.3;padding:0 4px}
   .zbar:not(.tagged) .zn{color:#5b5850;font-family:var(--f-num);font-weight:500;font-size:18px;letter-spacing:0}
+}
+
+/* phones: the effects button is the first thing in the toolbar, with a label; fewer icons so nothing falls off the edge */
+@media (max-width:720px){
+  #studio .rail{overflow-x:auto;scrollbar-width:none;justify-content:flex-start!important}
+  #studio .rail::-webkit-scrollbar{display:none}
+  #studio .rail [data-a="rot"],#studio .rail #btn-redo{display:none!important}
+  #studio .rail #m-fx{order:-1;width:auto!important;padding:0 14px 0 10px;gap:6px;border-radius:12px;background:#f0cd4a;color:#1d1d1a;display:flex;align-items:center;font:500 13px/1 var(--f-mono,"DM Mono",monospace);margin-right:4px}
+  #studio .rail #m-fx::after{content:"effects"}
+  #studio .rail .ib{flex:none}
+  #studio .rail #m-done{order:99;position:sticky;right:0;box-shadow:-10px 0 12px -4px var(--panel)}
 }
 [hidden]{display:none!important}
 </style>

@@ -348,7 +348,7 @@ function setMode(m){
   $("#tab-mesa").setAttribute("aria-selected",m==="mesa");$("#tab-pega").setAttribute("aria-selected",m==="pega");$("#tab-add").setAttribute("aria-selected",m==="add");
   $("#mesa").hidden=m!=="mesa";$("#studio").hidden=m!=="pega";$("#addpane").hidden=m!=="add";
   $("#tools-mesa").hidden=m!=="mesa";$("#tools-pega").hidden=m!=="pega";
-  if(m==="pega"){sizeSheet();drawRulers($("#studio"));setTimeout(hintsTick,700)}else if(m==="mesa")layout();else openAdd();
+  if(m==="pega"){if(!pieces.length)orient=portraitFor();sizeSheet();drawRulers($("#studio"));setTimeout(hintsTick,700)}else if(m==="mesa")layout();else openAdd();
   if(m!=="add")store.set("recortes-mode",m);
 }
 // owner-only "+ new" tab: the studio page in an iframe (same site, shares the login)
@@ -839,9 +839,9 @@ desk.addEventListener("pointerup",ptrEnd);desk.addEventListener("pointercancel",
 
 function sizeSheet(){
   const r=region();if(r.w<=0||r.h<=0)return;
-  const h=Math.max(120,Math.min(r.h-56,(r.w-48)*1.414));sheet.style.height=h+"px";sheet.style.width=(h/1.414)+"px";
+  const A=orient==="l"?1/1.414:1.414,mob=mobile(),h=Math.max(80,Math.min(r.h-(mob?40:56),(r.w-(mob?24:48))*A));sheet.style.height=h+"px";sheet.style.width=(h/A)+"px";studio.classList.toggle("land",orient==="l");
   canvasEl.style.left=r.cx+"px";canvasEl.style.top=r.cy+"px";
-  pieces.forEach(renderPiece);applyView();
+  pieces.forEach(renderPiece);applyView();fitOpen();
 }
 
 // pieces
@@ -911,7 +911,7 @@ function select(p,m="single",fromSheet){
   pieces.forEach(x=>x.el.classList.remove("sel"));
   sel=p;selMode=p?m:"single";if(!p)enteredG=null;
   if(p&&selMode==="single")p.el.classList.add("sel");
-  document.querySelectorAll("#rail .sel-only").forEach(b=>b.disabled=!p);studio.classList.toggle("has-sel",!!p);studio.classList.toggle("has-pieces",pieces.length>0);
+  document.querySelectorAll("#rail .sel-only").forEach(b=>b.disabled=!p);studio.classList.toggle("has-sel",!!p);if(p&&mobile()){const rl=$("#rail");requestAnimationFrame(()=>{rl.scrollLeft=0;setTimeout(()=>rl.scrollLeft=0,120)})}studio.classList.toggle("has-pieces",pieces.length>0);
   updateGbox();updateTbox();syncLock();
   if(fromSheet&&p&&!isDockClosed()&&pane!=="fx")setPane("fx");else if(pane==="fx")renderEdit();
   updateBadge();
@@ -1012,7 +1012,14 @@ let pinchP=null;
 const overTrash=(x,y)=>{const r=$("#mtrash").getBoundingClientRect();return x>r.left-24&&x<r.right+24&&y>r.top-24&&y<r.bottom+24};
 function mSheet(p){ // open the bottom sheet on a pane, or close it (p=null)
   if(!p){setDock(false);studio.classList.remove("m-open");return}
-  setPane(p);setDock(true);studio.classList.add("m-open");
+  setPane(p);setDock(true);studio.classList.add("m-open");fitOpen();
+}
+function fitOpen(){ // phones: scale the desk so the whole sheet shows above the open panel
+  if(!mobile()||!studio.classList.contains("m-open")||!sheet.offsetHeight)return;
+  const dock=studio.querySelector(".dock"),H=studio.clientHeight,W=studio.clientWidth,dh=dock?dock.offsetHeight:H*.58;
+  const top=48,avail=H-dh-top-12,r=region(),sw=sheet.offsetWidth,sh=sheet.offsetHeight;
+  const k=Math.min(1,avail/sh,(W-16)/sw),ty=top-(r.cy-sh/2)*k;
+  studio.style.setProperty("--mo",`translateY(${ty.toFixed(1)}px) scale(${k.toFixed(3)})`);
 }
 $("#dock-x").onclick=()=>mSheet(null);
 $("#m-scraps").onclick=()=>mSheet("scraps");
@@ -1341,11 +1348,12 @@ function setBg(c){
   document.querySelectorAll(".sw[data-c]").forEach(x=>{const on=x.dataset.c===c;match||=on;x.setAttribute("aria-pressed",on)});
   cust.setAttribute("aria-pressed",!match);
 }
-$("#btn-clear").onclick=()=>{if(!pieces.length)return;pieces.forEach(p=>p.el.remove());pieces=[];select(null);$("#empty").hidden=false;save();toast("Wiped. Undo if you panic.")};
+$("#btn-clear").onclick=()=>{if(!pieces.length)return;pieces.forEach(p=>p.el.remove());pieces=[];select(null);$("#empty").hidden=false;if(orient!==portraitFor()){orient=portraitFor();sizeSheet()}save();toast("Wiped. Undo if you panic.")};
 
 // ---------- save + undo ----------
 const hist=[],fut=[];let lastSnap=null,restoring=false;
-const snap=()=>JSON.stringify({bg,pieces:pieces.map(({el,canvas,tok,nw,nh,fw,fh,...d})=>d)});
+var orient="p";function portraitFor(){return mobile()?"l":"p"}
+const snap=()=>JSON.stringify({bg,o:orient,pieces:pieces.map(({el,canvas,tok,nw,nh,fw,fh,...d})=>d)});
 function save(){
   setTimeout(hintsTick,500);
   const s=snap();store.set("recortes-hoja-v3",JSON.parse(s));
@@ -1354,7 +1362,7 @@ function save(){
 let saveT=0;function saveSoon(){clearTimeout(saveT);saveT=setTimeout(save,350)}
 function restore(s){
   restoring=true;pieces.forEach(p=>p.el.remove());pieces=[];enteredG=null;
-  const d=JSON.parse(s);setBg(d.bg);d.pieces.forEach(x=>addPiece(x,true));select(null);
+  const d=JSON.parse(s);if(d.o==="l"||d.o==="p"){if(d.o!==orient){orient=d.o;sizeSheet()}}setBg(d.bg);d.pieces.forEach(x=>addPiece(x,true));select(null);
   $("#empty").hidden=pieces.length>0;store.set("recortes-hoja-v3",d);lastSnap=s;restoring=false;updUndo();
 }
 function undo(){if(!hist.length)return;clearTimeout(saveT);fut.push(lastSnap);restore(hist.pop())}
@@ -1364,6 +1372,7 @@ $("#btn-undo").onclick=undo;$("#btn-redo").onclick=redo;
 function load(){
   const s=store.get("recortes-hoja-v3");
   const data=s&&Array.isArray(s.pieces)?s:{bg:"#151515",pieces:[]};
+  orient=(data.o==="l"||data.o==="p")?data.o:(data.pieces.length?"p":portraitFor());
   setBg(typeof data.bg==="string"&&data.bg[0]==="#"?data.bg:"#151515");
   data.pieces.forEach(d=>{if(d.kind==="text"||SCRAPS.find(s=>s.id===d.id))addPiece(d,true)});
   $("#empty").hidden=pieces.length>0;
@@ -1377,7 +1386,7 @@ if(!inArtifact)$("#btn-dl").hidden=false;
 else (async()=>{try{downloads=await window.claude.use("downloads")}catch(e){downloads=null}$("#btn-dl").hidden=!downloads})();
 async function renderSheet(){
   select(null);
-  const W=1240,H=1754,c=mkCanvas(W,H),g=c.getContext("2d");
+  const L=orient==="l",W=L?1754:1240,H=L?1240:1754,c=mkCanvas(W,H),g=c.getContext("2d");
   g.fillStyle=bg;g.fillRect(0,0,W,H);
   for(const p of pieces){
     const src=p.canvas||await loadSrc(p.id);if(!src)continue;
@@ -1421,7 +1430,7 @@ function motionPlayer(box,srcs,centers){
 }
 // one transparent layer per piece (the rest folded into the last), plus the paper underneath
 async function renderLayers(){
-  select(null);const W=620,H=877,out=[],centers=[];
+  select(null);const W=orient==="l"?877:620,H=orient==="l"?620:877,out=[],centers=[];
   const base=mkCanvas(W,H),bg0=base.getContext("2d");bg0.fillStyle=bg;bg0.fillRect(0,0,W,H);out.push(base);centers.push([.5,.5]);
   const groups=pieces.length>12?[...pieces.slice(0,11).map(p=>[p]),pieces.slice(11)]:pieces.map(p=>[p]);
   for(const grp of groups){const c=mkCanvas(W,H),g=c.getContext("2d");let cx=0,cy=0;
@@ -1447,7 +1456,7 @@ const pinBtn=$("#btn-pin"),pinPop=$("#pinpop");
 if(!inArtifact)pinBtn.hidden=false;
 studio.appendChild(pinPop);
 let finDock=true;
-function sizeFin(){if(innerWidth<=720){$("#pp-card").style.width=Math.round(Math.min(innerWidth*.72,300))+"px";return}if(innerWidth>720){const k=Math.min(innerWidth*.36/1240,(innerHeight-170)/1754);$("#pp-card").style.width=Math.max(200,Math.round(1240*k))+"px";return}const r=$(".fin-r"),mob=innerWidth<=720,W=r.clientWidth-64-(mob?0:314),H=r.clientHeight-(mob?40:110),k=Math.min(W/1240,H/1754);const w=Math.max(160,Math.round(1240*k));$("#pp-card").style.width=w+"px"}
+function sizeFin(){const AW=orient==="l"?1754:1240,AH=orient==="l"?1240:1754;if(innerWidth<=720){$("#pp-card").style.width=Math.round(Math.min(innerWidth*.72,300))+"px";return}if(innerWidth>720){const k=Math.min(innerWidth*.36/AW,(innerHeight-170)/AH);$("#pp-card").style.width=Math.max(200,Math.round(AW*k))+"px";return}const r=$(".fin-r"),mob=innerWidth<=720,W=r.clientWidth-64-(mob?0:314),H=r.clientHeight-(mob?40:110),k=Math.min(W/AW,H/AH);const w=Math.max(160,Math.round(AW*k));$("#pp-card").style.width=w+"px"}
 async function openFin(){
   if(!pieces.length){toast("Your sheet is empty. Paste something first.");return}
   if(pieces.length<2&&(pieces[0].kind!=="text")){toast("One scrap isn't a mess yet. Add another.");return} // a lone scrap stays in the pile, not on the table
