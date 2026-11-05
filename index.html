@@ -818,8 +818,10 @@ body.intro .dnav{animation:dnavUp .6s ease-out both}
 .note h2{font-size:clamp(64px,7.2vw,124px)!important;line-height:1.02;margin:0 0 26px;text-shadow:-5px 9px 14px rgba(8,28,32,.32)}
 .note p{font-size:15px;line-height:1.6;max-width:24em}
 @media (max-width:720px){.note h2{font-size:clamp(46px,14vw,64px)!important;margin-bottom:14px}}
-/* phase 1d: credit printed on the mat (under the collages), layout controls as plain text */
-#mesa>.credit{z-index:auto!important;background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:0!important;border-radius:0;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(238,218,166,.6)}
+/* phase 1d: credit sits above the collages on a small glass label, layout controls as plain text */
+#mesa>.credit{z-index:1000!important;background:rgba(24,48,56,.72)!important;-webkit-backdrop-filter:blur(6px)!important;backdrop-filter:blur(6px)!important;padding:6px 10px!important;border-radius:8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(238,218,166,.85)}
+#mesa>.credit a{pointer-events:auto;color:inherit;text-decoration:underline;text-underline-offset:2px}
+#mesa>.credit a:hover{color:#f4f0e6}
 .mesa-foot #tools-mesa{background:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;padding:0}
 .wallseg button, .mesa-foot .mini{text-shadow:0 1px 6px rgba(8,28,32,.85)}
 .wallseg button svg, .mesa-foot .mini svg.i{filter:drop-shadow(0 1px 4px rgba(8,28,32,.8))}
@@ -1165,6 +1167,7 @@ body.intro .bar{animation:none!important;opacity:1!important}
   #mesa .rulers .rx{top:auto!important;bottom:4px}
   .wall .rulers .rn.rx{transform:translateX(var(--ox,0))}
 }
+.rules-note{margin:12px 0 0;font-size:12px;line-height:1.5;opacity:.75}.rules-note a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>
@@ -1240,7 +1243,7 @@ body.intro .bar{animation:none!important;opacity:1!important}
       <span class="mf-sep" aria-hidden="true"></span>
       <button class="mini helpb" id="tour-btn" aria-label="How it works" data-tip="how it works"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6"/><path d="M12 7.5v.01" stroke-width="2.6" stroke-linecap="round"/></svg><span>how it works</span></button>
     </div></div>
-      <p class="credit">Found magazine imagery · non-commercial · <a href="privacy.html">privacy</a></p>
+      <p class="credit">Found magazine imagery · non-commercial · <a href="privacy.html">privacy &amp; rules</a></p>
       <div class="board" id="board"></div>
     </section>
 
@@ -1341,6 +1344,7 @@ body.intro .bar{animation:none!important;opacity:1!important}
       <h2 class="fin-h">Glue it</h2>
       <p class="fin-d">Fill in its little card. Everyone sees it once it's had a look.</p>
       <div class="fin-acts"><button class="pp-btn" id="pin-go">Glue it</button></div>
+          <p class="rules-note">By gluing it, you agree to the <a href="privacy.html#rules" target="_blank" rel="noopener">house rules</a>.</p>
     </div>
     <div id="pp-done" hidden>
       <h2 class="fin-h">Sent.</h2>
