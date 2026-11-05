@@ -15,3 +15,7 @@ p,li{color:var(--soft)}a{color:var(--ink)}
 .sheet{background:#e8e3d6;color:#3a3832;border-radius:14px;padding:22px 24px;margin:24px 0;box-shadow:-14px 26px 44px -16px rgba(0,0,0,.55)}
 .sheet p,.sheet li{color:#4a4740}.sheet a{color:#2f5e57}
 small{color:rgba(239,230,207,.6)}
+
+.top{display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.back{font-size:14px;color:var(--ink);text-underline-offset:3px;display:inline-block;padding:10px 0}
+.back:hover{opacity:.8}
