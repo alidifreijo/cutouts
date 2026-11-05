@@ -1168,6 +1168,17 @@ body.intro .bar{animation:none!important;opacity:1!important}
   .wall .rulers .rn.rx{transform:translateX(var(--ox,0))}
 }
 .rules-note{margin:12px 0 0;font-size:12px;line-height:1.5;opacity:.75}.rules-note a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+
+/* phones: the zoom bar is a little cream card, like the desktop label */
+@media (max-width:720px){
+  .zcap{display:none!important}
+  .zbar:not(.tagged){left:12px;right:12px;bottom:max(14px,env(safe-area-inset-bottom,0px));transform:none;gap:6px;padding:8px;border-radius:16px;border:0;
+    background:#e8e3d6;background-image:linear-gradient(180deg,rgba(255,255,255,.35),rgba(0,0,0,.04));box-shadow:0 2px 0 rgba(0,0,0,.06),-10px 20px 34px -14px rgba(0,0,0,.6)}
+  .zbar:not(.tagged) .ib{width:42px;height:42px;border:0;border-radius:12px;background:rgba(40,40,36,.08);color:#5b5850;flex:none}
+  .zbar:not(.tagged) .ib:active{background:rgba(40,40,36,.16);color:#2a2824}
+  .zbar:not(.tagged) .zt{color:#2a2824;font-size:21px;line-height:1.3;padding:0 4px}
+  .zbar:not(.tagged) .zn{color:#5b5850;font-family:var(--f-num);font-weight:500;font-size:18px;letter-spacing:0}
+}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>

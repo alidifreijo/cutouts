@@ -111,8 +111,8 @@ function setCam(x,y,hard){const b=bounds();
 // the lamp's shadow belongs to the table: it sits in its first corner and slides away with the board
 let lampEl=null,lamp0=null;
 function placeLamp(){if(!mesa)return;if(!lampEl){lampEl=document.createElementNS('http://www.w3.org/2000/svg','svg');lampEl.setAttribute('class','lamp');lampEl.setAttribute('aria-hidden','true');lampEl.innerHTML='<polygon/>';mesa.insertBefore(lampEl,mesa.firstChild);setTimeout(()=>lampEl.classList.add('on'),250)}
-  const W=mesa.clientWidth||innerWidth,H=mesa.clientHeight||innerHeight;if(!lamp0||lamp0.W!==W||lamp0.H!==H){lamp0={x:camX,y:camY,W,H};const yA=.42*H,P=1200,xR=W*1.15,yR=-.15*yA;lampEl.innerHTML=`<defs><linearGradient id='lampFade' gradientUnits='userSpaceOnUse' x1='${W*.72}' y1='0' x2='${xR}' y2='0'><stop offset='0' stop-color='rgb(18,44,58)' stop-opacity='.47'/><stop offset='1' stop-color='rgb(18,44,58)' stop-opacity='0'/></linearGradient></defs><polygon fill='url(#lampFade)' points='${-P},${-P} ${xR},${-P} ${xR},${yR} 0,${yA} ${-P},${yA+P*yA/W}'/>`}
-  lampEl.style.transform=`translate(${camX-lamp0.x}px,${camY-lamp0.y}px)`}
+  const W=mesa.clientWidth||innerWidth,H=mesa.clientHeight||innerHeight;if(!lamp0||lamp0.W!==W||lamp0.H!==H){lamp0={x:camX,y:camY,W,H};const yA=W<720?Math.min(.42*H,.55*W):.42*H,P=1200,xR=W*1.15,yR=-.15*yA;lampEl.innerHTML=`<defs><linearGradient id='lampFade' gradientUnits='userSpaceOnUse' x1='${W*.72}' y1='0' x2='${xR}' y2='0'><stop offset='0' stop-color='rgb(18,44,58)' stop-opacity='.47'/><stop offset='1' stop-color='rgb(18,44,58)' stop-opacity='0'/></linearGradient></defs><polygon fill='url(#lampFade)' points='${-P},${-P} ${xR},${-P} ${xR},${yR} 0,${yA} ${-P},${yA+P*yA/W}'/>`}
+  lampEl.style.transform=(lamp0.W<720)?"none":`translate(${camX-lamp0.x}px,${camY-lamp0.y}px)`}
 addEventListener('resize',()=>{lamp0=null;placeLamp()});
 const rubber=(v,lo,hi)=>v<lo?lo+(v-lo)*.35:v>hi?hi+(v-hi)*.35:v;
 let rulerKey="";
@@ -166,7 +166,7 @@ function zoomTo(el,instant){
   const cx=W/2-side/2,cy=top+(H-barH-top)/2;
   boardT(cx,cy,-p.r,s,-(p.x+p.cw/2),-(p.y+p.ch/2));
   const w=WORKS[+el.dataset.i];$("#zt").textContent=w?w.t:"";$("#zby").textContent=w&&w.by?"by "+w.by:"";
-  zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc)||wide;zbar.classList.toggle("tagged",wide);
+  zcap.textContent=w&&w.desc?w.desc:"";zcap.hidden=!(w&&w.desc)||wide||small;zbar.classList.toggle("tagged",wide);
   showZtag(w,cx,cy,p.cw*s);$("#zn").textContent=`${String(placed.indexOf(el)+1).padStart(2,"0")} / ${placed.length}`;ztag.querySelector(".zt-no").textContent=placed.indexOf(el)+1;ztag.querySelector(".zt-pg").textContent=`${placed.indexOf(el)+1} / ${placed.length}`;
   zbar.hidden=false;
   playCardMotion(el,w,instant?0:700);
