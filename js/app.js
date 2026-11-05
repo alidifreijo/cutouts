@@ -194,7 +194,7 @@ document.addEventListener("keydown",e=>{if(!Z||mode!=="mesa")return;if(e.key==="
   function glide(){velX*=.94;velY*=.94;if(Math.hypot(velX,velY)<.15){inertia=0;return}
     const b=bounds(),nx=camX+velX,ny=camY+velY;if(nx<=b.x0||nx>=b.x1)velX=0;if(ny<=b.y0||ny>=b.y1)velY=0;
     setCam(nx,ny,true);inertia=requestAnimationFrame(glide)}
-  mesa.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.target.closest(".mesa-foot"))return;const mod=e.target.closest("[data-mod]");if(mod){e.stopPropagation();return}
+  mesa.addEventListener("pointerdown",e=>{if(e.button!==0)return;if(e.target.closest(".mesa-foot,.credit"))return;const mod=e.target.closest("[data-mod]");if(mod){e.stopPropagation();return}
     cancelAnimationFrame(inertia);velX=velY=0;glide.sx=glide.sy=0;st={x:e.clientX,y:e.clientY,cx:camX,cy:camY,id:e.pointerId,card:e.target.closest(".card"),moved:false};last={x:e.clientX,y:e.clientY,t:performance.now()};hits=[];mesa.setPointerCapture(e.pointerId)});
   mesa.addEventListener("pointermove",e=>{if(!st||e.pointerId!==st.id||Z)return;const dx=e.clientX-st.x,dy=e.clientY-st.y;
     if(!st.moved&&Math.hypot(dx,dy)>5){st.moved=true;mesa.classList.add("panning")}
