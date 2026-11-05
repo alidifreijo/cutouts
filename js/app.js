@@ -1455,7 +1455,7 @@ async function openFin(){
   $("#pp-form").hidden=false;$("#pp-done").hidden=true;
   $("#pin-name").value=store.get("recortes-signed")||"";ppLayers=null;setMove(false);
   requestAnimationFrame(sizeFin);try{$("#fin-no").textContent=(WORKS.filter(w=>!w.gone).length+1)}catch(e){}
-  {const g=$("#pin-go"),fg=$(".fin-go");if(g&&fg){if(innerWidth>720){fg.appendChild(g);g.textContent="Glue it to the table"}else{$("#pp-form .fin-acts").appendChild(g);g.textContent="Glue it"}}}
+  {const g=$("#pin-go"),fg=$(".fin-go");if(g&&fg){fg.appendChild(g);g.textContent="Glue it to the table"}}
   try{const c=await renderSheet();$("#pp-thumb").src=c.toDataURL("image/jpeg",.8)}catch(e){}
   {const mt=$("#mess-title");if(mt&&mt.value.trim()&&!$("#pin-title").value)$("#pin-title").value=mt.value.trim()}setTimeout(()=>$("#pin-title").focus(),400);
 }

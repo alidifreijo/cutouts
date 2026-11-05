@@ -629,7 +629,7 @@ function fitTo(c,max){const k=Math.min(1,max/Math.max(c.width,c.height));if(k===
 // ---------- 4 send ----------
 function sizePub(){ // the collage takes what the frame gives once the side panel has gone
   if(!trimmed||PATH!=="collage"||$("#w-send").hidden)return;const im=$("#pub-preview"),fr=$("#frame"),mob=innerWidth<=820;
-  const bw=Math.min(mob?fr.clientWidth-60:fr.clientWidth-320-56-60,900),bh=Math.max(260,fr.clientHeight-40-(scraps.length&&!mob?170:0));
+  const bw=Math.min(mob?fr.clientWidth-60:fr.clientWidth-320-90-80,900),bh=Math.max(260,fr.clientHeight-40-(scraps.length&&!mob?170:0));
   const k=Math.min(bw/trimmed.width,bh/trimmed.height);im.style.width=Math.round(trimmed.width*k)+"px";im.style.height=Math.round(trimmed.height*k)+"px";
 }
 addEventListener("resize",()=>sizePub());

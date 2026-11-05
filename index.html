@@ -1146,6 +1146,11 @@ body.intro .bar{animation:none!important;opacity:1!important}
 #mesa>.credit a{pointer-events:auto;color:inherit;text-decoration:underline;text-underline-offset:2px}
 /* every mat: major and minor lines start at the same point */
 #studio.mat,#addpane.mat{background-position:28px 28px!important}
+/* UX audit fixes */
+#studio .empty-msg{font-size:19px;color:var(--tag,rgba(0,0,0,.45))}
+#studio .empty-msg .em-d,#studio .empty-msg .em-m{font-size:15px}
+@media (max-width:720px){.fin-go{display:flex;justify-content:center;width:100%;margin:4px 0 24px}.fin-go .pp-btn{background:#f0cd4a;border-color:#f0cd4a;color:#1d1d1a;border-radius:14px;padding:14px 28px;font-size:16px}
+  #pp-form .fin-acts{display:none}}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>
