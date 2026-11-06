@@ -108,8 +108,7 @@ function tween(o,to,ms){return new Promise(res=>{if(REDUCE){o.t=to;o.draw(to);re
   const step=now=>{const k=Math.min(1,(now-t0)/ms);o.t=from+(to-from)*k;o.draw(o.t);if(k<1)o.raf=requestAnimationFrame(step);else res()};o.raf=requestAnimationFrame(step)})}
 function revealPapers(){PAPERS.forEach((o,k)=>{o.draw(1);setTimeout(()=>tween(o,0,900),200+k*160)})}
 PAPERS.forEach(o=>{
-  o.el.addEventListener("pointerenter",()=>{if(o.t<.2&&!o.busy)tween(o,.07,260)});
-  o.el.addEventListener("pointerleave",()=>{if(o.t<.2&&!o.busy)tween(o,0,300)});
+  // hover: the card just lifts (CSS); it only crumples once you pick it
   o.el.onclick=async()=>{
     if(o.busy)return;PAPERS.forEach(x=>{x.busy=true;if(x!==o)x.el.classList.add("away")});
     await tween(o,1,650);

@@ -494,6 +494,25 @@ h2{font-family:var(--f-head);font-weight:400;font-size:20px;line-height:1.45;mar
 .rail .wiz-back[hidden]{display:none}
 /* the pile picker opens inside the panel, pushing the list down, so nothing gets clipped */
 .side .menu{position:static!important;margin-top:6px;box-shadow:none;max-height:none!important;overflow:visible}
+
+/* what did you bring: room under the title, ink-coloured Start like the rest of the card */
+.pick h1{margin-bottom:30px!important;line-height:1.05!important}
+.paper .go{color:#2a2824!important;font-weight:500;display:inline-flex;gap:6px;align-items:center;border-bottom:1.5px solid rgba(42,40,36,.35);align-self:flex-start;padding-bottom:2px}
+.paper:hover .go{border-bottom-color:#2a2824}
+
+/* phones: the two choices are compact cards (picture left, words right) so both fit on one screen */
+@media (max-width:720px){
+  .papers{gap:18px!important}
+  .paper{width:min(358px,92vw)!important;min-height:0!important}
+  .paper .txt{display:grid!important;grid-template-columns:96px 1fr;column-gap:16px;row-gap:6px;padding:18px!important;min-height:0!important;align-items:start}
+  .paper .txt>.p-head{grid-column:1/-1}
+  .paper .txt>.engrave{grid-column:1;grid-row:2/span 3;width:96px!important;max-width:96px;align-self:center;margin:0!important;padding:0!important}
+  .paper .txt>.engrave img{width:100%!important}
+  .paper .txt>b{grid-column:2;font-size:30px!important}
+  .paper .txt>.p-d{grid-column:2;font-size:12.5px!important}
+  .paper .txt>.go{grid-column:2;margin-top:4px;justify-self:start}
+  .pick h1{margin-bottom:22px!important}
+}
 </style>
 </head>
 <body>
