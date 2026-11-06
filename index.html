@@ -732,7 +732,7 @@ body{font-size:15px}
 /* ===== mat redesign · phase 1: teal cutting mat, studio light, floating glass nav ===== */
 :root{--mat:#4a8676;--panel:#2f5d5c;--mat-deep:#3b6f63;--mat-dark:#1d3a3f;--mat-light:#5c9886;
   --mat-line:rgba(238,218,166,.14);--mat-line-strong:rgba(238,218,166,.34);--mat-ink:rgba(239,230,207,.72);--mint:#f4f0e6;
-  --tape:rgba(242,230,196,.84);--glass:rgba(24,48,56,.62);--glass-line:rgba(238,226,196,.12);--cream:#f4f0e6;--ink-dark:#1d3a3f}
+  --tape:rgba(242,230,196,.84);--glass:rgba(22,44,50,.72);--glass-line:rgba(238,226,196,.12);--cream:#f4f0e6;--ink-dark:#1d3a3f}
 .mat{background-image:
     linear-gradient(168deg,rgba(18,44,58,.5) 0,rgba(18,44,58,.44) 24%,rgba(18,44,58,0) 24.4%),
     radial-gradient(ellipse 70% 60% at 62% 70%,rgba(214,232,186,.26),rgba(214,232,186,0) 70%),
@@ -1193,9 +1193,9 @@ body.intro .bar{animation:none!important;opacity:1!important}
 
 /* phones: one look with desktop — glass panels, light tiles, yellow "glue it" */
 @media (max-width:720px){
-  #studio .dock{background:rgba(24,48,56,.74)!important;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(238,226,196,.12);border-bottom:0;height:min(54dvh,500px)}
+  #studio .dock{background:var(--glass)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(238,226,196,.12);border-bottom:0;height:min(54dvh,500px)}
   #studio .dock::before{background:rgba(238,226,196,.35)}
-  .mbar,#studio .rail{background:rgba(24,48,56,.66)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(238,226,196,.12);border-radius:20px!important;box-shadow:0 18px 40px -18px rgba(0,0,0,.55);padding:6px!important;gap:6px!important}
+  .mbar,#studio .rail{background:var(--glass)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(238,226,196,.12);border-radius:20px!important;box-shadow:0 18px 40px -18px rgba(0,0,0,.55);padding:6px!important;gap:6px!important}
   .mbar .ib,#studio .rail .ib{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.07);color:#efe6cf}
   .mbar .ib:disabled{background:rgba(255,255,255,.03);color:rgba(239,230,207,.35)}
   .mb-add{height:46px;border-radius:13px;background:rgba(255,255,255,.07);color:#efe6cf;padding:0 14px;font-size:14px}
@@ -1210,6 +1210,12 @@ body.intro .bar{animation:none!important;opacity:1!important}
 
 /* dropdowns sit inside a frosted panel, where a second blur cannot work, so they stay (almost) solid to keep the text readable */
 ul.menu{background:rgba(16,34,40,.97)!important;-webkit-backdrop-filter:blur(22px) saturate(1.15);backdrop-filter:blur(22px) saturate(1.15);border:1px solid rgba(238,226,196,.14)}
+
+/* every floating panel wears exactly the same glass as the centre menu */
+.mesa-foot #tools-mesa,#studio .dock,#studio .rail,#studio .zoom,#toast,.mbar,nav.tabs.dnav{background:var(--glass)!important;-webkit-backdrop-filter:blur(14px)!important;backdrop-filter:blur(14px)!important;border:1px solid var(--glass-line)!important}
+.mesa-foot #tools-mesa,#studio .rail,#studio .zoom,#toast,.mbar{box-shadow:inset 0 2px 0 rgba(255,255,255,.04),0 22px 44px -16px rgba(0,0,0,.65)!important}
+@media (min-width:721px){#studio .dock{box-shadow:inset 0 2px 0 rgba(255,255,255,.04),0 22px 44px -16px rgba(0,0,0,.65)!important}}
+@media (max-width:720px){#studio .dock{border-bottom:0!important}}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>
