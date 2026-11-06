@@ -700,7 +700,8 @@ body.thud .board{animation:thud .18s ease-out}
   #studio .dock::after{display:none}
   #studio .dock-scroll{padding-bottom:max(24px,env(safe-area-inset-bottom,0px))}
   #studio .empty-msg{align-content:center;gap:6px}
-  #studio.m-open .mbar,#studio.m-open .rail{display:none}
+  #studio.m-open:not(.has-sel) .mbar{display:flex}
+  #studio.m-open.has-sel .rail{display:flex}
   .mtrash{display:grid;place-items:center;position:absolute;z-index:23;left:50%;bottom:max(18px,env(safe-area-inset-bottom,0px));width:56px;height:56px;margin-left:-28px;border-radius:50%;background:rgba(23,61,44,.9);color:#fff;opacity:0;transform:scale(.6);transition:opacity .15s,transform .15s,background .15s;pointer-events:none}
   .mtrash svg.i{width:22px;height:22px}
   #studio.moving .mtrash{opacity:1;transform:none}
@@ -1204,8 +1205,6 @@ body.intro .bar{animation:none!important;opacity:1!important}
   #studio .rail #m-done{box-shadow:-10px 0 12px -6px rgba(24,48,56,.9)}
   /* messy / strict: one glass pill with words, like desktop */
   #tools-mesa .wallseg{background:transparent!important;box-shadow:none!important}
-  #tools-mesa .wallseg button{width:auto!important;padding:0 10px!important;gap:6px;display:inline-flex;align-items:center}
-  #tools-mesa .wallseg button span{display:inline!important;font-size:12.5px}
 }
 
 /* dropdowns sit inside a frosted panel, where a second blur cannot work, so they stay (almost) solid to keep the text readable */
@@ -1216,6 +1215,26 @@ ul.menu{background:rgba(16,34,40,.97)!important;-webkit-backdrop-filter:blur(22p
 .mesa-foot #tools-mesa,#studio .rail,#studio .zoom,#toast,.mbar{box-shadow:inset 0 2px 0 rgba(255,255,255,.04),0 22px 44px -16px rgba(0,0,0,.65)!important}
 @media (min-width:721px){#studio .dock{box-shadow:inset 0 2px 0 rgba(255,255,255,.04),0 22px 44px -16px rgba(0,0,0,.65)!important}}
 @media (max-width:720px){#studio .dock{border-bottom:0!important}}
+
+/* phones: the sheet floats above the toolbar (which stays), no chevron — the handle closes it */
+@media (max-width:720px){
+  #studio .dock{left:10px!important;right:10px!important;bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 70px)!important;height:min(46dvh,430px)!important;border-radius:22px!important;border-bottom:1px solid var(--glass-line)!important;padding-top:14px}
+  #studio.dock-closed .dock{transform:translateY(calc(100% + 120px))}
+  #studio .dock-x{display:none!important}
+  #studio .seg{margin:14px 16px 4px!important}
+  .m-grab{position:absolute;top:0;left:0;right:0;height:26px;z-index:3;touch-action:none;cursor:grab;border-radius:22px 22px 0 0}
+  .mb-add.on{background:#f4f0e6!important;color:#1d3a3f!important}
+  #studio .rail #m-fx.on{box-shadow:inset 0 0 0 2px #1d3a3f}
+  /* messy / strict: just the icons, small, on the logo's line */
+  #tools-mesa .wallseg button span{display:none!important}
+  #tools-mesa .wallseg button{width:34px!important;height:34px!important;padding:0!important;justify-content:center}
+  .mesa-foot #tools-mesa{padding:3px!important;gap:2px!important;border-radius:13px!important}
+  .mesa-foot #tools-mesa .helpb{width:34px!important;height:34px!important;min-width:0!important;padding:0!important}
+  #tools-mesa .wallseg{padding:0!important;gap:2px!important}
+  #studio .dock{overflow:hidden!important}
+  #studio .dock>[id^=pane-]{min-height:0!important}
+  #studio .dock .dock-scroll{padding-bottom:24px!important}
+}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>

@@ -1011,19 +1011,29 @@ function bindPiece(p){
 let pinchP=null;
 const overTrash=(x,y)=>{const r=$("#mtrash").getBoundingClientRect();return x>r.left-24&&x<r.right+24&&y>r.top-24&&y<r.bottom+24};
 function mSheet(p){ // open the bottom sheet on a pane, or close it (p=null)
-  if(!p){setDock(false);studio.classList.remove("m-open");return}
-  setPane(p);setDock(true);studio.classList.add("m-open");fitOpen();document.querySelectorAll("body>.hint").forEach(h=>h.remove());
+  const mark=q=>{$("#m-scraps").classList.toggle("on",q==="scraps");$("#m-fx").classList.toggle("on",q==="fx")};
+  if(!p){setDock(false);studio.classList.remove("m-open");mark(null);return}
+  setPane(p);setDock(true);studio.classList.add("m-open");mark(p);fitOpen();document.querySelectorAll("body>.hint").forEach(h=>h.remove());
 }
 function fitOpen(){ // phones: scale the desk so the whole sheet shows above the open panel
   if(!mobile()||!studio.classList.contains("m-open")||!sheet.offsetHeight)return;
-  const dock=studio.querySelector(".dock"),H=studio.clientHeight,W=studio.clientWidth,dh=dock?dock.offsetHeight:H*.58;
-  const top=48,avail=H-dh-top-12,r=region(),sw=sheet.offsetWidth,sh=sheet.offsetHeight;
+  const dock=studio.querySelector(".dock"),H=studio.clientHeight,W=studio.clientWidth,dh=dock?dock.offsetHeight:H*.5;
+  const bar=studio.classList.contains("has-sel")?$("#rail"):$("#mbar"),below=parseFloat(getComputedStyle(dock).bottom)||((bar?bar.offsetHeight:58)+24);
+  const top=48,avail=H-below-dh-top-12,r=region(),sw=sheet.offsetWidth,sh=sheet.offsetHeight;
   const k=Math.min(1,avail/sh,(W-16)/sw),ty=top-(r.cy-sh/2)*k;
   studio.style.setProperty("--mo",`translateY(${ty.toFixed(1)}px) scale(${k.toFixed(3)})`);
 }
 $("#dock-x").onclick=()=>mSheet(null);
-$("#m-scraps").onclick=()=>mSheet("scraps");
-$("#m-fx").onclick=()=>mSheet("fx");
+const mIsOpen=q=>studio.classList.contains("m-open")&&pane===q;
+$("#m-scraps").onclick=()=>mSheet(mIsOpen("scraps")?null:"scraps");
+$("#m-fx").onclick=()=>mSheet(mIsOpen("fx")?null:"fx");
+// phones: the handle closes the sheet — tap it, or pull it down
+{const dk=studio.querySelector(".dock"),g=document.createElement("div");g.className="m-grab";g.setAttribute("role","button");g.setAttribute("aria-label","Close panel");g.tabIndex=0;dk.prepend(g);
+  let y0=null,dy=0;g.addEventListener("pointerdown",e=>{if(!mobile())return;y0=e.clientY;dy=0;g.setPointerCapture(e.pointerId);dk.style.transition="none"});
+  g.addEventListener("pointermove",e=>{if(y0===null)return;dy=Math.max(0,e.clientY-y0);dk.style.transform=`translateY(${dy}px)`});
+  const end=()=>{if(y0===null)return;dk.style.transition="";dk.style.transform="";const close=dy>40||dy<6;y0=null;if(close)mSheet(null)};
+  g.addEventListener("pointerup",end);g.addEventListener("pointercancel",()=>{y0=null;dk.style.transition="";dk.style.transform=""});
+  g.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();mSheet(null)}})}
 $("#m-done").onclick=()=>{mSheet(null);select(null)};
 $("#m-text").onclick=()=>{addText()};
 $("#m-paper").onclick=()=>{mSheet(null);openPop("paper")};
