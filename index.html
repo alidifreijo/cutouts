@@ -1245,6 +1245,9 @@ ul.menu{background:rgba(16,34,40,.97)!important;-webkit-backdrop-filter:blur(22p
 .cutrow .stepper output{min-width:26px;font-size:15px;font-weight:500;color:#f8f4ea}
 .btn.cutup{background:#f4f0e6!important;color:#1d3a3f!important;border:0;width:100%;justify-content:center;display:flex;align-items:center;gap:8px;margin-top:10px;height:44px;border-radius:12px}
 .btn.cutup svg.i{width:16px;height:16px}
+
+/* glue it: Back and title sit top-left, exactly where the add-scraps steps put them */
+@media (min-width:721px){.fin-l{align-self:start!important;padding-top:72px!important;margin-left:calc(64px - clamp(32px,5vw,96px))}.fin-l .fin-back{margin-bottom:42px}}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>

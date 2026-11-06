@@ -31,7 +31,7 @@ function show(v){
     w.classList.toggle("on",on);w.classList.toggle("past",!on&&(k<i||k<0&&dir>0));w.classList.toggle("next",!on&&!(k<i||k<0&&dir>0));
     w.hidden=k<0;});
   $("#dots").innerHTML=O.map((_,k)=>`<i class="${k===i?"on":k<i?"dn":""}"></i>`).join("");
-  $(".wstep[data-s=snap] .back").hidden=false;
+  $("#wiz-back").hidden=v==="done";requestAnimationFrame(placeBack);
   const panes={snap:"#drop",square:"#w-sheet",cut:"#w-cut",send:"#w-send",done:"#w-send"};
   ["#drop","#w-sheet","#w-cut","#w-send"].forEach(id=>{const el=$(id),on=panes[v]===id;if(on&&el.hidden){el.hidden=false;el.classList.remove("in-up","in-down");void el.offsetWidth;el.classList.add(dir>0?"in-up":"in-down")}else if(!on)el.hidden=true});
   $("#zoom").hidden=!(v==="square"||v==="cut");$("#loose").hidden=true;
@@ -43,6 +43,10 @@ function show(v){
   if(v==="square")setTimeout(()=>{sizeView("w-sheet");placeCorners()},560);
   if(v==="send"&&prev!=="done")renderPublish();
 }
+function placeBack(){const wb=$("#wiz-back"),ob=$(".wstep.on .back")||$(".wstep .back"),rail=$("#rail");if(!wb||!ob||!rail.clientHeight)return;
+  let x=0,y=0,e=ob;while(e&&e!==rail){x+=e.offsetLeft;y+=e.offsetTop;e=e.offsetParent}
+  if(e===rail){wb.style.left=x+"px";wb.style.top=y+"px"}}
+addEventListener("resize",()=>requestAnimationFrame(placeBack));
 $$("[data-back]").forEach(b=>b.onclick=()=>{const O=order(),i=O.indexOf(step);show(i>0?O[i-1]:"pick")});
 function setPath(p){
   PATH=p;const col=p==="collage";
@@ -491,7 +495,7 @@ document.addEventListener("pointerdown",e=>{if(!e.target.closest(".dd"))closeDD(
 $("#scraps").addEventListener("click",e=>{const row=e.target.closest(".scrap");if(!row)return;const s=scraps.find(x=>x.id==+row.dataset.id);
   if(e.target.closest("[data-rm]")){scraps=scraps.filter(x=>x!==s);drawCut()}
   if(e.target.closest("[data-bg]"))cleanScrap(s);
-  const db=e.target.closest("[data-dd]");if(db){const m=db.nextElementSibling,open=m.hidden;closeDD();m.hidden=!open;db.setAttribute("aria-expanded",open);if(open){const r=db.getBoundingClientRect();m.classList.toggle("up",innerHeight-r.bottom<260)}}
+  const db=e.target.closest("[data-dd]");if(db){const m=db.nextElementSibling,open=m.hidden;closeDD();m.hidden=!open;db.setAttribute("aria-expanded",open);if(open){const r=db.getBoundingClientRect();m.classList.toggle("up",innerHeight-r.bottom<260);if(db.closest(".side"))requestAnimationFrame(()=>m.scrollIntoView({block:"nearest",behavior:"smooth"}))}}
   const o=e.target.closest(".menu [data-v]");if(o){s.cluster=o.dataset.v;s.bad=false;setTimeout(syncNext,0);const b=o.closest(".dd").querySelector(".dd-btn");b.classList.remove("bad");b.querySelector("span").textContent=CL[s.cluster];o.parentNode.querySelectorAll("li").forEach(li=>li.setAttribute("aria-selected",li===o));closeDD()}});
 // cut bits come loose: they lift off the page and can be dragged anywhere on the mat
 function syncLoose(){
