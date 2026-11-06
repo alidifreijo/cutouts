@@ -112,7 +112,7 @@ function setCam(x,y,hard){const b=bounds();
 let lampEl=null,lamp0=null;
 function placeLamp(){if(!mesa)return;if(!lampEl){lampEl=document.createElementNS('http://www.w3.org/2000/svg','svg');lampEl.setAttribute('class','lamp');lampEl.setAttribute('aria-hidden','true');lampEl.innerHTML='<polygon/>';mesa.insertBefore(lampEl,mesa.firstChild);setTimeout(()=>lampEl.classList.add('on'),250)}
   const W=mesa.clientWidth||innerWidth,H=mesa.clientHeight||innerHeight;if(!lamp0||lamp0.W!==W||lamp0.H!==H){lamp0={x:camX,y:camY,W,H};const yA=W<720?Math.min(.42*H,.55*W):.42*H,P=1200,xR=W*1.15,yR=-.15*yA;lampEl.innerHTML=`<defs><linearGradient id='lampFade' gradientUnits='userSpaceOnUse' x1='${W*.72}' y1='0' x2='${xR}' y2='0'><stop offset='0' stop-color='rgb(18,44,58)' stop-opacity='.47'/><stop offset='1' stop-color='rgb(18,44,58)' stop-opacity='0'/></linearGradient></defs><polygon fill='url(#lampFade)' points='${-P},${-P} ${xR},${-P} ${xR},${yR} 0,${yA} ${-P},${yA+P*yA/W}'/>`}
-  lampEl.style.transform=(lamp0.W<720)?"none":`translate(${camX-lamp0.x}px,${camY-lamp0.y}px)`}
+  lampEl.style.transform=`translate(${camX-lamp0.x}px,${camY-lamp0.y}px)`}
 addEventListener('resize',()=>{lamp0=null;placeLamp()});
 const rubber=(v,lo,hi)=>v<lo?lo+(v-lo)*.35:v>hi?hi+(v-hi)*.35:v;
 let rulerKey="";
@@ -1012,7 +1012,7 @@ let pinchP=null;
 const overTrash=(x,y)=>{const r=$("#mtrash").getBoundingClientRect();return x>r.left-24&&x<r.right+24&&y>r.top-24&&y<r.bottom+24};
 function mSheet(p){ // open the bottom sheet on a pane, or close it (p=null)
   if(!p){setDock(false);studio.classList.remove("m-open");return}
-  setPane(p);setDock(true);studio.classList.add("m-open");fitOpen();
+  setPane(p);setDock(true);studio.classList.add("m-open");fitOpen();document.querySelectorAll("body>.hint").forEach(h=>h.remove());
 }
 function fitOpen(){ // phones: scale the desk so the whole sheet shows above the open panel
   if(!mobile()||!studio.classList.contains("m-open")||!sheet.offsetHeight)return;
@@ -1599,7 +1599,7 @@ $("#tour-btn").onclick=tourStart;
 tourEl.addEventListener("keydown",e=>{if(e.key==="Escape")tourEnd();if(e.key==="ArrowRight"||e.key==="Enter"){e.preventDefault();tourShow(tourI+1)}if(e.key==="ArrowLeft"&&tourI>0)tourShow(tourI-1)});
 addEventListener("resize",()=>{if(tourI>=0)tourShow(tourI)});
 // hints: shown once each, the first time they make sense
-const HINTS={drop:{h:"Start here",p:"Drag a scrap onto the sheet. Or just click it, we're not fussy."},glue:{h:"Looking good",p:"Happy with it? Glue it to the table before you overthink it."}};
+const HINTS={drop:{h:"Start here",p:mobile()?"Tap scraps, then tap one to stick it on the sheet.":"Drag a scrap onto the sheet. Or just click it, we're not fussy."},glue:{h:"Looking good",p:"Happy with it? Glue it to the table before you overthink it."}};
 let hintEl=null;
 function hint(k,target,side){
   const seen=store.get("cutouts-hints")||{};if(seen[k]||!tourEl.hidden||store.get("cutouts-tour")!==1)return;
@@ -1611,7 +1611,7 @@ function hint(k,target,side){
   const kill=()=>{if(hintEl){hintEl.remove();hintEl=null}};hintEl.querySelector("button").onclick=kill;setTimeout(kill,9000);
 }
 function hintsTick(){if(mode!=="pega")return;
-  if(!pieces.length)hint("drop",mobile()?"#m-scraps":"#dock","left");
+  if(!pieces.length)hint("drop",mobile()?"#m-scraps":"#dock",mobile()?"top":"left");
   else if(pieces.length>=3)hint("glue",mobile()?"#m-pin":"#btn-pin","top");}
 
 

@@ -1185,11 +1185,31 @@ body.intro .bar{animation:none!important;opacity:1!important}
   #studio .rail{overflow-x:auto;scrollbar-width:none;justify-content:flex-start!important}
   #studio .rail::-webkit-scrollbar{display:none}
   #studio .rail [data-a="rot"],#studio .rail #btn-redo{display:none!important}
-  #studio .rail #m-fx{order:-1;width:auto!important;padding:0 14px 0 10px;gap:6px;border-radius:12px;background:#f0cd4a;color:#1d1d1a;display:flex;align-items:center;font:500 13px/1 var(--f-mono,"DM Mono",monospace);margin-right:4px}
+  #studio .rail #m-fx{order:-1;width:auto!important;padding:0 14px 0 10px;gap:6px;border-radius:12px;background:#f4f0e6;color:#1d3a3f;display:flex;align-items:center;font:500 13px/1 var(--f-mono,"DM Mono",monospace);margin-right:4px}
   #studio .rail #m-fx::after{content:"effects"}
   #studio .rail .ib{flex:none}
   #studio .rail #m-done{order:99;position:sticky;right:0;box-shadow:-10px 0 12px -4px var(--panel)}
 }
+
+/* phones: one look with desktop — glass panels, light tiles, yellow "glue it" */
+@media (max-width:720px){
+  #studio .dock{background:rgba(24,48,56,.74)!important;-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);border:1px solid rgba(238,226,196,.12);border-bottom:0;height:min(54dvh,500px)}
+  #studio .dock::before{background:rgba(238,226,196,.35)}
+  .mbar,#studio .rail{background:rgba(24,48,56,.66)!important;-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid rgba(238,226,196,.12);border-radius:20px!important;box-shadow:0 18px 40px -18px rgba(0,0,0,.55);padding:6px!important;gap:6px!important}
+  .mbar .ib,#studio .rail .ib{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.07);color:#efe6cf}
+  .mbar .ib:disabled{background:rgba(255,255,255,.03);color:rgba(239,230,207,.35)}
+  .mb-add{height:46px;border-radius:13px;background:rgba(255,255,255,.07);color:#efe6cf;padding:0 14px;font-size:14px}
+  .mb-pin{height:46px;border-radius:13px;background:#f0cd4a;color:#1d1d1a;padding:0 16px;font-size:14px;font-weight:500}
+  #studio .rail .m-done{background:#4d6d6f!important;color:#f8f4ea!important}
+  #studio .rail #m-done{box-shadow:-10px 0 12px -6px rgba(24,48,56,.9)}
+  /* messy / strict: one glass pill with words, like desktop */
+  #tools-mesa .wallseg{background:transparent!important;box-shadow:none!important}
+  #tools-mesa .wallseg button{width:auto!important;padding:0 10px!important;gap:6px;display:inline-flex;align-items:center}
+  #tools-mesa .wallseg button span{display:inline!important;font-size:12.5px}
+}
+
+/* dropdowns sit inside a frosted panel, where a second blur cannot work, so they stay (almost) solid to keep the text readable */
+ul.menu{background:rgba(16,34,40,.97)!important;-webkit-backdrop-filter:blur(22px) saturate(1.15);backdrop-filter:blur(22px) saturate(1.15);border:1px solid rgba(238,226,196,.14)}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>
