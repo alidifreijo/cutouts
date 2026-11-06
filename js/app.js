@@ -1205,9 +1205,9 @@ function renderEdit(){
   if(!isT&&!p.frag&&!p.g){
     const FI={shapes:'<svg class="i" viewBox="0 0 24 24"><path d="M4 20V11a8 8 0 0 1 16 0v9"/><path d="M10 20v-6a2 2 0 0 1 4 0v6"/></svg>',strips:'<svg class="i" viewBox="0 0 24 24"><path d="M5 4v16M10 4v16M15 4v16M20 4v16"/></svg>',letters:'<svg class="i" viewBox="0 0 24 24"><path d="M4 19l4-14 4 14M5.5 14h5"/><path d="M15 19V8h3a2.5 2.5 0 0 1 0 5h-3M15 13h3.5a3 3 0 0 1 0 6H15"/></svg>'};
     h+=`<div class="sec"><button class="sec-t sec-tog" data-do="cutsec" aria-expanded="${cutSecOpen}"><span class="st">Cut it into pieces</span><svg class="i"><use href="#i-down"/></svg></button>`+(cutSecOpen?`
-      <div class="row"><div class="segs">${[["shapes","Arches"],["strips","Strips"],["letters","Letters"]].map(([k,l])=>`<button data-fs="${k}" aria-pressed="${fragStyle===k}" aria-label="${l}" data-tip="${l.toLowerCase()}">${FI[k]}</button>`).join("")}</div>
-      <div class="stepper" aria-label="number of pieces"><button class="mini" data-fn="-1" aria-label="Fewer pieces"><svg class="i"><use href="#i-minus"/></svg></button><output id="o-fn">${fragN}</output><button class="mini" data-fn="1" aria-label="More pieces"><svg class="i"><use href="#i-plus"/></svg></button><span class="pcs">pieces</span></div></div>
-      <button class="btn" data-do="frag">Cut it up</button>`:"")+`
+      <div class="row cutrow"><div class="segs">${[["shapes","Arches"],["strips","Strips"],["letters","Letters"]].map(([k,l])=>`<button data-fs="${k}" aria-pressed="${fragStyle===k}" aria-label="${l}" data-tip="${l.toLowerCase()}">${FI[k]}</button>`).join("")}</div>
+      <div class="stepper" aria-label="number of pieces"><button class="mini" data-fn="-1" aria-label="Fewer pieces"><svg class="i"><use href="#i-minus"/></svg></button><output id="o-fn">${fragN}</output><button class="mini" data-fn="1" aria-label="More pieces"><svg class="i"><use href="#i-plus"/></svg></button></div></div>
+      <button class="btn cutup" data-do="frag"><svg class="i"><use href="#i-scissors"/></svg>Cut it up</button>`:"")+`
     </div>`;
   }
   el.innerHTML=h;

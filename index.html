@@ -1235,6 +1235,16 @@ ul.menu{background:rgba(16,34,40,.97)!important;-webkit-backdrop-filter:blur(22p
   #studio .dock>[id^=pane-]{min-height:0!important}
   #studio .dock .dock-scroll{padding-bottom:24px!important}
 }
+
+/* cut it into pieces: shape and count share one even row, the action spans the panel */
+.cutrow{display:flex;gap:8px;align-items:stretch}
+.cutrow .segs{flex:1;display:flex;padding:3px;border-radius:12px}
+.cutrow .segs button{flex:1;height:38px;border-radius:9px}
+.cutrow .stepper{flex:none;border-radius:12px;padding:3px;gap:0}
+.cutrow .stepper .mini{width:38px;height:38px;border-radius:9px}
+.cutrow .stepper output{min-width:26px;font-size:15px;font-weight:500;color:#f8f4ea}
+.btn.cutup{background:#f4f0e6!important;color:#1d3a3f!important;border:0;width:100%;justify-content:center;display:flex;align-items:center;gap:8px;margin-top:10px;height:44px;border-radius:12px}
+.btn.cutup svg.i{width:16px;height:16px}
 [hidden]{display:none!important}
 </style>
 <script src="js/vercel-queues.js"></script>
